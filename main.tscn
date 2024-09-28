@@ -1,0 +1,188 @@
+[gd_scene load_steps=2 format=3 uid="uid://bw2ejrh206k2k"]
+
+[sub_resource type="GDScript" id="GDScript_xjt66"]
+script/source = "# Copyright (c) 2024 Mansur Isaev and contributors - MIT License
+# See `LICENSE.md` included in the source distribution for details.
+
+extends PanelContainer
+
+
+const DictionaryDB: GDScript = preload(\"res://scripts/dictionary_database.gd\")
+
+const DatabaseCreateDialog: GDScript = preload(\"res://scripts/database_create_dialog.gd\")
+const DatabaseEditor: GDScript = preload(\"res://scripts/database_editor.gd\")
+const DatabaseLoadDialog: GDScript = preload(\"res://scripts/database_load_dialog.gd\")
+const DatabaseSaveDialog: GDScript = preload(\"res://scripts/database_save_dialog.gd\")
+
+
+signal database_changed(database: Dictionary[StringName, Variant])
+
+
+enum FileMenu {
+	NEW_FILE,
+	OPEN_FILE,
+	OPEN_RECENT,
+	SAVE_FILE,
+	SAVE_FILE_AS,
+	EXPORT_AS,
+	QUIT,
+}
+
+
+var _vbox: VBoxContainer = null
+
+var _menu_hbox: HBoxContainer = null
+var _file_menu: MenuButton = null
+var _edit_menu: MenuButton = null
+var _view_menu: MenuButton = null
+var _about_menu: MenuButton = null
+
+var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
+
+var _database_editor: DatabaseEditor = null
+var _database_create_dialog: DatabaseCreateDialog = null
+var _database_load_dialog: DatabaseLoadDialog = null
+var _database_save_fialog: DatabaseSaveDialog = null
+
+
+func _init() -> void:
+	_vbox = VBoxContainer.new()
+	self.add_child(_vbox)
+
+	_menu_hbox = HBoxContainer.new()
+	_vbox.add_child(_menu_hbox)
+
+	_file_menu = MenuButton.new()
+	_file_menu.set_text(\"File\")
+	_file_menu.set_switch_on_hover(true)
+	_menu_hbox.add_child(_file_menu)
+
+	var popup: PopupMenu = _file_menu.get_popup()
+	popup.add_item(\"New File\", FileMenu.NEW_FILE, KEY_N + KEY_MASK_CTRL)
+	popup.add_item(\"Open File\", FileMenu.OPEN_FILE, KEY_O + KEY_MASK_CTRL)
+
+	popup.add_item(\"Open Recent\", FileMenu.OPEN_RECENT)
+	popup.set_item_disabled(-1, true)
+
+	popup.add_separator()
+	popup.add_item(\"Save File\", FileMenu.SAVE_FILE, KEY_S + KEY_MASK_CTRL)
+	popup.set_item_disabled(-1, true)
+	popup.add_item(\"Save As…\", FileMenu.SAVE_FILE_AS, KEY_S + KEY_MASK_CTRL + KEY_MASK_SHIFT)
+	popup.set_item_disabled(-1, true)
+	popup.add_separator()
+	popup.add_item(\"Export As…\", FileMenu.EXPORT_AS, KEY_E + KEY_MASK_CTRL)
+	popup.set_item_disabled(-1, true)
+	popup.add_separator()
+	popup.add_item(\"Quit\", FileMenu.QUIT, KEY_Q + KEY_MASK_CTRL)
+	popup.id_pressed.connect(_on_file_menu_option)
+
+	_edit_menu = MenuButton.new()
+	_edit_menu.set_text(\"Edit\")
+	_edit_menu.set_disabled(true)
+	_edit_menu.set_switch_on_hover(true)
+	_menu_hbox.add_child(_edit_menu)
+
+	_view_menu = MenuButton.new()
+	_view_menu.set_text(\"View\")
+	_view_menu.set_disabled(true)
+	_view_menu.set_switch_on_hover(true)
+	_menu_hbox.add_child(_view_menu)
+
+	_about_menu = MenuButton.new()
+	_about_menu.set_text(\"About\")
+	_about_menu.set_disabled(true)
+	_about_menu.set_switch_on_hover(true)
+	_menu_hbox.add_child(_about_menu)
+
+	_database_editor = DatabaseEditor.new()
+	_database_editor.set_v_size_flags(Control.SIZE_EXPAND_FILL)
+	_vbox.add_child(_database_editor)
+
+	self.database_changed.connect(_database_editor.set_database)
+	self.database_changed.connect(_on_database_changed)
+
+
+func _enter_tree() -> void:
+	var window: Window = get_viewport()
+	window.set_min_size(Vector2i(540, 380))
+
+
+func set_database(database: Dictionary[StringName, Variant]) -> void:
+	if is_same(_database, database):
+		return
+
+	_database = database
+	database_changed.emit(database)
+
+func get_database() -> Dictionary[StringName, Variant]:
+	return _database
+
+
+func show_database_dialog_create() -> void:
+	if is_instance_valid(_database_create_dialog):
+		_database_create_dialog.queue_free()
+
+	_database_create_dialog = DatabaseCreateDialog.new()
+	_database_create_dialog.database_created.connect(set_database)
+	self.add_child(_database_create_dialog)
+
+	_database_create_dialog.popup_centered(Vector2i(300, 50))
+
+
+func show_open_file_dialog() -> void:
+	if is_instance_valid(_database_load_dialog):
+		_database_load_dialog.queue_free()
+
+	_database_load_dialog = DatabaseLoadDialog.new(_database)
+	_database_load_dialog.database_loaded.connect(set_database)
+	self.add_child(_database_load_dialog)
+
+	_database_load_dialog.popup_centered_clamped(Vector2i(640, 360))
+
+
+func show_database_save_fialog() -> void:
+	if is_instance_valid(_database_save_fialog):
+		_database_save_fialog.queue_free()
+
+	_database_save_fialog = DatabaseSaveDialog.new(_database)
+	self.add_child(_database_save_fialog)
+
+	_database_save_fialog.popup_centered_clamped(Vector2i(640, 360))
+
+
+func quit() -> void:
+	get_tree().quit()
+
+
+
+
+func _on_file_menu_option(option: FileMenu) -> void:
+	match option:
+		FileMenu.NEW_FILE:
+			show_database_dialog_create()
+		FileMenu.OPEN_FILE:
+			show_open_file_dialog()
+		FileMenu.OPEN_RECENT:
+			pass
+		FileMenu.SAVE_FILE:
+			pass
+		FileMenu.SAVE_FILE_AS:
+			show_database_save_fialog()
+		FileMenu.EXPORT_AS:
+			pass
+		FileMenu.QUIT:
+			quit()
+
+
+func _on_database_changed(database: Dictionary) -> void:
+	var popup: PopupMenu = _file_menu.get_popup()
+	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE_AS), database.is_read_only())
+"
+
+[node name="Control" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_xjt66")

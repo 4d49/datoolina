@@ -1,0 +1,11 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Godot auto generated files
+*.import
+
+# Visual Studio Code
+.vscode/
+
+# Binary files
+bin/

@@ -1,0 +1,6 @@
+[submodule "table-view"]
+	path = addons/table-view
+	url = https://github.com/4d49/table-view.git
+[submodule "object-inspector"]
+	path = addons/object-inspector
+	url = https://github.com/4d49/object-inspector.git
