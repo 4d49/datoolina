@@ -31,6 +31,7 @@ var _left_vbox: VBoxContainer = null
 var _tab_hbox: HBoxContainer = null
 var _tab_bar: TabBar = null
 var _new_tab: Button = null
+var _tab_list: MenuButton = null
 
 var _data_view_panel: PanelContainer = null
 var _data_view: DataTableView = null
@@ -74,6 +75,12 @@ func _init() -> void:
 	_new_tab.pressed.connect(show_create_table_dialog)
 	_tab_hbox.add_child(_new_tab)
 
+	_tab_list = MenuButton.new()
+	_tab_list.hide()
+	_tab_list.set_tooltip_text("Show list of all tables.")
+	_tab_list.get_popup().index_pressed.connect(_tab_bar.set_current_tab)
+	_tab_hbox.add_child(_tab_list)
+
 	_data_view_panel = PanelContainer.new()
 	_data_view_panel.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	_left_vbox.add_child(_data_view_panel)
@@ -101,6 +108,7 @@ func _init() -> void:
 
 func _enter_tree() -> void:
 	_new_tab.set_button_icon(get_theme_icon(&"add"))
+	_tab_list.set_button_icon(get_theme_icon(&"expand"))
 	_data_view_panel.add_theme_stylebox_override(&"panel", get_theme_stylebox(&"panel", &"TabContainer"))
 
 
@@ -112,13 +120,22 @@ func update_tabs(deselect: bool = true) -> void:
 		_tab_bar.set_tab_title(0, "<empty>")
 		_tab_bar.set_tab_disabled(0, true)
 		_tab_bar.set_tab_metadata(0, DictionaryDB.NULL_TABLE)
+
+		_tab_list.hide()
 	else:
 		_tab_bar.set_tab_count(tables.size())
+
+		var popup: PopupMenu = _tab_list.get_popup()
+		popup.set_item_count(tables.size())
 
 		for i: int in tables.size():
 			_tab_bar.set_tab_title(i, DictionaryDB.table_get_id(tables[i]))
 			_tab_bar.set_tab_disabled(i, false)
 			_tab_bar.set_tab_metadata(i, tables[i])
+
+			popup.set_item_text(i, DictionaryDB.table_get_id(tables[i]))
+
+		_tab_list.show()
 
 	if deselect:
 		_tab_bar.set_current_tab(0)
