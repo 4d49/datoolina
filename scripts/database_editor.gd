@@ -11,6 +11,7 @@ signal table_changed(table: Dictionary[StringName, Variant])
 const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 
 const DataTableView: GDScript = preload("res://scripts/data_table_view.gd")
+const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const TableCreateDialog: GDScript = preload("res://scripts/table_create_dialog.gd")
 const TableDeleteDialog: GDScript = preload("res://scripts/table_delete_dialog.gd")
 const TableEditDialog: GDScript = preload("res://scripts/table_edit_dialog.gd")
@@ -37,6 +38,8 @@ var _table_view: TableView = null
 
 var _inspector_container: TabContainer = null
 var _inspector: Inspector = null
+
+var _record_rename_dialog: RecordRenameDialog = null
 
 var _database := DictionaryDB.NULL_DATABASE
 
@@ -170,6 +173,18 @@ func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	delete_table.popup_centered(Vector2i(300, 50))
 
 
+func show_record_rename_dialog(record: Dictionary[StringName, Variant]) -> RecordRenameDialog:
+	if is_instance_valid(_record_rename_dialog):
+		_record_rename_dialog.queue_free()
+
+	if record.is_read_only():
+		return
+
+	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), record)
+	self.add_child(_record_rename_dialog)
+
+	_record_rename_dialog.popup_centered(Vector2i(300, 50))
+	return _record_rename_dialog
 
 
 func _on_database_changed(database: Dictionary[StringName, Variant]) -> void:
