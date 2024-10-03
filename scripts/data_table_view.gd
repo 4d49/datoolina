@@ -34,7 +34,7 @@ var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
 
 func _init() -> void:
 	_filter_line = LineEdit.new()
-	_filter_line.set_placeholder("Filter Rows")
+	_filter_line.set_placeholder("Filter Records")
 	_filter_line.set_clear_button_enabled(true)
 	_filter_line.text_changed.connect(_on_filter_line_text_changed)
 	self.add_child(_filter_line)
