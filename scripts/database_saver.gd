@@ -12,6 +12,7 @@ static var _format_handlers: Array[Dictionary] = []
 
 static func _static_init() -> void:
 	add_format_saver("cfg", "Config File", _database_save_cfg)
+	add_format_saver("json", "JSON File", _database_save_json)
 
 
 static func default_handler(extension: String) -> Callable:
@@ -60,23 +61,23 @@ static func save_database(database: Dictionary[StringName, Variant], path: Strin
 
 
 
-static func _cfg_serialize_record(record: Dictionary[StringName, Variant]) -> Dictionary:
+static func _serialize_record(record: Dictionary[StringName, Variant]) -> Dictionary:
 	var serialized: Dictionary = {}
 
 	for key: String in record:
 		serialized[key] = record[key]
 
 	return serialized
-static func _cfg_serialize_records(records: Array[Dictionary]) -> Array:
+static func _serialize_records(records: Array[Dictionary]) -> Array:
 	var serialized: Array = []
 	serialized.resize(records.size())
 
 	for i: int in records.size():
-		serialized[i] = _cfg_serialize_record(records[i])
+		serialized[i] = _serialize_record(records[i])
 
 	return serialized
 
-static func _cfg_serialize_column(column: Dictionary[StringName, Variant]) -> Dictionary:
+static func _serialize_column(column: Dictionary[StringName, Variant]) -> Dictionary:
 	return {
 		"id": DictionaryDB.column_get_id(column),
 		"type": DictionaryDB.column_get_type(column),
@@ -84,37 +85,53 @@ static func _cfg_serialize_column(column: Dictionary[StringName, Variant]) -> Di
 		"hint": DictionaryDB.column_get_hint(column),
 		"hint_string": DictionaryDB.column_get_hint_string(column),
 	}
-static func _cfg_serialize_columns(columns: Array[Dictionary]) -> Array:
+static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 	var serialized: Array = []
 	serialized.resize(columns.size())
 
 	for i: int in columns.size():
-		serialized[i] = _cfg_serialize_column(columns[i])
+		serialized[i] = _serialize_column(columns[i])
 
 	return serialized
 
-static func _cfg_serialize_table(table: Dictionary[StringName, Variant]) -> Dictionary:
+static func _serialize_table(table: Dictionary) -> Dictionary:
 	return {
 		"id": DictionaryDB.table_get_id(table),
-		"columns": _cfg_serialize_columns(DictionaryDB.table_get_columns(table)),
-		"records": _cfg_serialize_records(DictionaryDB.table_get_records(table)),
+		"columns": _serialize_columns(DictionaryDB.table_get_columns(table)),
+		"records": _serialize_records(DictionaryDB.table_get_records(table)),
 	}
-static func _cfg_serialize_tables(tables: Array[Dictionary]) -> Array:
+static func _serialize_tables(tables: Array[Dictionary]) -> Array:
 	var serialized: Array = []
 	serialized.resize(tables.size())
 
 	for i: int in tables.size():
-		serialized[i] = _cfg_serialize_table(tables[i])
+		serialized[i] = _serialize_table(tables[i])
 
 	return serialized
 
-static func _database_save_cfg(database: Dictionary, path: String) -> Error:
-	var serialized: Dictionary = {
+static func _serialize_database(database: Dictionary) -> Dictionary:
+	return {
 		"id": DictionaryDB.database_get_id(database),
-		"tables": _cfg_serialize_tables(DictionaryDB.database_get_tables(database)),
+		"tables": _serialize_tables(DictionaryDB.database_get_tables(database)),
 	}
+
+static func _database_save_cfg(database: Dictionary, path: String) -> Error:
+	var serialized: Dictionary = _serialize_database(database)
 
 	var config := ConfigFile.new()
 	config.set_value("", "database", serialized)
 
 	return config.save(path)
+
+
+static func _database_save_json(database: Dictionary, path: String) -> Error:
+	var serialized: Dictionary = _serialize_database(database)
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+
+	file.store_string(JSON.stringify(serialized, "\t"))
+	file.close()
+
+	return OK

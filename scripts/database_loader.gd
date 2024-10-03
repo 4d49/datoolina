@@ -12,6 +12,7 @@ static var _format_handlers: Array[Dictionary] = []
 
 static func _static_init() -> void:
 	add_format_loader("cfg", "Config File", _database_load_cfg)
+	add_format_loader("json", "JSON File", _database_load_json)
 
 
 static func default_handler(extension: String) -> Callable:
@@ -60,13 +61,7 @@ static func load_database(path: String) -> Dictionary[StringName, Variant]:
 
 
 
-static func _database_load_cfg(path: String) -> Dictionary[StringName, Variant]:
-	var config := ConfigFile.new()
-	if config.load(path):
-		return DictionaryDB.NULL_DATABASE
-
-	var data: Dictionary = config.get_value("", "database", DictionaryDB.NULL_DATABASE)
-
+static func _deserialize_database(data: Dictionary) -> Dictionary[StringName, Variant]:
 	var database: Dictionary[StringName, Variant] = DictionaryDB.create_database(data.id)
 
 	for t: Dictionary in data.tables:
@@ -82,3 +77,25 @@ static func _database_load_cfg(path: String) -> Dictionary[StringName, Variant]:
 				record[key] = r[key]
 
 	return database
+
+static func _database_load_cfg(path: String) -> Dictionary[StringName, Variant]:
+	var config := ConfigFile.new()
+	if config.load(path):
+		return DictionaryDB.NULL_DATABASE
+
+	var data: Dictionary = config.get_value("", "database", DictionaryDB.NULL_DATABASE)
+	return _deserialize_database(data)
+
+
+static func _database_load_json(path: String) -> Dictionary[StringName, Variant]:
+	var file_as_string: String = FileAccess.get_file_as_string(path)
+	if file_as_string.is_empty():
+		return DictionaryDB.NULL_DATABASE
+
+	var json := JSON.new()
+
+	var data: Variant = json.parse_string(file_as_string)
+	if data == null:
+		return DictionaryDB.NULL_DATABASE
+
+	return _deserialize_database(data)
