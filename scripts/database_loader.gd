@@ -12,6 +12,7 @@ static var _format_handlers: Array[Dictionary] = []
 
 static func _static_init() -> void:
 	add_format_loader("cfg", "Config File", _database_load_cfg)
+	add_format_loader("json", "JSON File", _database_load_json)
 
 
 static func default_handler(extension: String) -> Callable:
