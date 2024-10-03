@@ -121,3 +121,16 @@ static func _database_save_cfg(database: Dictionary, path: String) -> Error:
 	config.set_value("", "database", serialized)
 
 	return config.save(path)
+
+
+static func _database_save_json(database: Dictionary, path: String) -> Error:
+	var serialized: Dictionary = _serialize_database(database)
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+
+	file.store_string(JSON.stringify(serialized, "\t"))
+	file.close()
+
+	return OK
