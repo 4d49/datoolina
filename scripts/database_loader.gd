@@ -84,3 +84,17 @@ static func _database_load_cfg(path: String) -> Dictionary[StringName, Variant]:
 
 	var data: Dictionary = config.get_value("", "database", DictionaryDB.NULL_DATABASE)
 	return _deserialize_database(data)
+
+
+static func _database_load_json(path: String) -> Dictionary[StringName, Variant]:
+	var file_as_string: String = FileAccess.get_file_as_string(path)
+	if file_as_string.is_empty():
+		return DictionaryDB.NULL_DATABASE
+
+	var json := JSON.new()
+
+	var data: Variant = json.parse_string(file_as_string)
+	if data == null:
+		return DictionaryDB.NULL_DATABASE
+
+	return _deserialize_database(data)
