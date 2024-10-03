@@ -8,6 +8,7 @@ const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
+const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
 
 
 signal table_changed(table: Dictionary[StringName, Variant])
@@ -28,6 +29,7 @@ var _create_btn: Button = null
 
 var _record_delete_dialog: RecordDeleteDialog = null
 var _record_rename_dialog: RecordRenameDialog = null
+var _records_delete_dialog: RecordsDeleteDialog = null
 
 var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
 
