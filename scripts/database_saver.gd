@@ -12,6 +12,7 @@ static var _format_handlers: Array[Dictionary] = []
 
 static func _static_init() -> void:
 	add_format_saver("cfg", "Config File", _database_save_cfg)
+	add_format_saver("json", "JSON File", _database_save_json)
 
 
 static func default_handler(extension: String) -> Callable:
