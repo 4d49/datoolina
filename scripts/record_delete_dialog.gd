@@ -20,7 +20,7 @@ func _init(table: Dictionary, record: Dictionary) -> void:
 
 	self.set_title("Delete Record")
 	self.set_flag(Window.FLAG_RESIZE_DISABLED, true)
-	self.set_text("Are you sure you want to delete this table?")
+	self.set_text("Are you sure you want to delete this record?")
 	self.set_ok_button_text("Delete")
 	self.set_cancel_button_text("Cancel")
 

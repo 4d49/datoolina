@@ -8,6 +8,7 @@ const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
+const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
 
 
 signal table_changed(table: Dictionary[StringName, Variant])
@@ -28,19 +29,21 @@ var _create_btn: Button = null
 
 var _record_delete_dialog: RecordDeleteDialog = null
 var _record_rename_dialog: RecordRenameDialog = null
+var _records_delete_dialog: RecordsDeleteDialog = null
 
 var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
 
 
 func _init() -> void:
 	_filter_line = LineEdit.new()
-	_filter_line.set_placeholder("Filter Rows")
+	_filter_line.set_placeholder("Filter Records")
 	_filter_line.set_clear_button_enabled(true)
 	_filter_line.text_changed.connect(_on_filter_line_text_changed)
 	self.add_child(_filter_line)
 
 	_table_view = TableView.new()
 	_table_view.set_editable(false)
+	_table_view.set_select_mode(TableView.SelectMode.MULTI_ROW)
 	_table_view.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	_table_view.get_or_create_column_context_menu()
 	_table_view.row_rmb_clicked.connect(_on_row_rmb_clicked)
@@ -144,6 +147,22 @@ func show_record_delete_dialog(record: Dictionary, row_idx: int) -> void:
 
 	_record_delete_dialog.popup_centered(Vector2i(300, 50))
 
+func show_records_delete_dialog(records: Array[Dictionary], selected_rows: PackedInt32Array) -> RecordsDeleteDialog:
+	if is_instance_valid(_records_delete_dialog):
+		_records_delete_dialog.queue_free()
+
+	_records_delete_dialog = RecordsDeleteDialog.new(_table, records)
+	_records_delete_dialog.records_deleted.connect(func on_records_deleted() -> void:
+		selected_rows.reverse()
+
+		for i: int in selected_rows:
+			_table_view.remove_row(i)
+	)
+	self.add_child(_records_delete_dialog)
+
+	_records_delete_dialog.popup_centered_ratio(0.25)
+	return _records_delete_dialog
+
 
 
 
@@ -162,20 +181,45 @@ func _on_create_pressed() -> void:
 
 
 func _on_row_rmb_clicked(row_idx: int) -> void:
-	var record: Dictionary = _table_view.get_row_metadata(row_idx)
-	if record.is_read_only():
+	var selected_row: PackedInt32Array = _table_view.get_selected_rows()
+
+	if selected_row.is_empty():
 		return
 
-	var popup := PopupMenu.new()
-	popup.add_item("Rename", RowContextMenu.RENAME)
-	popup.add_item("Delete", RowContextMenu.DELETE, KEY_DELETE)
-	popup.id_pressed.connect(func on_id_pressed(option: RowContextMenu) -> void:
-		match option:
-			RowContextMenu.RENAME:
-				show_record_rename_dialog(record)
-			RowContextMenu.DELETE:
-				show_record_delete_dialog(record, row_idx)
-	)
-	self.add_child(popup)
+	elif selected_row.size() == 1:
+		var record: Dictionary = _table_view.get_row_metadata(row_idx)
+		if record.is_read_only():
+			return
 
-	popup.popup(Rect2i(get_screen_transform() * get_local_mouse_position(), Vector2i.ZERO))
+		var popup := PopupMenu.new()
+		popup.add_item("Rename", RowContextMenu.RENAME)
+		popup.add_item("Delete", RowContextMenu.DELETE)
+		popup.id_pressed.connect(func on_id_pressed(option: RowContextMenu) -> void:
+			match option:
+				RowContextMenu.RENAME:
+					show_record_rename_dialog(record)
+				RowContextMenu.DELETE:
+					show_record_delete_dialog(record, row_idx)
+		)
+		popup.focus_exited.connect(popup.queue_free)
+		self.add_child(popup)
+
+		popup.popup(Rect2i(get_screen_transform() * get_local_mouse_position(), Vector2i.ZERO))
+
+	else:
+		var records: Array[Dictionary] = []
+		records.resize(selected_row.size())
+
+		for i: int in selected_row.size():
+			records[i] = _table_view.get_row_metadata(selected_row[i])
+
+		var popup := PopupMenu.new()
+		popup.add_item("Delete", RowContextMenu.DELETE)
+		popup.id_pressed.connect(func on_id_pressed(option: RowContextMenu) -> void:
+			if option == RowContextMenu.DELETE:
+				show_records_delete_dialog(records, selected_row)
+		)
+		popup.focus_exited.connect(popup.queue_free)
+		self.add_child(popup)
+
+		popup.popup(Rect2i(get_screen_transform() * get_local_mouse_position(), Vector2i.ZERO))
