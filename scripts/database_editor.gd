@@ -11,6 +11,7 @@ signal table_changed(table: Dictionary[StringName, Variant])
 const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 
 const DataTableView: GDScript = preload("res://scripts/data_table_view.gd")
+const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const TableCreateDialog: GDScript = preload("res://scripts/table_create_dialog.gd")
 const TableDeleteDialog: GDScript = preload("res://scripts/table_delete_dialog.gd")
 const TableEditDialog: GDScript = preload("res://scripts/table_edit_dialog.gd")
@@ -37,6 +38,8 @@ var _table_view: TableView = null
 
 var _inspector_container: TabContainer = null
 var _inspector: Inspector = null
+
+var _record_rename_dialog: RecordRenameDialog = null
 
 var _database := DictionaryDB.NULL_DATABASE
 
@@ -81,7 +84,7 @@ func _init() -> void:
 	_data_view_panel.add_child(_data_view)
 
 	_table_view = _data_view.get_table_view()
-	_table_view.row_selected.connect(_on_table_view_row_selected)
+	_table_view.cell_double_clicked.connect(_on_cell_double_clicked)
 
 	_inspector_container = TabContainer.new()
 	_inspector_container.set_h_size_flags(Control.SIZE_EXPAND_FILL)
@@ -170,6 +173,18 @@ func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	delete_table.popup_centered(Vector2i(300, 50))
 
 
+func show_record_rename_dialog(record: Dictionary[StringName, Variant]) -> RecordRenameDialog:
+	if is_instance_valid(_record_rename_dialog):
+		_record_rename_dialog.queue_free()
+
+	if record.is_read_only():
+		return
+
+	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), record)
+	self.add_child(_record_rename_dialog)
+
+	_record_rename_dialog.popup_centered(Vector2i(300, 50))
+	return _record_rename_dialog
 
 
 func _on_database_changed(database: Dictionary[StringName, Variant]) -> void:
@@ -245,9 +260,7 @@ static func create_table_view_cell_setter(table_view: TableView, row_idx: int, c
 
 		table_view.queue_redraw()
 
-func _on_table_view_row_selected(row_idx: int) -> void:
-	var record: Dictionary = _table_view.get_row_metadata(row_idx)
-
+func create_property_helper_for_record(record: Dictionary, row_idx: int) -> PropertyHelper:
 	var property_helper := PropertyHelper.new()
 
 	property_helper.add_category("Record Editor")
@@ -285,4 +298,18 @@ func _on_table_view_row_selected(row_idx: int) -> void:
 
 		column_idx += 1
 
-	_inspector.set_object(property_helper)
+	return property_helper
+
+func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
+	const COLUMN_ID: int = 0
+
+	var record: Dictionary = _table_view.get_row_metadata(row_idx)
+
+	if column_idx == COLUMN_ID:
+		var record_rename := show_record_rename_dialog(record)
+		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
+			_table_view.set_cell_value(row_idx, COLUMN_ID, id)
+		)
+	else:
+		var property_helper := create_property_helper_for_record(record, row_idx)
+		_inspector.set_object(property_helper)

@@ -29,7 +29,7 @@ func _init(table: Dictionary[StringName, Variant], record: Dictionary[StringName
 
 	_line_edit = LineEdit.new()
 	_line_edit.set_text(DictionaryDB.record_get_id(record))
-	_line_edit.set_placeholder("Column ID")
+	_line_edit.set_placeholder("Record ID")
 	_line_edit.text_changed.connect(_on_id_changed)
 	self.add_child(_line_edit)
 
