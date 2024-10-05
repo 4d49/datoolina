@@ -102,7 +102,11 @@ func is_valid_id(id: StringName) -> bool:
 	return DictionaryDB.is_valid_id(id)
 
 func has_column_id(id: StringName) -> bool:
-	return DictionaryDB.table_has_column_id(_table, id)
+	for buffer: Dictionary in _edit_buffer:
+		if buffer.id == id and buffer.flag != FLAG_REMOVED:
+			return true
+
+	return false
 
 
 static func create_edit_buffer(
