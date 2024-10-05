@@ -46,6 +46,7 @@ func _init() -> void:
 	_table_view.set_select_mode(TableView.SelectMode.MULTI_ROW)
 	_table_view.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	_table_view.get_or_create_column_context_menu()
+	_table_view.add_user_signal(&"table_changed")
 	_table_view.row_rmb_clicked.connect(_on_row_rmb_clicked)
 	self.add_child(_table_view)
 
@@ -104,6 +105,7 @@ func update_table() -> void:
 			_table_view.set_cell_value_no_update(i, j, record[columns[j - 1][&"id"]])
 
 	_table_view.update_table(true)
+	_table_view.emit_signal(&"table_changed")
 
 
 func set_table(table: Dictionary[StringName, Variant]) -> void:
@@ -170,6 +172,7 @@ func show_records_delete_dialog(records: Array[Dictionary], selected_rows: Packe
 func _on_filter_line_text_changed(text: String) -> void:
 	var callable: Callable = text.is_subsequence_ofn
 	_table_view.filter_rows_by_callable(0, callable)
+	_table_view.emit_signal(&"table_changed")
 
 func _on_record_id_text_changed(id: StringName) -> void:
 	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
