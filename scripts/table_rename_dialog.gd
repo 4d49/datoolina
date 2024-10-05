@@ -29,6 +29,7 @@ func _init(database: Dictionary, table: Dictionary) -> void:
 
 	_line_edit = LineEdit.new()
 	_line_edit.set_text(DictionaryDB.table_get_id(table))
+	_line_edit.set_clear_button_enabled(true)
 	_line_edit.text_changed.connect(_on_id_changed)
 	self.add_child(_line_edit)
 

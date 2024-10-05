@@ -29,6 +29,7 @@ func _init(database: Dictionary[StringName, Variant]) -> void:
 	_line_edit.set_text("new_table")
 	_line_edit.select_all()
 	_line_edit.set_placeholder("Table ID")
+	_line_edit.set_clear_button_enabled(true)
 	_line_edit.call_deferred(&"grab_focus")
 	_line_edit.text_changed.connect(_on_line_edit_id_changed)
 	self.register_text_enter(_line_edit)
