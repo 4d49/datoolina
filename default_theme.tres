@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=79 format=3 uid="uid://o58l8xuisyad"]
+[gd_resource type="Theme" load_steps=80 format=3 uid="uid://o58l8xuisyad"]
 
 [ext_resource type="FontFile" uid="uid://d231p5iw4l08f" path="res://fonts/inter_bold.woff2" id="1_dnts3"]
 [ext_resource type="Texture2D" uid="uid://gmn7nudrv4s6" path="res://addons/object-inspector/icons/collapsed.svg" id="1_hpca1"]
@@ -289,6 +289,12 @@ grow_begin = 11.0
 grow_end = 11.0
 
 [sub_resource type="StyleBoxEmpty" id="style_box_empty_without_margin"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ekqgp"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4vy76"]
 content_margin_left = 8.0
@@ -655,6 +661,9 @@ PopupMenu/styles/panel = SubResource("StyleBoxFlat_bwfhn")
 PopupMenu/styles/separator = SubResource("StyleBoxLine_jaup4")
 ScrollContainer/styles/panel = SubResource("style_box_empty_without_margin")
 SplitContainer/constants/separation = 8
+StatusBar/base_type = &"Label"
+StatusBar/colors/font_color = Color(0.804, 0.812, 0.824, 0.5)
+StatusBar/styles/normal = SubResource("StyleBoxEmpty_ekqgp")
 TabBar/colors/drop_mark_color = Color(0.358875, 0.5805, 0.774875, 1)
 TabBar/colors/font_hovered_color = Color(0.8025, 0.81, 0.8225, 1)
 TabBar/colors/font_outline_color = Color(0, 0, 0, 0)

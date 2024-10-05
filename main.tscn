@@ -40,6 +40,10 @@ var _about_menu: MenuButton = null
 var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
 
 var _database_editor: DatabaseEditor = null
+var _table_view: TableView = null
+
+var _status_bar: Label = null
+
 var _database_create_dialog: DatabaseCreateDialog = null
 var _database_load_dialog: DatabaseLoadDialog = null
 var _database_save_fialog: DatabaseSaveDialog = null
@@ -98,6 +102,15 @@ func _init() -> void:
 	_database_editor.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	_vbox.add_child(_database_editor)
 
+	_table_view = _database_editor.get_table_view()
+	_table_view.multiple_rows_selected.connect(_on_table_view_multiple_rows_selected)
+	_table_view.connect(&\"table_changed\", _on_table_view_changed)
+
+	_status_bar = Label.new()
+	_status_bar.set_theme_type_variation(&\"StatusBar\")
+	_status_bar.set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER)
+	_vbox.add_child(_status_bar)
+
 	self.database_changed.connect(_database_editor.set_database)
 	self.database_changed.connect(_on_database_changed)
 
@@ -150,6 +163,10 @@ func show_database_save_fialog() -> void:
 	_database_save_fialog.popup_centered_clamped(Vector2i(640, 360))
 
 
+func set_status(status: String) -> void:
+	_status_bar.set_text(status)
+
+
 func quit() -> void:
 	get_tree().quit()
 
@@ -177,6 +194,25 @@ func _on_file_menu_option(option: FileMenu) -> void:
 func _on_database_changed(database: Dictionary) -> void:
 	var popup: PopupMenu = _file_menu.get_popup()
 	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE_AS), database.is_read_only())
+
+
+
+func _update_status(row_count: int, visible_row_count: int, selected_row_count: int) -> void:
+	var status: String = \"Records: %d\" % row_count
+
+	if visible_row_count != row_count:
+		status += \", %d visible\" % visible_row_count
+
+	if selected_row_count:
+		status += \", %d selected\" % selected_row_count
+
+	set_status(status)
+
+func _on_table_view_multiple_rows_selected(selected_rows: PackedInt32Array) -> void:
+	_update_status(_table_view.get_row_count(), _table_view.get_visible_rows_count(), selected_rows.size())
+
+func _on_table_view_changed() -> void:
+	_update_status(_table_view.get_row_count(), _table_view.get_visible_rows_count(), _table_view.get_selected_rows_count())
 "
 
 [node name="Control" type="PanelContainer"]
