@@ -25,6 +25,7 @@ func _init() -> void:
 	_line_edit.set_text("new_database")
 	_line_edit.select_all()
 	_line_edit.set_placeholder("Database ID")
+	_line_edit.set_clear_button_enabled(true)
 	_line_edit.call_deferred(&"grab_focus")
 	_line_edit.text_changed.connect(_on_line_edit_text_changed)
 	self.register_text_enter(_line_edit)

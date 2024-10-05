@@ -79,6 +79,7 @@ func _init(table: Dictionary[StringName, Variant]) -> void:
 
 	_column_id = LineEdit.new()
 	_column_id.set_placeholder("Column ID")
+	_column_id.set_clear_button_enabled(true)
 	_column_id.set_h_size_flags(Control.SIZE_EXPAND_FILL)
 	_column_id.text_changed.connect(_on_column_id_changed)
 	_bottom_hbox.add_child(_column_id)

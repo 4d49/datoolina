@@ -55,6 +55,7 @@ func _init() -> void:
 	_record_id = LineEdit.new()
 	_record_id.set_editable(false)
 	_record_id.set_placeholder("Record ID")
+	_record_id.set_clear_button_enabled(true)
 	_record_id.set_h_size_flags(Control.SIZE_EXPAND_FILL)
 	_record_id.text_changed.connect(_on_record_id_text_changed)
 	_bottom_container.add_child(_record_id)

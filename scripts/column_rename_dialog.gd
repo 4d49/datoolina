@@ -28,6 +28,7 @@ func _init(table: Dictionary[StringName, Variant], current_column_id: String) ->
 	_line_edit = LineEdit.new()
 	_line_edit.set_text(current_column_id)
 	_line_edit.set_placeholder("Column ID")
+	_line_edit.set_clear_button_enabled(true)
 	_line_edit.text_changed.connect(_on_id_changed)
 	self.add_child(_line_edit)
 
