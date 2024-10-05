@@ -267,7 +267,11 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		else:
 			var remove_dialog := show_column_remove_dialog()
 			remove_dialog.column_removed.connect(func on_column_removed() -> void:
-				buffer.flag = FLAG_REMOVED
+				if buffer.flag & FLAG_CREATED:
+					_edit_buffer.erase(buffer)
+				else:
+					buffer.flag = FLAG_REMOVED
+
 				update_table_rows()
 			)
 	)
