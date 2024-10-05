@@ -244,7 +244,7 @@ func _on_column_id_changed(column_id: StringName) -> void:
 
 func _on_create_column_pressed() -> void:
 	var buffer: Dictionary[StringName, Variant] = create_edit_buffer(_column_id.get_text(), TYPE_BOOL, false)
-	buffer.flag |= FLAG_CREATED
+	buffer.flag = FLAG_CREATED
 
 	_edit_buffer.push_back(buffer)
 	update_table_rows()
