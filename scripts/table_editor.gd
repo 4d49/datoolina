@@ -219,20 +219,16 @@ func apply_changed() -> void:
 		var buffer: Dictionary = queue_buffer[i]
 
 		if buffer.flag & FLAG_REMOVED:
-			DictionaryDB.table_remove_column_at(table, i)
-			continue
+			DictionaryDB.table_remove_column_by_id(table, buffer.id)
 		elif buffer.flag & FLAG_CREATED:
-			var column: Dictionary = DictionaryDB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
-			continue
-
-		if buffer.flag & FLAG_CHANGE_ID:
-			DictionaryDB.table_set_column_id(table, i, buffer.id)
-
-		if buffer.flag & FLAG_CHANGE_TYPE:
-			DictionaryDB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
-
-		if buffer.flag & FLAG_CHANGE_VALUE:
-			DictionaryDB.column_set_default_value(columns[i], buffer.value)
+			DictionaryDB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
+		else:
+			if buffer.flag & FLAG_CHANGE_ID:
+				DictionaryDB.table_set_column_id(table, i, buffer.id)
+			if buffer.flag & FLAG_CHANGE_TYPE:
+				DictionaryDB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
+			if buffer.flag & FLAG_CHANGE_VALUE:
+				DictionaryDB.column_set_default_value(columns[i], buffer.value)
 
 
 
