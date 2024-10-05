@@ -107,6 +107,7 @@ func _init() -> void:
 	_table_view.connect(&\"table_changed\", _on_table_view_changed)
 
 	_status_bar = Label.new()
+	_status_bar.set_theme_type_variation(&\"StatusBar\")
 	_status_bar.set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER)
 	_vbox.add_child(_status_bar)
 
