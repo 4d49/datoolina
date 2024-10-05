@@ -112,6 +112,10 @@ func _enter_tree() -> void:
 	_data_view_panel.add_theme_stylebox_override(&"panel", get_theme_stylebox(&"panel", &"TabContainer"))
 
 
+func get_table_view() -> TableView:
+	return _table_view
+
+
 func update_tabs(deselect: bool = true) -> void:
 	var tables: Array[Dictionary] = DictionaryDB.database_get_tables(_database)
 
