@@ -400,6 +400,10 @@ static func table_remove_column_by_id(table: Dictionary, column_id: StringName) 
 	return false
 
 
+static func table_erase_column(table: Dictionary, column: Dictionary) -> bool:
+	return table_remove_column_by_id(table, column_get_id(column))
+
+
 static func table_get_column_at(table: Dictionary, column_index: int) -> Dictionary[StringName, Variant]:
 	return table_get_columns(table)[column_index]
 

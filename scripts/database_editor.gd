@@ -14,7 +14,7 @@ const DataTableView: GDScript = preload("res://scripts/data_table_view.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const TableCreateDialog: GDScript = preload("res://scripts/table_create_dialog.gd")
 const TableDeleteDialog: GDScript = preload("res://scripts/table_delete_dialog.gd")
-const TableEditDialog: GDScript = preload("res://scripts/table_edit_dialog.gd")
+const TableEditorDialog: GDScript = preload("res://scripts/table_editor_dialog.gd")
 const TableRenameDialog: GDScript = preload("res://scripts/table_rename_dialog.gd")
 
 
@@ -165,14 +165,14 @@ func show_create_table_dialog() -> void:
 
 
 func show_edit_table_dialog(table: Dictionary[StringName, Variant]) -> void:
-	var table_edit: TableEditDialog = TableEditDialog.new(table)
-	table_edit.confirmed.connect(update_table)
-	self.add_child(table_edit)
+	var table_editor: TableEditorDialog = TableEditorDialog.new(table)
+	table_editor.confirmed.connect(update_table)
+	self.add_child(table_editor)
 
-	table_edit.popup_centered(Vector2i(500, 300))
+	table_editor.popup_centered(Vector2i(500, 300))
 
-	table_edit.set_transient(true)
-	table_edit.set_transient_to_focused(true)
+	table_editor.set_transient(true)
+	table_editor.set_transient_to_focused(true)
 
 
 func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:

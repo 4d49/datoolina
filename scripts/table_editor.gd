@@ -1,7 +1,7 @@
 # Copyright (c) 2024 Mansur Isaev and contributors - MIT License
 # See `LICENSE.md` included in the source distribution for details.
 
-extends ConfirmationDialog
+extends VBoxContainer
 
 
 const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
@@ -41,8 +41,6 @@ enum {
 }
 
 
-var _vbox: VBoxContainer = null
-
 var _filter_line: LineEdit = null
 var _table_view: TableView = null
 var _column_context_menu: PopupMenu = null
@@ -59,23 +57,14 @@ var _edit_buffer: Array[Dictionary] = []
 
 
 func _init(table: Dictionary[StringName, Variant]) -> void:
-	self.set_title("Edit Table")
-	self.set_min_size(Vector2i(500, 300))
-
-	var ok_button := get_ok_button()
-	ok_button.set_text("Apply")
-
 	_table = table
 	update_temp_params(table)
-
-	_vbox = VBoxContainer.new()
-	self.add_child(_vbox)
 
 	_filter_line = LineEdit.new()
 	_filter_line.set_placeholder("Filter Columns")
 	_filter_line.set_clear_button_enabled(true)
 	_filter_line.text_changed.connect(_on_filter_line_text_changed)
-	_vbox.add_child(_filter_line)
+	self.add_child(_filter_line)
 
 	_table_view = TableView.new()
 	_table_view.set_theme(preload("res://addons/table-view/resources/table_view.tres"))
@@ -83,10 +72,10 @@ func _init(table: Dictionary[StringName, Variant]) -> void:
 	_table_view.row_rmb_clicked.connect(_on_row_rmb_clicked)
 	_table_view.cell_value_changed.connect(_on_table_cell_value_changed)
 	_table_view.cell_double_clicked.connect(_on_cell_double_clicked)
-	_vbox.add_child(_table_view)
+	self.add_child(_table_view)
 
 	_bottom_hbox = HBoxContainer.new()
-	_vbox.add_child(_bottom_hbox)
+	self.add_child(_bottom_hbox)
 
 	_column_id = LineEdit.new()
 	_column_id.set_placeholder("Column ID")
@@ -101,8 +90,6 @@ func _init(table: Dictionary[StringName, Variant]) -> void:
 	_create_column.pressed.connect(_on_create_column_pressed)
 	_bottom_hbox.add_child(_create_column)
 
-	self.confirmed.connect(apply_changed)
-
 	update_table()
 
 
@@ -115,7 +102,11 @@ func is_valid_id(id: StringName) -> bool:
 	return DictionaryDB.is_valid_id(id)
 
 func has_column_id(id: StringName) -> bool:
-	return DictionaryDB.table_has_column_id(_table, id)
+	for buffer: Dictionary in _edit_buffer:
+		if buffer.id == id and buffer.flag != FLAG_REMOVED:
+			return true
+
+	return false
 
 
 static func create_edit_buffer(
@@ -228,22 +219,16 @@ func apply_changed() -> void:
 		var buffer: Dictionary = queue_buffer[i]
 
 		if buffer.flag & FLAG_REMOVED:
-			DictionaryDB.table_remove_column_at(table, i)
-			continue
+			DictionaryDB.table_remove_column_by_id(table, buffer.id)
 		elif buffer.flag & FLAG_CREATED:
-			var column: Dictionary = DictionaryDB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
-			continue
-
-		if buffer.flag & FLAG_CHANGE_ID:
-			DictionaryDB.table_set_column_id(table, i, buffer.id)
-
-		if buffer.flag & FLAG_CHANGE_TYPE:
-			DictionaryDB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
-
-		if buffer.flag & FLAG_CHANGE_VALUE:
-			DictionaryDB.column_set_default_value(columns[i], buffer.value)
-
-	queue_free()
+			DictionaryDB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
+		else:
+			if buffer.flag & FLAG_CHANGE_ID:
+				DictionaryDB.table_set_column_id(table, i, buffer.id)
+			if buffer.flag & FLAG_CHANGE_TYPE:
+				DictionaryDB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
+			if buffer.flag & FLAG_CHANGE_VALUE:
+				DictionaryDB.column_set_default_value(columns[i], buffer.value)
 
 
 
@@ -259,7 +244,7 @@ func _on_column_id_changed(column_id: StringName) -> void:
 
 func _on_create_column_pressed() -> void:
 	var buffer: Dictionary[StringName, Variant] = create_edit_buffer(_column_id.get_text(), TYPE_BOOL, false)
-	buffer.flag |= FLAG_CREATED
+	buffer.flag = FLAG_CREATED
 
 	_edit_buffer.push_back(buffer)
 	update_table_rows()
@@ -282,13 +267,17 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		else:
 			var remove_dialog := show_column_remove_dialog()
 			remove_dialog.column_removed.connect(func on_column_removed() -> void:
-				buffer.flag = FLAG_REMOVED
+				if buffer.flag & FLAG_CREATED:
+					_edit_buffer.erase(buffer)
+				else:
+					buffer.flag = FLAG_REMOVED
+
 				update_table_rows()
 			)
 	)
 	self.add_child(_column_context_menu)
 
-	_column_context_menu.popup(Rect2i(get_position() + Vector2i(get_mouse_position()), Vector2i.ZERO))
+	_column_context_menu.popup(Rect2(get_screen_transform() * get_local_mouse_position(), Vector2.ZERO))
 
 
 func _on_table_cell_value_changed(row_idx: int, column_idx: int, value: Variant) -> void:
