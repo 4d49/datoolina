@@ -15,14 +15,21 @@ const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog
 const TableCreateDialog: GDScript = preload("res://scripts/table_create_dialog.gd")
 const TableDeleteDialog: GDScript = preload("res://scripts/table_delete_dialog.gd")
 const TableEditorDialog: GDScript = preload("res://scripts/table_editor_dialog.gd")
+const TableExportDialog: GDScript = preload("res://scripts/table_export_dialog.gd")
+const TableImportDialog: GDScript = preload("res://scripts/table_import_dialog.gd")
 const TableRenameDialog: GDScript = preload("res://scripts/table_rename_dialog.gd")
 
 
 enum TabContextMenu {
 	NEW,
 	EDIT,
+	EXPORT,
 	RENAME,
 	DELETE,
+}
+enum NewTabMenu {
+	NEW,
+	IMPORT,
 }
 
 
@@ -30,7 +37,7 @@ var _left_vbox: VBoxContainer = null
 
 var _tab_hbox: HBoxContainer = null
 var _tab_bar: TabBar = null
-var _new_tab: Button = null
+var _new_tab: MenuButton = null
 var _tab_list: MenuButton = null
 
 var _data_view_panel: PanelContainer = null
@@ -39,6 +46,9 @@ var _table_view: TableView = null
 
 var _inspector_container: TabContainer = null
 var _inspector: Inspector = null
+
+var _table_export_dialog: TableExportDialog = null
+var _table_import_dialog: TableImportDialog = null
 
 var _record_rename_dialog: RecordRenameDialog = null
 
@@ -68,11 +78,16 @@ func _init() -> void:
 	_tab_bar.tab_close_pressed.connect(_on_tab_close_pressed)
 	_tab_hbox.add_child(_tab_bar)
 
-	_new_tab = Button.new()
+	_new_tab = MenuButton.new()
 	_new_tab.set_flat(true)
-	_new_tab.set_tooltip_text("Create a new table")
 	_new_tab.set_disabled(true)
-	_new_tab.pressed.connect(show_create_table_dialog)
+
+	var popup: PopupMenu = _new_tab.get_popup()
+	popup.add_item("New Table", NewTabMenu.NEW)
+	popup.add_separator()
+	popup.add_item("Import Table...", NewTabMenu.IMPORT)
+	popup.id_pressed.connect(_on_new_table_menu_pressed)
+
 	_tab_hbox.add_child(_new_tab)
 
 	_tab_list = MenuButton.new()
@@ -160,6 +175,10 @@ func get_database() -> Dictionary:
 	return _database
 
 
+func has_table(id: StringName) -> bool:
+	return DictionaryDB.database_has_table_id(_database, id)
+
+
 func show_create_table_dialog() -> void:
 	var create_table: TableCreateDialog = TableCreateDialog.new(_database)
 	create_table.table_created.connect(update_tabs)
@@ -177,6 +196,38 @@ func show_edit_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 
 	table_editor.set_transient(true)
 	table_editor.set_transient_to_focused(true)
+
+
+func show_table_export_dialog(table: Dictionary[StringName, Variant]) -> void:
+	if is_instance_valid(_table_export_dialog):
+		_table_export_dialog.queue_free()
+
+	_table_export_dialog = TableExportDialog.new(table)
+	self.add_child(_table_export_dialog)
+
+	_table_export_dialog.popup_centered(Vector2i(500, 300))
+
+func show_table_import_dialog() -> void:
+	if is_instance_valid(_table_import_dialog):
+		_table_import_dialog.queue_free()
+
+	_table_import_dialog = TableImportDialog.new()
+	_table_import_dialog.table_imported.connect(func on_table_imported(table: Dictionary[StringName, Variant]) -> void:
+		if table.is_read_only():
+			return printerr("Invalid Table.")
+
+		while has_table(DictionaryDB.table_get_id(table)):
+			table.id += &"_copy"
+
+		var tables: Array = DictionaryDB.database_get_tables(_database)
+		tables.push_back(table)
+
+		update_tabs(false)
+	)
+
+	self.add_child(_table_import_dialog)
+
+	_table_import_dialog.popup_centered(Vector2i(500, 300))
 
 
 func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
@@ -228,6 +279,8 @@ func _on_tab_rmb_clicked(tab_idx: int) -> void:
 	popup.add_separator()
 	popup.add_item("Edit Table", TabContextMenu.EDIT)
 	popup.add_separator()
+	popup.add_item("Export Table As...", TabContextMenu.EXPORT)
+	popup.add_separator()
 	popup.add_item("Rename Table", TabContextMenu.RENAME)
 	popup.add_item("Delete Table", TabContextMenu.DELETE)
 	popup.id_pressed.connect(func(option: TabContextMenu) -> void:
@@ -236,6 +289,8 @@ func _on_tab_rmb_clicked(tab_idx: int) -> void:
 				show_create_table_dialog()
 			TabContextMenu.EDIT:
 				show_edit_table_dialog(_tab_bar.get_tab_metadata(tab_idx))
+			TabContextMenu.EXPORT:
+				show_table_export_dialog(_tab_bar.get_tab_metadata(tab_idx))
 			TabContextMenu.RENAME:
 				show_rename_table_dialog(_tab_bar.get_tab_metadata(tab_idx))
 			TabContextMenu.DELETE:
@@ -248,6 +303,13 @@ func _on_tab_rmb_clicked(tab_idx: int) -> void:
 
 func _on_tab_close_pressed(tab_idx: int) -> void:
 	show_delete_table_dialog(_tab_bar.get_tab_metadata(tab_idx))
+
+
+func _on_new_table_menu_pressed(option: NewTabMenu) -> void:
+	if option == NewTabMenu.NEW:
+		show_create_table_dialog()
+	else:
+		show_table_import_dialog()
 
 
 
