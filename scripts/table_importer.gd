@@ -12,6 +12,7 @@ static var _formats: Array[Dictionary] = []
 
 static func _static_init() -> void:
 	add_format_importer("cfg", "Config File", _table_import_cfg)
+	add_format_importer("json", "JSON File", _table_import_json)
 
 
 static func default_handler(extension: String) -> Callable:
@@ -83,4 +84,18 @@ static func _table_import_cfg(path: String) -> Dictionary[StringName, Variant]:
 		return DictionaryDB.NULL_TABLE
 
 	var data: Dictionary = config.get_value("", "table", DictionaryDB.NULL_TABLE)
+	return deserialize_dictionary_table(data)
+
+
+static func _table_import_json(path: String) -> Dictionary[StringName, Variant]:
+	var file_as_string: String = FileAccess.get_file_as_string(path)
+	if file_as_string.is_empty():
+		return DictionaryDB.NULL_DATABASE
+
+	var json := JSON.new()
+
+	var data: Variant = json.parse_string(file_as_string)
+	if data == null:
+		return DictionaryDB.NULL_DATABASE
+
 	return deserialize_dictionary_table(data)

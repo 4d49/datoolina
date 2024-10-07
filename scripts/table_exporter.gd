@@ -12,6 +12,7 @@ static var _formats: Array[Dictionary] = []
 
 static func _static_init() -> void:
 	add_format_exporter("cfg", "Config File", _table_export_cfg)
+	add_format_exporter("json", "JSON File", _table_export_json)
 
 
 static func default_handler(extension: String) -> Callable:
@@ -107,3 +108,17 @@ static func _table_export_cfg(table: Dictionary[StringName, Variant], path: Stri
 	config.set_value("", "table", serialized)
 
 	return config.save(path)
+
+
+static func _table_export_json(table: Dictionary[StringName, Variant], path: String) -> Error:
+	var serialized: Dictionary = serialize_dictionary_table(table)
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		printerr(error_string(FileAccess.get_open_error()))
+		return FileAccess.get_open_error()
+
+	file.store_string(JSON.stringify(serialized, "\t"))
+	file.close()
+
+	return OK
