@@ -1,0 +1,110 @@
+name: Export Project
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.4
+  GODOT_CHANNEL: dev3
+
+jobs:
+  export-linux:
+    name: Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Export Templates
+        run: |
+          mkdir -vp ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}
+          wget -q https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz
+          unzip Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz -d /tmp
+          mv /tmp/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}
+
+      - name: Install Godot Editor
+        run: |
+          wget -q https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip
+          unzip Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip -d /tmp
+          mv /tmp/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64 /usr/local/bin/godot
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Export Linux Debug
+        run: |
+          mkdir -vp bin
+          godot --headless --export-debug "Linux" bin/datoolina_debug.x86_64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_debug
+          path: bin/datoolina_debug.x86_64
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Export Linux Release
+        run: |
+          godot --headless --export-release "Linux" bin/datoolina_release.x86_64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_release
+          path: bin/datoolina_release.x86_64
+          if-no-files-found: error
+          retention-days: 14
+
+  export-windows:
+    name: Windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Export Templates
+        run: |
+          mkdir -vp ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}
+          wget -q https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz
+          unzip Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz -d /tmp
+          mv /tmp/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}
+
+      - name: Install Godot Editor
+        run: |
+          wget -q https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip
+          unzip Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip -d /tmp
+          mv /tmp/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64 /usr/local/bin/godot
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Export Windows Debug
+        run: |
+          mkdir -vp bin
+          godot --headless --export-debug "Windows" bin/datoolina_debug.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_debug
+          path: bin/datoolina_debug.exe
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Export Windows Release
+        run: |
+          godot --headless --export-release "Windows" bin/datoolina_release.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_release
+          path: bin/datoolina_release.exe
+          if-no-files-found: error
+          retention-days: 14
