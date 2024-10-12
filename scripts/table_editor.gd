@@ -91,7 +91,7 @@ func _init(table: Dictionary[StringName, Variant]) -> void:
 	_create_column.pressed.connect(_on_create_column_pressed)
 	_bottom_hbox.add_child(_create_column)
 
-	update_table()
+	call_deferred(&"update_table")
 
 
 func _enter_tree() -> void:
