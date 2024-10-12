@@ -98,13 +98,13 @@ func update_table() -> void:
 
 	for i: int in records.size():
 		var record: Dictionary = records[i]
-		_table_view.set_cell_value_no_update(i, 0, record.id)
+		_table_view.set_cell_value_no_signal(i, 0, record.id)
 		_table_view.set_row_metadata(i, record)
 
 		for j: int in range(1, columns.size() + 1):
-			_table_view.set_cell_value_no_update(i, j, record[columns[j - 1][&"id"]])
+			_table_view.set_cell_value_no_signal(i, j, record[columns[j - 1][&"id"]])
 
-	_table_view.update_table(true)
+	_table_view.update_table()
 	_table_view.emit_signal(&"table_changed")
 
 

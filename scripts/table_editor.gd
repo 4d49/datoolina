@@ -67,6 +67,7 @@ func _init(table: Dictionary[StringName, Variant]) -> void:
 	self.add_child(_filter_line)
 
 	_table_view = TableView.new()
+	_table_view.set_column_resize_mode(TableView.ColumnResizeMode.INTERACTIVE)
 	_table_view.set_theme(preload("res://addons/table-view/resources/table_view.tres"))
 	_table_view.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	_table_view.row_rmb_clicked.connect(_on_row_rmb_clicked)
@@ -91,7 +92,7 @@ func _init(table: Dictionary[StringName, Variant]) -> void:
 	_create_column.pressed.connect(_on_create_column_pressed)
 	_bottom_hbox.add_child(_create_column)
 
-	update_table()
+	call_deferred(&"update_table")
 
 
 func _enter_tree() -> void:
@@ -168,18 +169,24 @@ func update_table() -> void:
 	_table_view.set_column_count(COLUMN_MAX)
 	_table_view.set_column_title(COLUMN_ID, "ID")
 	_table_view.set_column_type(COLUMN_ID, TableView.Type.STRING_NAME, TableView.Hint.NONE, "", str, Callable())
+	_table_view.set_column_minimum_width(COLUMN_ID, 100)
 
 	_table_view.set_column_title(COLUMN_TYPE, "Type")
 	_table_view.set_column_type(COLUMN_TYPE, TableView.Type.INT, TableView.Hint.ENUM, TableView.enum_to_hint_string(Type))
+	_table_view.set_column_minimum_width(COLUMN_TYPE, 100)
 
 	_table_view.set_column_title(COLUMN_VALUE, "Value")
 	_table_view.set_column_comparator(COLUMN_VALUE, Callable())
+	_table_view.set_column_minimum_width(COLUMN_VALUE, 100)
 
 	_table_view.set_column_title(COLUMN_HINT, "Hint")
 	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.Hint.ENUM, TableView.enum_to_hint_string(DictionaryDB.Hint))
+	_table_view.set_column_minimum_width(COLUMN_HINT, 100)
 
 	_table_view.set_column_title(COLUMN_HINT_STRING, "Hint String")
 	_table_view.set_column_type(COLUMN_HINT_STRING, TableView.Type.STRING)
+	_table_view.set_column_minimum_width(COLUMN_HINT_STRING, 100)
+	_table_view.set_column_custom_width(COLUMN_HINT_STRING, 300)
 
 	update_table_rows()
 
