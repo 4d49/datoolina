@@ -14,6 +14,7 @@ const DatabaseEditor: GDScript = preload(\"res://scripts/database_editor.gd\")
 const DatabaseLoadDialog: GDScript = preload(\"res://scripts/database_load_dialog.gd\")
 const DatabaseSaver: GDScript = preload(\"res://scripts/database_saver.gd\")
 const DatabaseSaveDialog: GDScript = preload(\"res://scripts/database_save_dialog.gd\")
+const QuitDialog: GDScript = preload(\"res://scripts/quit_dialog.gd\")
 
 
 signal database_saved
@@ -51,6 +52,8 @@ var _status_bar: Label = null
 var _database_create_dialog: DatabaseCreateDialog = null
 var _database_load_dialog: DatabaseLoadDialog = null
 var _database_save_fialog: DatabaseSaveDialog = null
+
+var _quit_dialog: QuitDialog = null
 
 
 func _init() -> void:
@@ -208,8 +211,28 @@ func set_status(status: String) -> void:
 	_status_bar.set_text(status)
 
 
+func show_quit_dialog() -> void:
+	if is_instance_valid(_quit_dialog):
+		_quit_dialog.queue_free()
+
+	_quit_dialog = QuitDialog.new()
+	_quit_dialog.save_requested.connect(func on_save() -> void:
+		call_deferred(&\"save_file\")
+		await database_saved
+
+		get_tree().quit()
+	)
+	_quit_dialog.discard_requested.connect(get_tree().quit)
+	_quit_dialog.cancel_requested.connect(_quit_dialog.queue_free)
+	self.add_child(_quit_dialog)
+
+	_quit_dialog.popup_centered(Vector2i(300, 50))
+
 func quit() -> void:
-	get_tree().quit()
+	if _database_modified:
+		show_quit_dialog()
+	else:
+		get_tree().quit()
 
 
 
