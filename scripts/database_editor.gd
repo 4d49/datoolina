@@ -4,7 +4,9 @@
 extends HSplitContainer
 
 
+signal database_modified
 signal database_changed(database: Dictionary[StringName, Variant])
+
 signal table_changed(table: Dictionary[StringName, Variant])
 
 
@@ -103,6 +105,7 @@ func _init() -> void:
 	_data_view = DataTableView.new()
 	_data_view.set_theme(preload("res://addons/table-view/resources/table_view.tres"))
 	_data_view.call_deferred(&"update_table")
+	_data_view.table_modified.connect(database_modified.emit)
 	_data_view_panel.add_child(_data_view)
 
 	_table_view = _data_view.get_table_view()
@@ -181,7 +184,10 @@ func has_table(id: StringName) -> bool:
 
 func show_create_table_dialog() -> void:
 	var create_table: TableCreateDialog = TableCreateDialog.new(_database)
-	create_table.table_created.connect(update_tabs)
+	create_table.table_created.connect(func on_table_created() -> void:
+		database_modified.emit()
+		update_tabs()
+	)
 	self.add_child(create_table)
 
 	create_table.popup_centered(Vector2i(300, 50))
@@ -189,7 +195,10 @@ func show_create_table_dialog() -> void:
 
 func show_edit_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var table_editor: TableEditorDialog = TableEditorDialog.new(table)
-	table_editor.confirmed.connect(update_table)
+	table_editor.confirmed.connect(func on_confirmed() -> void:
+		database_modified.emit()
+		update_table()
+	)
 	self.add_child(table_editor)
 
 	table_editor.popup_centered(Vector2i(500, 300))
@@ -232,14 +241,20 @@ func show_table_import_dialog() -> void:
 
 func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var rename_table: TableRenameDialog = TableRenameDialog.new(_database, table)
-	rename_table.table_renamed.connect(update_tabs.bind(false))
+	rename_table.table_renamed.connect(func on_table_renamed() -> void:
+		database_modified.emit()
+		update_tabs(false)
+	)
 	self.add_child(rename_table)
 
 	rename_table.popup_centered(Vector2i(300, 50))
 
 func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var delete_table: TableDeleteDialog = TableDeleteDialog.new(_database, table)
-	delete_table.table_deleted.connect(update_tabs)
+	delete_table.table_deleted.connect(func on_table_deleted() -> void:
+		database_modified.emit()
+		update_tabs()
+	)
 	self.add_child(delete_table)
 
 	delete_table.popup_centered(Vector2i(300, 50))
@@ -341,6 +356,8 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 				return false
 
 			record[id] = value
+			database_modified.emit()
+
 			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
 				table_view.queue_redraw()
 
@@ -363,6 +380,7 @@ func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
 		var record_rename := show_record_rename_dialog(record)
 		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
 			_table_view.set_cell_value(row_idx, COLUMN_ID, id)
+			database_modified.emit()
 		)
 	else:
 		var property_helper := create_property_helper_for_record(record, row_idx)
