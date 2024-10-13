@@ -4,6 +4,9 @@
 extends FileDialog
 
 
+signal file_saved(path: String)
+
+
 const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 const DatabaseSaver: GDScript = preload("res://scripts/database_saver.gd")
 
@@ -34,5 +37,7 @@ func _on_file_selected(path: String) -> void:
 	var error: Error = DatabaseSaver.save_database(_database, path)
 	if error:
 		printerr(error_string(error))
+	else:
+		file_saved.emit(path)
 
 	queue_free()
