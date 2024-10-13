@@ -39,6 +39,7 @@ var _about_menu: MenuButton = null
 
 var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
 var _database_path: String = \"\"
+var _database_modified: bool = false
 
 var _database_editor: DatabaseEditor = null
 var _table_view: TableView = null
@@ -101,6 +102,7 @@ func _init() -> void:
 
 	_database_editor = DatabaseEditor.new()
 	_database_editor.set_v_size_flags(Control.SIZE_EXPAND_FILL)
+	_database_editor.database_modified.connect(_on_database_modified)
 	_vbox.add_child(_database_editor)
 
 	_table_view = _database_editor.get_table_view()
@@ -131,13 +133,21 @@ func set_database(database: Dictionary[StringName, Variant]) -> void:
 func get_database() -> Dictionary[StringName, Variant]:
 	return _database
 
+func get_database_id() -> StringName:
+	return DictionaryDB.database_get_id(_database)
+
 
 func show_database_dialog_create() -> void:
 	if is_instance_valid(_database_create_dialog):
 		_database_create_dialog.queue_free()
 
 	_database_create_dialog = DatabaseCreateDialog.new()
-	_database_create_dialog.database_created.connect(set_database)
+	_database_create_dialog.database_created.connect(func on_database_created(database: Dictionary) -> void:
+		_database_path = \"\"
+		_database_modified = true
+
+		set_database(database)
+	)
 	self.add_child(_database_create_dialog)
 
 	_database_create_dialog.popup_centered(Vector2i(300, 50))
@@ -149,8 +159,10 @@ func show_open_file_dialog() -> void:
 
 	_database_load_dialog = DatabaseLoadDialog.new(_database)
 	_database_load_dialog.database_loaded.connect(func on_database_loaded(database: Dictionary, path: String) -> void:
-		set_database(database)
 		_database_path = path
+		_database_modified = false
+
+		set_database(database)
 	)
 	self.add_child(_database_load_dialog)
 
@@ -195,10 +207,34 @@ func _on_file_menu_option(option: FileMenu) -> void:
 			quit()
 
 
+func update_window_title() -> void:
+	const WINDOW_TITLE: String = \"Datoolina\"
+
+	var window := get_viewport() as Window
+	if not is_instance_valid(window):
+		return
+
+	if _database_modified:
+		window.set_title(WINDOW_TITLE + \" - \" + get_database_id() + \"*\")
+	else:
+		window.set_title(WINDOW_TITLE + \" - \" + get_database_id())
+
 func _on_database_changed(database: Dictionary) -> void:
+	var is_invalid: bool = database.is_empty() or database.is_read_only()
+
+	if not is_invalid:
+		update_window_title()
+
 	var popup: PopupMenu = _file_menu.get_popup()
 	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE_AS), database.is_read_only())
 
+
+func _on_database_modified() -> void:
+	if _database_modified:
+		return
+
+	_database_modified = true
+	update_window_title()
 
 
 func _update_status(row_count: int, visible_row_count: int, selected_row_count: int) -> void:
