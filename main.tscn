@@ -16,6 +16,7 @@ const DatabaseSaver: GDScript = preload(\"res://scripts/database_saver.gd\")
 const DatabaseSaveDialog: GDScript = preload(\"res://scripts/database_save_dialog.gd\")
 
 
+signal database_saved
 signal database_changed(database: Dictionary[StringName, Variant])
 
 
@@ -115,6 +116,8 @@ func _init() -> void:
 	_status_bar.set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER)
 	_vbox.add_child(_status_bar)
 
+	self.database_saved.connect(_on_database_saved)
+
 	self.database_changed.connect(_database_editor.set_database)
 	self.database_changed.connect(_on_database_changed)
 
@@ -180,8 +183,8 @@ func show_database_save_fialog() -> void:
 	_database_save_fialog = DatabaseSaveDialog.new(_database)
 	_database_save_fialog.file_saved.connect(func on_file_saved(path: String) -> void:
 		_database_path = path
-		_database_modified = false
 
+		database_saved.emit()
 		update_window_title()
 	)
 
@@ -198,7 +201,7 @@ func save_file() -> void:
 		if error:
 			push_error(error_string(error))
 		else:
-			_database_modified = false
+			database_saved.emit()
 
 
 func set_status(status: String) -> void:
@@ -238,6 +241,12 @@ func update_window_title() -> void:
 		window.set_title(WINDOW_TITLE + \" - \" + get_database_id() + \"*\")
 	else:
 		window.set_title(WINDOW_TITLE + \" - \" + get_database_id())
+
+
+func _on_database_saved() -> void:
+	_database_modified = false
+	update_window_title()
+
 
 func _on_database_changed(database: Dictionary) -> void:
 	var is_invalid: bool = database.is_empty() or database.is_read_only()
