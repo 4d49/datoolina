@@ -14,8 +14,10 @@ const DatabaseEditor: GDScript = preload(\"res://scripts/database_editor.gd\")
 const DatabaseLoadDialog: GDScript = preload(\"res://scripts/database_load_dialog.gd\")
 const DatabaseSaver: GDScript = preload(\"res://scripts/database_saver.gd\")
 const DatabaseSaveDialog: GDScript = preload(\"res://scripts/database_save_dialog.gd\")
+const QuitDialog: GDScript = preload(\"res://scripts/quit_dialog.gd\")
 
 
+signal database_saved
 signal database_changed(database: Dictionary[StringName, Variant])
 
 
@@ -50,6 +52,8 @@ var _status_bar: Label = null
 var _database_create_dialog: DatabaseCreateDialog = null
 var _database_load_dialog: DatabaseLoadDialog = null
 var _database_save_fialog: DatabaseSaveDialog = null
+
+var _quit_dialog: QuitDialog = null
 
 
 func _init() -> void:
@@ -115,13 +119,18 @@ func _init() -> void:
 	_status_bar.set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER)
 	_vbox.add_child(_status_bar)
 
+	self.database_saved.connect(_on_database_saved)
+
 	self.database_changed.connect(_database_editor.set_database)
 	self.database_changed.connect(_on_database_changed)
 
 
 func _enter_tree() -> void:
-	var window: Window = get_viewport()
+	get_tree().set_auto_accept_quit(false)
+
+	var window: Window = get_tree().get_root()
 	window.set_min_size(Vector2i(540, 380))
+	window.close_requested.connect(quit)
 
 
 func set_database(database: Dictionary[StringName, Variant]) -> void:
@@ -177,8 +186,8 @@ func show_database_save_fialog() -> void:
 	_database_save_fialog = DatabaseSaveDialog.new(_database)
 	_database_save_fialog.file_saved.connect(func on_file_saved(path: String) -> void:
 		_database_path = path
-		_database_modified = false
 
+		database_saved.emit()
 		update_window_title()
 	)
 
@@ -195,15 +204,35 @@ func save_file() -> void:
 		if error:
 			push_error(error_string(error))
 		else:
-			_database_modified = false
+			database_saved.emit()
 
 
 func set_status(status: String) -> void:
 	_status_bar.set_text(status)
 
 
+func show_quit_dialog() -> void:
+	if is_instance_valid(_quit_dialog):
+		_quit_dialog.queue_free()
+
+	_quit_dialog = QuitDialog.new()
+	_quit_dialog.save_requested.connect(func on_save() -> void:
+		call_deferred(&\"save_file\")
+		await database_saved
+
+		get_tree().quit()
+	)
+	_quit_dialog.discard_requested.connect(get_tree().quit)
+	_quit_dialog.cancel_requested.connect(_quit_dialog.queue_free)
+	self.add_child(_quit_dialog)
+
+	_quit_dialog.popup_centered(Vector2i(300, 50))
+
 func quit() -> void:
-	get_tree().quit()
+	if _database_modified:
+		show_quit_dialog()
+	else:
+		get_tree().quit()
 
 
 
@@ -229,14 +258,18 @@ func _on_file_menu_option(option: FileMenu) -> void:
 func update_window_title() -> void:
 	const WINDOW_TITLE: String = \"Datoolina\"
 
-	var window := get_viewport() as Window
-	if not is_instance_valid(window):
-		return
+	var window := get_tree().get_root()
 
 	if _database_modified:
 		window.set_title(WINDOW_TITLE + \" - \" + get_database_id() + \"*\")
 	else:
 		window.set_title(WINDOW_TITLE + \" - \" + get_database_id())
+
+
+func _on_database_saved() -> void:
+	_database_modified = false
+	update_window_title()
+
 
 func _on_database_changed(database: Dictionary) -> void:
 	var is_invalid: bool = database.is_empty() or database.is_read_only()
