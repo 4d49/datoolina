@@ -120,8 +120,11 @@ func _init() -> void:
 
 
 func _enter_tree() -> void:
-	var window: Window = get_viewport()
+	get_tree().set_auto_accept_quit(false)
+
+	var window: Window = get_tree().get_root()
 	window.set_min_size(Vector2i(540, 380))
+	window.close_requested.connect(quit)
 
 
 func set_database(database: Dictionary[StringName, Variant]) -> void:
