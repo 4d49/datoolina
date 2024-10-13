@@ -12,6 +12,7 @@ const DictionaryDB: GDScript = preload(\"res://scripts/dictionary_database.gd\")
 const DatabaseCreateDialog: GDScript = preload(\"res://scripts/database_create_dialog.gd\")
 const DatabaseEditor: GDScript = preload(\"res://scripts/database_editor.gd\")
 const DatabaseLoadDialog: GDScript = preload(\"res://scripts/database_load_dialog.gd\")
+const DatabaseSaver: GDScript = preload(\"res://scripts/database_saver.gd\")
 const DatabaseSaveDialog: GDScript = preload(\"res://scripts/database_save_dialog.gd\")
 
 
@@ -186,6 +187,17 @@ func show_database_save_fialog() -> void:
 	_database_save_fialog.popup_centered_clamped(Vector2i(640, 360))
 
 
+func save_file() -> void:
+	if _database_path.is_empty():
+		show_database_save_fialog()
+	else:
+		var error: Error = DatabaseSaver.save_database(_database, _database_path)
+		if error:
+			push_error(error_string(error))
+		else:
+			_database_modified = false
+
+
 func set_status(status: String) -> void:
 	_status_bar.set_text(status)
 
@@ -205,7 +217,7 @@ func _on_file_menu_option(option: FileMenu) -> void:
 		FileMenu.OPEN_RECENT:
 			pass
 		FileMenu.SAVE_FILE:
-			pass
+			save_file()
 		FileMenu.SAVE_FILE_AS:
 			show_database_save_fialog()
 		FileMenu.EXPORT_AS:
@@ -233,7 +245,8 @@ func _on_database_changed(database: Dictionary) -> void:
 		update_window_title()
 
 	var popup: PopupMenu = _file_menu.get_popup()
-	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE_AS), database.is_read_only())
+	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE), is_invalid)
+	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE_AS), is_invalid)
 
 
 func _on_database_modified() -> void:
