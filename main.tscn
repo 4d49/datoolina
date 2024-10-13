@@ -38,6 +38,7 @@ var _view_menu: MenuButton = null
 var _about_menu: MenuButton = null
 
 var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
+var _database_path: String = \"\"
 
 var _database_editor: DatabaseEditor = null
 var _table_view: TableView = null
@@ -147,7 +148,10 @@ func show_open_file_dialog() -> void:
 		_database_load_dialog.queue_free()
 
 	_database_load_dialog = DatabaseLoadDialog.new(_database)
-	_database_load_dialog.database_loaded.connect(set_database)
+	_database_load_dialog.database_loaded.connect(func on_database_loaded(database: Dictionary, path: String) -> void:
+		set_database(database)
+		_database_path = path
+	)
 	self.add_child(_database_load_dialog)
 
 	_database_load_dialog.popup_centered_clamped(Vector2i(640, 360))

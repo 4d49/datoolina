@@ -4,7 +4,7 @@
 extends FileDialog
 
 
-signal database_loaded(database: Dictionary[StringName, Variant])
+signal database_loaded(database: Dictionary[StringName, Variant], path: String)
 
 
 const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
@@ -35,6 +35,6 @@ func get_support_file_extension() -> PackedStringArray:
 
 func _on_file_selected(path: String) -> void:
 	var database: Dictionary[StringName, Variant] = DatabaseLoader.load_database(path)
-	database_loaded.emit(database)
+	database_loaded.emit(database, path)
 
 	queue_free()
