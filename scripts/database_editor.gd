@@ -313,37 +313,9 @@ func _on_new_table_menu_pressed(option: NewTabMenu) -> void:
 
 
 
-# WARNING: This is a temporary and hacky solution. It should be refactored properly later!
-static func create_table_view_cell_setter(table_view: TableView, row_idx: int, column_idx: int) -> Callable:
-	var font: Font = table_view._font
-	var font_size: int = table_view._font_size
-
-	var row: Dictionary = table_view._rows[row_idx]
-	var cell: Dictionary = row[&"cells"][column_idx]
-
-	var text_line: TextLine = cell.text_line
-
-	var stringifier: Callable = cell.type_hint.stringifier
-	stringifier = func stringify(value: Variant) -> String:
-		if value == null:
-			return "<null>"
-
-		return stringifier.call(value)
-
-	return func cell_setter(value: Variant) -> void:
-		prints(cell.value, value)
-		if is_same(cell.value, value):
-			return
-
-		text_line.clear()
-		text_line.add_string(stringifier.call(value), font, font_size)
-
-		cell.value = value
-		table_view.cell_value_changed.emit(row_idx, column_idx, value)
-
-		table_view.queue_redraw()
 
 func create_property_helper_for_record(record: Dictionary, row_idx: int) -> PropertyHelper:
+	var table_view: TableView = _table_view
 	var property_helper := PropertyHelper.new()
 
 	property_helper.add_category("Record Editor")
@@ -362,8 +334,6 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 		var id: StringName = DictionaryDB.column_get_id(column)
 		var validator: Callable = DictionaryDB.column_get_validator(column)
 
-		var setter_cell: Callable = create_table_view_cell_setter(_table_view, row_idx, column_idx)
-
 		var setter: Callable = func(value: Variant) -> bool:
 			value = validator.call(value)
 
@@ -371,7 +341,8 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 				return false
 
 			record[id] = value
-			setter_cell.call(value)
+			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
+				table_view.queue_redraw()
 
 			return true
 		var getter: Callable = func() -> Variant:
