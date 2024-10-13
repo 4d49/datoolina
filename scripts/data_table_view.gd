@@ -11,6 +11,7 @@ const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog
 const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
 
 
+signal table_modified
 signal table_changed(table: Dictionary[StringName, Variant])
 
 
@@ -133,6 +134,10 @@ func show_record_rename_dialog(record: Dictionary) -> void:
 		_record_rename_dialog.queue_free()
 
 	_record_rename_dialog = RecordRenameDialog.new(_table, record)
+	_record_rename_dialog.record_renamed.connect(func on_record_renamed(_id) -> void:
+		table_modified.emit()
+		update_table()
+	)
 	self.add_child(_record_rename_dialog)
 
 	_record_rename_dialog.popup_centered(Vector2i(300, 50))
@@ -145,6 +150,7 @@ func show_record_delete_dialog(record: Dictionary, row_idx: int) -> void:
 	_record_delete_dialog = RecordDeleteDialog.new(_table, record)
 	_record_delete_dialog.record_deleted.connect(func on_record_deleted() -> void:
 		_table_view.remove_row(row_idx)
+		table_modified.emit()
 	)
 	self.add_child(_record_delete_dialog)
 
@@ -160,6 +166,8 @@ func show_records_delete_dialog(records: Array[Dictionary], selected_rows: Packe
 
 		for i: int in selected_rows:
 			_table_view.remove_row(i)
+
+		table_modified.emit()
 	)
 	self.add_child(_records_delete_dialog)
 
@@ -179,6 +187,7 @@ func _on_record_id_text_changed(id: StringName) -> void:
 
 func _on_create_pressed() -> void:
 	if not DictionaryDB.table_create_record(_table, _record_id.get_text()).is_read_only():
+		table_modified.emit()
 		update_table()
 
 	_create_btn.set_disabled(true)

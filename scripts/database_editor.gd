@@ -4,7 +4,9 @@
 extends HSplitContainer
 
 
+signal database_modified
 signal database_changed(database: Dictionary[StringName, Variant])
+
 signal table_changed(table: Dictionary[StringName, Variant])
 
 
@@ -103,6 +105,7 @@ func _init() -> void:
 	_data_view = DataTableView.new()
 	_data_view.set_theme(preload("res://addons/table-view/resources/table_view.tres"))
 	_data_view.call_deferred(&"update_table")
+	_data_view.table_modified.connect(database_modified.emit)
 	_data_view_panel.add_child(_data_view)
 
 	_table_view = _data_view.get_table_view()
@@ -181,7 +184,10 @@ func has_table(id: StringName) -> bool:
 
 func show_create_table_dialog() -> void:
 	var create_table: TableCreateDialog = TableCreateDialog.new(_database)
-	create_table.table_created.connect(update_tabs)
+	create_table.table_created.connect(func on_table_created() -> void:
+		database_modified.emit()
+		update_tabs()
+	)
 	self.add_child(create_table)
 
 	create_table.popup_centered(Vector2i(300, 50))
@@ -189,7 +195,10 @@ func show_create_table_dialog() -> void:
 
 func show_edit_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var table_editor: TableEditorDialog = TableEditorDialog.new(table)
-	table_editor.confirmed.connect(update_table)
+	table_editor.confirmed.connect(func on_confirmed() -> void:
+		database_modified.emit()
+		update_table()
+	)
 	self.add_child(table_editor)
 
 	table_editor.popup_centered(Vector2i(500, 300))
@@ -232,14 +241,20 @@ func show_table_import_dialog() -> void:
 
 func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var rename_table: TableRenameDialog = TableRenameDialog.new(_database, table)
-	rename_table.table_renamed.connect(update_tabs.bind(false))
+	rename_table.table_renamed.connect(func on_table_renamed() -> void:
+		database_modified.emit()
+		update_tabs(false)
+	)
 	self.add_child(rename_table)
 
 	rename_table.popup_centered(Vector2i(300, 50))
 
 func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var delete_table: TableDeleteDialog = TableDeleteDialog.new(_database, table)
-	delete_table.table_deleted.connect(update_tabs)
+	delete_table.table_deleted.connect(func on_table_deleted() -> void:
+		database_modified.emit()
+		update_tabs()
+	)
 	self.add_child(delete_table)
 
 	delete_table.popup_centered(Vector2i(300, 50))
@@ -313,37 +328,9 @@ func _on_new_table_menu_pressed(option: NewTabMenu) -> void:
 
 
 
-# WARNING: This is a temporary and hacky solution. It should be refactored properly later!
-static func create_table_view_cell_setter(table_view: TableView, row_idx: int, column_idx: int) -> Callable:
-	var font: Font = table_view._font
-	var font_size: int = table_view._font_size
-
-	var row: Dictionary = table_view._rows[row_idx]
-	var cell: Dictionary = row[&"cells"][column_idx]
-
-	var text_line: TextLine = cell.text_line
-
-	var stringifier: Callable = cell.type_hint.stringifier
-	stringifier = func stringify(value: Variant) -> String:
-		if value == null:
-			return "<null>"
-
-		return stringifier.call(value)
-
-	return func cell_setter(value: Variant) -> void:
-		prints(cell.value, value)
-		if is_same(cell.value, value):
-			return
-
-		text_line.clear()
-		text_line.add_string(stringifier.call(value), font, font_size)
-
-		cell.value = value
-		table_view.cell_value_changed.emit(row_idx, column_idx, value)
-
-		table_view.queue_redraw()
 
 func create_property_helper_for_record(record: Dictionary, row_idx: int) -> PropertyHelper:
+	var table_view: TableView = _table_view
 	var property_helper := PropertyHelper.new()
 
 	property_helper.add_category("Record Editor")
@@ -362,8 +349,6 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 		var id: StringName = DictionaryDB.column_get_id(column)
 		var validator: Callable = DictionaryDB.column_get_validator(column)
 
-		var setter_cell: Callable = create_table_view_cell_setter(_table_view, row_idx, column_idx)
-
 		var setter: Callable = func(value: Variant) -> bool:
 			value = validator.call(value)
 
@@ -371,7 +356,10 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 				return false
 
 			record[id] = value
-			setter_cell.call(value)
+			database_modified.emit()
+
+			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
+				table_view.queue_redraw()
 
 			return true
 		var getter: Callable = func() -> Variant:
@@ -392,6 +380,7 @@ func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
 		var record_rename := show_record_rename_dialog(record)
 		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
 			_table_view.set_cell_value(row_idx, COLUMN_ID, id)
+			database_modified.emit()
 		)
 	else:
 		var property_helper := create_property_helper_for_record(record, row_idx)
