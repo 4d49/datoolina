@@ -229,9 +229,7 @@ func _on_file_menu_option(option: FileMenu) -> void:
 func update_window_title() -> void:
 	const WINDOW_TITLE: String = \"Datoolina\"
 
-	var window := get_viewport() as Window
-	if not is_instance_valid(window):
-		return
+	var window := get_tree().get_root()
 
 	if _database_modified:
 		window.set_title(WINDOW_TITLE + \" - \" + get_database_id() + \"*\")
