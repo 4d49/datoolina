@@ -64,7 +64,10 @@ static func deserialize_dictionary_table(data: Dictionary) -> Dictionary[StringN
 	var table: Dictionary[StringName, Variant] = DictionaryDB.create_table(data.id)
 
 	for c: Dictionary in data.columns:
-		var column: Dictionary[StringName, Variant] = DictionaryDB.table_create_column(table, c.id, c.type, c.value, c.hint, c.hint_string)
+		var column: Dictionary[StringName, Variant] = DictionaryDB.table_create_column(
+			table, c.id, c.type, c.value,
+			c.hint, c.hint_string, c.get("description", "")
+		)
 
 	for r: Dictionary in data.records:
 		var record: Dictionary[StringName, Variant] = DictionaryDB.table_create_record(table, r.id)
