@@ -339,9 +339,10 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 		TYPE_STRING_NAME,
 		Callable(),
 		func get_id() -> StringName: return record.id,
+		"Record ID",
 		PROPERTY_HINT_NONE,
 		"",
-		PROPERTY_USAGE_DEFAULT + PROPERTY_USAGE_SCRIPT_VARIABLE + PROPERTY_USAGE_READ_ONLY,
+		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
 	)
 
 	var column_idx: int = 1 # Plus ID column offset.
@@ -365,7 +366,7 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 		var getter: Callable = func() -> Variant:
 			return record[id]
 
-		property_helper.add_property(id, column.type, setter, getter, column.hint, column.hint_string)
+		property_helper.add_property(id, column.type, setter, getter, column.description, column.hint, column.hint_string)
 
 		column_idx += 1
 
