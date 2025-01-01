@@ -26,6 +26,7 @@ enum Hint {
 
 const COLUMNS: StringName = &"columns"
 const DEFAULT_VALUE: StringName = &"default_value"
+const DESCRIPTION: StringName = &"description"
 const HINT_STRING: StringName = &"hint_string"
 const HINT: StringName = &"hint"
 const ID: StringName = &"id"
@@ -252,6 +253,7 @@ static func create_column(
 		default_value: Variant,
 		hint: Hint,
 		hint_string: String,
+		description: String,
 		validator: Callable,
 	) -> Dictionary[StringName, Variant]:
 
@@ -261,6 +263,7 @@ static func create_column(
 		DEFAULT_VALUE: default_value,
 		HINT: hint,
 		HINT_STRING: hint_string,
+		DESCRIPTION: description,
 		VALIDATOR: validator,
 	}
 
@@ -304,6 +307,14 @@ static func column_get_hint(column: Dictionary) -> Hint:
 static func column_get_hint_string(column: Dictionary) -> String:
 	return column[HINT_STRING]
 
+static func column_set_description(column: Dictionary, description: String) -> bool:
+	if column[DESCRIPTION] == description:
+		return false
+
+	column[DESCRIPTION] = description
+	return true
+static func column_get_description(column: Dictionary) -> String:
+	return column[DESCRIPTION]
 
 static func column_set_validator(column: Dictionary, validator: Callable) -> bool:
 #	if not validator.is_valid() or column[VALIDATOR] == validator:
@@ -364,6 +375,7 @@ static func table_create_column(
 		default_value: Variant,
 		hint: Hint = Hint.NONE,
 		hint_string: String = "",
+		description: String = "",
 		validator: Callable = default_validator(type, hint, hint_string),
 	) -> Dictionary[StringName, Variant]:
 
@@ -374,7 +386,7 @@ static func table_create_column(
 	if validator.is_valid():
 		default_value = validator.call(default_value)
 
-	var column := create_column(column_id, type, default_value, hint, hint_string, validator)
+	var column := create_column(column_id, type, default_value, hint, hint_string, description, validator)
 	for record: Dictionary in table_get_records(table):
 		record[column_id] = default_value
 
