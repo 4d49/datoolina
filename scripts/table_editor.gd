@@ -29,6 +29,7 @@ enum {
 	COLUMN_VALUE,
 	COLUMN_HINT,
 	COLUMN_HINT_STRING,
+	COLUMN_DESCRIPTION,
 	COLUMN_MAX,
 }
 enum {
@@ -36,8 +37,9 @@ enum {
 	FLAG_CHANGE_ID = 1 << 1,
 	FLAG_CHANGE_VALUE = 1 << 2,
 	FLAG_CHANGE_TYPE = 1 << 3,
-	FLAG_CREATED = 1 << 4,
-	FLAG_REMOVED = 1 << 5,
+	FLAG_CHANGE_DESCRIPTION = 1 << 4,
+	FLAG_CREATED = 1 << 5,
+	FLAG_REMOVED = 1 << 6,
 }
 
 
@@ -117,6 +119,7 @@ static func create_edit_buffer(
 		value: Variant,
 		hint: int = PROPERTY_HINT_NONE,
 		hint_string: String = "",
+		description: String = "",
 	) -> Dictionary[StringName, Variant]:
 
 	return {
@@ -125,6 +128,7 @@ static func create_edit_buffer(
 		&"value": value,
 		&"hint": hint,
 		&"hint_string": hint_string,
+		&"description": description,
 		&"flag": FLAG_NONE,
 	}
 
@@ -135,6 +139,7 @@ static func create_edit_buffer_from_column(column: Dictionary) -> Dictionary[Str
 		DictionaryDB.column_get_default_value(column),
 		DictionaryDB.column_get_hint(column),
 		DictionaryDB.column_get_hint_string(column),
+		DictionaryDB.column_get_description(column),
 	)
 
 
@@ -155,6 +160,7 @@ func update_row(row_idx: int, buffer: Dictionary) -> void:
 
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_HINT, buffer.hint)
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_HINT_STRING, buffer.hint_string)
+	_table_view.set_cell_value_no_signal(row_idx, COLUMN_DESCRIPTION, buffer.description)
 
 	_table_view.set_row_metadata(row_idx, buffer)
 	_table_view.set_row_visible(row_idx, ~buffer.flag & FLAG_REMOVED)
@@ -187,6 +193,11 @@ func update_table() -> void:
 	_table_view.set_column_type(COLUMN_HINT_STRING, TableView.Type.STRING)
 	_table_view.set_column_minimum_width(COLUMN_HINT_STRING, 100)
 	_table_view.set_column_custom_width(COLUMN_HINT_STRING, 300)
+
+	_table_view.set_column_title(COLUMN_DESCRIPTION, "Description")
+	_table_view.set_column_type(COLUMN_DESCRIPTION, TableView.Type.STRING)
+	_table_view.set_column_minimum_width(COLUMN_DESCRIPTION, 100)
+	_table_view.set_column_custom_width(COLUMN_DESCRIPTION, 300)
 
 	update_table_rows()
 
@@ -237,8 +248,8 @@ func apply_changed() -> void:
 				DictionaryDB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
 			if buffer.flag & FLAG_CHANGE_VALUE:
 				DictionaryDB.column_set_default_value(columns[i], buffer.value)
-
-
+			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
+				DictionaryDB.column_set_description(columns[i], buffer.description)
 
 
 func _on_filter_line_text_changed(text: StringName) -> void:
@@ -314,6 +325,10 @@ func _on_table_cell_value_changed(row_idx: int, column_idx: int, value: Variant)
 			_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, buffer.hint, buffer.hint_string)
 
 			buffer.flag |= FLAG_CHANGE_TYPE
+
+		COLUMN_DESCRIPTION:
+			buffer.description = value
+			buffer.flag |= FLAG_CHANGE_DESCRIPTION
 
 
 func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
