@@ -83,6 +83,7 @@ static func _serialize_column(column: Dictionary[StringName, Variant]) -> Dictio
 		"value": DictionaryDB.column_get_default_value(column),
 		"hint": DictionaryDB.column_get_hint(column),
 		"hint_string": DictionaryDB.column_get_hint_string(column),
+		"description": DictionaryDB.column_get_description(column),
 	}
 static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 	var serialized: Array = []
