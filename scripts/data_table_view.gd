@@ -91,6 +91,7 @@ func update_table() -> void:
 		_table_view.set_column_metadata(i, column)
 
 		_table_view.set_column_title(i, column.id)
+		_table_view.set_column_tooltip(i, column.description)
 		_table_view.set_column_type(i, column.type, column.hint, column.hint_string)
 		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, column.hint, column.hint_string))
 
