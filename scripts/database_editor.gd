@@ -244,7 +244,7 @@ func show_table_import_dialog() -> void:
 
 func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var rename_table: TableRenameDialog = TableRenameDialog.new(_database, table)
-	rename_table.table_renamed.connect(func on_table_renamed() -> void:
+	rename_table.table_changed.connect(func on_table_renamed() -> void:
 		database_modified.emit()
 		update_tabs(false)
 	)

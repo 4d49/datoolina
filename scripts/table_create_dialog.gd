@@ -54,7 +54,7 @@ func _init(database: Dictionary[StringName, Variant]) -> void:
 	_description_vbox.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 
 	_description_label = Label.new()
-	_description_label.set_text("Table description:")
+	_description_label.set_text("Table Description:")
 	_description_vbox.add_child(_description_label)
 
 	_description_edit = TextEdit.new()
