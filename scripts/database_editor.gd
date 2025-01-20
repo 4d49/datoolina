@@ -140,6 +140,7 @@ func update_tabs(deselect: bool = true) -> void:
 	if tables.is_empty():
 		_tab_bar.set_tab_count(1)
 		_tab_bar.set_tab_title(0, "<empty>")
+		_tab_bar.set_tab_tooltip(0, "")
 		_tab_bar.set_tab_disabled(0, true)
 		_tab_bar.set_tab_metadata(0, DictionaryDB.NULL_TABLE)
 
