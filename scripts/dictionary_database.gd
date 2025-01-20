@@ -45,6 +45,7 @@ const NULL_COLUMNS: Array[Dictionary] = []
 const NULL_RECORDS: Array[Dictionary] = []
 const NULL_TABLE: Dictionary[StringName, Variant] = {
 	ID: &"null",
+	DESCRIPTION: "",
 	COLUMNS: NULL_COLUMNS,
 	RECORDS: NULL_RECORDS,
 }
@@ -116,23 +117,29 @@ static func database_has_table_id(database: Dictionary, table_id: StringName) ->
 	return tables_has_id(database_get_tables(database), table_id)
 
 
-static func create_table(table_id: StringName) -> Dictionary[StringName, Variant]:
+static func create_table(table_id: StringName, description: String = "") -> Dictionary[StringName, Variant]:
 	var columns: Array[Dictionary] = []
 	var records: Array[Dictionary] = []
 
 	return {
 		ID: table_id,
+		DESCRIPTION: description,
 		COLUMNS: columns,
 		RECORDS: records,
 	}
 
 
-static func database_create_table(database: Dictionary, table_id: StringName) -> Dictionary[StringName, Variant]:
+static func database_create_table(
+		database: Dictionary,
+		table_id: StringName,
+		table_description: String = ""
+	) -> Dictionary[StringName, Variant]:
+
 	var tables := database_get_tables(database)
 	if tables_has_id(tables, table_id):
 		return NULL_TABLE
 
-	var table := create_table(table_id)
+	var table := create_table(table_id, table_description)
 	tables.push_back(table)
 
 	return table
@@ -185,6 +192,17 @@ static func table_set_id(table: Dictionary, new_id: StringName) -> bool:
 
 static func table_get_id(table: Dictionary) -> StringName:
 	return table[ID]
+
+
+static func table_set_description(table: Dictionary, new_description: String) -> bool:
+	if table[DESCRIPTION] == new_description:
+		return false
+
+	table[DESCRIPTION] = new_description
+	return true
+
+static func table_get_description(table: Dictionary) -> String:
+	return table[DESCRIPTION]
 
 
 static func range_to_hint_string(min: float, max: float, step: float = 0.0) -> String:

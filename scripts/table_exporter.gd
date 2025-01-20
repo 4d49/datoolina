@@ -98,6 +98,7 @@ static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 static func serialize_dictionary_table(table: Dictionary[StringName, Variant]) -> Dictionary:
 	return {
 		"id": DictionaryDB.table_get_id(table),
+		"description": DictionaryDB.table_get_description(table),
 		"columns": _serialize_columns(DictionaryDB.table_get_columns(table)),
 		"records": _serialize_records(DictionaryDB.table_get_records(table)),
 	}

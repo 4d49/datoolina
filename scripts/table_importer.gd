@@ -61,7 +61,7 @@ static func import_table(path: String) -> Dictionary[StringName, Variant]:
 
 
 static func deserialize_dictionary_table(data: Dictionary) -> Dictionary[StringName, Variant]:
-	var table: Dictionary[StringName, Variant] = DictionaryDB.create_table(data.id)
+	var table: Dictionary[StringName, Variant] = DictionaryDB.create_table(data.id, data.get("description", ""))
 
 	for c: Dictionary in data.columns:
 		var column: Dictionary[StringName, Variant] = DictionaryDB.table_create_column(

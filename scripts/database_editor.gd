@@ -140,6 +140,7 @@ func update_tabs(deselect: bool = true) -> void:
 	if tables.is_empty():
 		_tab_bar.set_tab_count(1)
 		_tab_bar.set_tab_title(0, "<empty>")
+		_tab_bar.set_tab_tooltip(0, "")
 		_tab_bar.set_tab_disabled(0, true)
 		_tab_bar.set_tab_metadata(0, DictionaryDB.NULL_TABLE)
 
@@ -151,11 +152,14 @@ func update_tabs(deselect: bool = true) -> void:
 		popup.set_item_count(tables.size())
 
 		for i: int in tables.size():
-			_tab_bar.set_tab_title(i, DictionaryDB.table_get_id(tables[i]))
-			_tab_bar.set_tab_disabled(i, false)
-			_tab_bar.set_tab_metadata(i, tables[i])
+			var table: Dictionary = tables[i]
 
-			popup.set_item_text(i, DictionaryDB.table_get_id(tables[i]))
+			_tab_bar.set_tab_title(i, DictionaryDB.table_get_id(table))
+			_tab_bar.set_tab_tooltip(i, DictionaryDB.table_get_description(table))
+			_tab_bar.set_tab_disabled(i, false)
+			_tab_bar.set_tab_metadata(i, table)
+
+			popup.set_item_text(i, DictionaryDB.table_get_id(table))
 
 		_tab_list.show()
 
@@ -241,7 +245,7 @@ func show_table_import_dialog() -> void:
 
 func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	var rename_table: TableRenameDialog = TableRenameDialog.new(_database, table)
-	rename_table.table_renamed.connect(func on_table_renamed() -> void:
+	rename_table.table_changed.connect(func on_table_renamed() -> void:
 		database_modified.emit()
 		update_tabs(false)
 	)
