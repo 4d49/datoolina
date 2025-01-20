@@ -151,11 +151,14 @@ func update_tabs(deselect: bool = true) -> void:
 		popup.set_item_count(tables.size())
 
 		for i: int in tables.size():
-			_tab_bar.set_tab_title(i, DictionaryDB.table_get_id(tables[i]))
-			_tab_bar.set_tab_disabled(i, false)
-			_tab_bar.set_tab_metadata(i, tables[i])
+			var table: Dictionary = tables[i]
 
-			popup.set_item_text(i, DictionaryDB.table_get_id(tables[i]))
+			_tab_bar.set_tab_title(i, DictionaryDB.table_get_id(table))
+			_tab_bar.set_tab_tooltip(i, DictionaryDB.table_get_description(table))
+			_tab_bar.set_tab_disabled(i, false)
+			_tab_bar.set_tab_metadata(i, table)
+
+			popup.set_item_text(i, DictionaryDB.table_get_id(table))
 
 		_tab_list.show()
 
