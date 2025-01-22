@@ -8,7 +8,7 @@ on:
 
 env:
   GODOT_VERSION: 4.4
-  GODOT_CHANNEL: dev7
+  GODOT_CHANNEL: beta1
 
 jobs:
   export-linux:

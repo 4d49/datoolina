@@ -9,6 +9,7 @@ extends PanelContainer
 
 const DictionaryDB: GDScript = preload(\"res://scripts/dictionary_database.gd\")
 
+const AboutProgramDialog: GDScript = preload(\"res://scripts/about_program_dialog.gd\")
 const DatabaseCreateDialog: GDScript = preload(\"res://scripts/database_create_dialog.gd\")
 const DatabaseEditor: GDScript = preload(\"res://scripts/database_editor.gd\")
 const DatabaseLoadDialog: GDScript = preload(\"res://scripts/database_load_dialog.gd\")
@@ -30,6 +31,12 @@ enum FileMenu {
 	EXPORT_AS,
 	QUIT,
 }
+enum HelpMenu {
+	SOURCE_CODE,
+	REPORT_ISSUE,
+	VIEW_LICENSE,
+	ABOUT_PROGRAM,
+}
 
 
 var _vbox: VBoxContainer = null
@@ -38,7 +45,7 @@ var _menu_hbox: HBoxContainer = null
 var _file_menu: MenuButton = null
 var _edit_menu: MenuButton = null
 var _view_menu: MenuButton = null
-var _about_menu: MenuButton = null
+var _help_menu: MenuButton = null
 
 var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
 var _database_path: String = \"\"
@@ -53,6 +60,7 @@ var _database_create_dialog: DatabaseCreateDialog = null
 var _database_load_dialog: DatabaseLoadDialog = null
 var _database_save_fialog: DatabaseSaveDialog = null
 
+var _about_program_dialog: AboutProgramDialog = null
 var _quit_dialog: QuitDialog = null
 
 
@@ -99,11 +107,19 @@ func _init() -> void:
 	_view_menu.set_switch_on_hover(true)
 	_menu_hbox.add_child(_view_menu)
 
-	_about_menu = MenuButton.new()
-	_about_menu.set_text(\"About\")
-	_about_menu.set_disabled(true)
-	_about_menu.set_switch_on_hover(true)
-	_menu_hbox.add_child(_about_menu)
+	_help_menu = MenuButton.new()
+	_help_menu.set_text(\"Help\")
+	_help_menu.set_switch_on_hover(true)
+
+	popup = _help_menu.get_popup()
+	popup.add_item(\"Source Code\", HelpMenu.SOURCE_CODE)
+	popup.add_item(\"Report Issue\", HelpMenu.REPORT_ISSUE)
+	popup.add_item(\"View License\", HelpMenu.VIEW_LICENSE)
+	popup.add_separator()
+	popup.add_item(\"About\", HelpMenu.ABOUT_PROGRAM)
+	popup.id_pressed.connect(_on_help_menu_option)
+
+	_menu_hbox.add_child(_help_menu)
 
 	_database_editor = DatabaseEditor.new()
 	_database_editor.set_v_size_flags(Control.SIZE_EXPAND_FILL)
@@ -235,6 +251,14 @@ func quit() -> void:
 		get_tree().quit()
 
 
+func show_about_program_dialog() -> void:
+	if is_instance_valid(_about_program_dialog):
+		_about_program_dialog.queue_free()
+
+	_about_program_dialog = AboutProgramDialog.new()
+	self.add_child(_about_program_dialog)
+
+	_about_program_dialog.popup_centered()
 
 
 func _on_file_menu_option(option: FileMenu) -> void:
@@ -253,6 +277,18 @@ func _on_file_menu_option(option: FileMenu) -> void:
 			pass
 		FileMenu.QUIT:
 			quit()
+
+
+func _on_help_menu_option(option: HelpMenu) -> void:
+	match option:
+		HelpMenu.SOURCE_CODE:
+			OS.shell_open(\"https://github.com/4d49/datoolina\")
+		HelpMenu.REPORT_ISSUE:
+			OS.shell_open(\"https://github.com/4d49/datoolina/issues\")
+		HelpMenu.VIEW_LICENSE:
+			OS.shell_open(\"https://github.com/4d49/datoolina/blob/master/LICENSE.md\")
+		HelpMenu.ABOUT_PROGRAM:
+			show_about_program_dialog()
 
 
 func update_window_title() -> void:
