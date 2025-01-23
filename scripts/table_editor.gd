@@ -8,6 +8,7 @@ const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 
 const ColumnRemoveDialog: GDScript = preload("res://scripts/column_remove_dialog.gd")
 const ColumnRenameDialog: GDScript = preload("res://scripts/column_rename_dialog.gd")
+const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
 enum Type {
@@ -155,7 +156,7 @@ func update_row(row_idx: int, buffer: Dictionary) -> void:
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_ID, buffer.id)
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_TYPE, buffer.type)
 
-	_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, buffer.hint, buffer.hint_string)
+	_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, TypeHintUtils.table_view_hint(buffer.hint, buffer.hint_string))
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_VALUE, buffer.value)
 
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_HINT, buffer.hint)
@@ -174,11 +175,11 @@ func update_table_rows() -> void:
 func update_table() -> void:
 	_table_view.set_column_count(COLUMN_MAX)
 	_table_view.set_column_title(COLUMN_ID, "ID")
-	_table_view.set_column_type(COLUMN_ID, TableView.Type.STRING_NAME, TableView.Hint.NONE, "", str, Callable())
+	_table_view.set_column_type(COLUMN_ID, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
 	_table_view.set_column_minimum_width(COLUMN_ID, 100)
 
 	_table_view.set_column_title(COLUMN_TYPE, "Type")
-	_table_view.set_column_type(COLUMN_TYPE, TableView.Type.INT, TableView.Hint.ENUM, TableView.enum_to_hint_string(Type))
+	_table_view.set_column_type(COLUMN_TYPE, TableView.Type.INT, TableView.hint_enum(Type))
 	_table_view.set_column_minimum_width(COLUMN_TYPE, 100)
 
 	_table_view.set_column_title(COLUMN_VALUE, "Value")
@@ -186,7 +187,7 @@ func update_table() -> void:
 	_table_view.set_column_minimum_width(COLUMN_VALUE, 100)
 
 	_table_view.set_column_title(COLUMN_HINT, "Hint")
-	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.Hint.ENUM, TableView.enum_to_hint_string(DictionaryDB.Hint))
+	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DictionaryDB.Hint))
 	_table_view.set_column_minimum_width(COLUMN_HINT, 100)
 
 	_table_view.set_column_title(COLUMN_HINT_STRING, "Hint String")
@@ -322,7 +323,7 @@ func _on_table_cell_value_changed(row_idx: int, column_idx: int, value: Variant)
 				buffer.hint_string = value
 
 			_table_view.set_cell_value_no_signal(row_idx, COLUMN_VALUE, buffer.value)
-			_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, buffer.hint, buffer.hint_string)
+			_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, TypeHintUtils.table_view_hint(buffer.hint, buffer.hint_string))
 
 			buffer.flag |= FLAG_CHANGE_TYPE
 

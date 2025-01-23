@@ -229,6 +229,28 @@ static func hint_string_to_range(hint_string: String) -> PackedFloat32Array:
 	]
 
 
+static func enum_to_hint_string(enumeration: Dictionary) -> String:
+	var hint_string: String = ""
+
+	for key: String in enumeration:
+		hint_string += key + ":" + String.num_int64(enumeration[key]) + ","
+
+	return hint_string.left(-1)
+
+static func hint_string_to_enum(hint_string: String) -> Dictionary[StringName, int]:
+	var enumeration: Dictionary[StringName, int] = {}
+
+	var split: PackedStringArray = hint_string.split(",")
+	for i: int in split.size():
+		var subsplit: PackedStringArray = split[i].split(":")
+		if subsplit.size() > 1:
+			enumeration[StringName(subsplit[0])] = subsplit[1].to_int()
+		else:
+			enumeration[StringName(subsplit[0])] = i
+
+	return enumeration
+
+
 static func default_validator(type: Type, hint: Hint, hint_string: String) -> Callable:
 	match type:
 		Type.INT when hint == Hint.RANGE:
@@ -244,6 +266,19 @@ static func default_validator(type: Type, hint: Hint, hint_string: String) -> Ca
 					return snappedi(clampi(value, min, max), step)
 
 			return clampi.bind(min, max)
+
+		Type.INT when hint == Hint.ENUM:
+			var values: Array[int] = hint_string_to_enum(hint_string).values()
+
+			var map: Dictionary[int, Variant] = {}
+			for i: int in values:
+				map[i] = null
+			values.make_read_only()
+
+			var first: int = values[0]
+
+			return func(value: int) -> int:
+				return value if map.has(value) else first
 
 		Type.FLOAT when hint == Hint.RANGE:
 			var range: PackedFloat32Array = hint_string_to_range(hint_string)

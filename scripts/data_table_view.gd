@@ -9,6 +9,7 @@ const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
+const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
 signal table_modified
@@ -83,8 +84,8 @@ func update_table() -> void:
 	_table_view.set_column_count(columns.size() + 1)
 
 	_table_view.set_column_title(0, "ID")
-	_table_view.set_column_type(0, TableView.Type.STRING_NAME, TableView.Hint.NONE, "", str, Callable())
-	_table_view.set_column_comparator(0, TableView.default_comparator(TableView.Type.STRING_NAME, TableView.Hint.NONE, ""))
+	_table_view.set_column_type(0, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
+	_table_view.set_column_comparator(0, TableView.default_comparator(TableView.Type.STRING_NAME, TableView.hint_none()))
 
 	for i: int in range(1, columns.size() + 1):
 		var column: Dictionary = columns[i - 1]
@@ -92,8 +93,10 @@ func update_table() -> void:
 
 		_table_view.set_column_title(i, column.id)
 		_table_view.set_column_tooltip(i, column.description)
-		_table_view.set_column_type(i, column.type, column.hint, column.hint_string)
-		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, column.hint, column.hint_string))
+
+		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
+		_table_view.set_column_type(i, column.type, hint)
+		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
 
 	var records: Array[Dictionary] = _table.records
 	_table_view.set_row_count(records.size())
