@@ -4,8 +4,6 @@
 extends ConfirmationDialog
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
-
 const TableEditor: GDScript = preload("res://scripts/table_editor.gd")
 
 

@@ -4,11 +4,11 @@
 extends FileDialog
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 const TableExporter: GDScript = preload("res://scripts/table_exporter.gd")
 
 
-var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
+var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
 
 
 func _init(table: Dictionary[StringName, Variant]) -> void:

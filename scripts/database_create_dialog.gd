@@ -7,7 +7,7 @@ extends ConfirmationDialog
 signal database_created(database: Dictionary)
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 var _line_edit: LineEdit = null
@@ -38,11 +38,11 @@ func _init() -> void:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DictionaryDB.is_valid_id(id)
+	return DB.is_valid_id(id)
 
 
 func create_database(id: StringName) -> Dictionary:
-	return DictionaryDB.create_database(id)
+	return DB.create_database(id)
 
 
 func _on_line_edit_text_changed(id: StringName) -> void:

@@ -7,12 +7,12 @@ extends ConfirmationDialog
 signal column_renamed(id: StringName)
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 var _line_edit: LineEdit = null
 
-var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
+var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
 
 
 func _init(table: Dictionary[StringName, Variant], current_column_id: String) -> void:
@@ -36,10 +36,10 @@ func _init(table: Dictionary[StringName, Variant], current_column_id: String) ->
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DictionaryDB.is_valid_id(id)
+	return DB.is_valid_id(id)
 
 func has_column(id: StringName) -> bool:
-	return DictionaryDB.table_has_column_id(_table, id)
+	return DB.table_has_column_id(_table, id)
 
 
 func _on_id_changed(id: StringName) -> void:

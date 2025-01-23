@@ -4,7 +4,7 @@
 extends ConfirmationDialog
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 signal records_deleted
@@ -14,8 +14,8 @@ var _vbox: VBoxContainer = null
 var _label: Label = null
 var _tree: Tree = null
 
-var _table: Dictionary = DictionaryDB.NULL_TABLE
-var _records: Array = DictionaryDB.NULL_RECORDS
+var _table: Dictionary = DB.NULL_TABLE
+var _records: Array = DB.NULL_RECORDS
 
 
 func _init(table: Dictionary, records: Array[Dictionary]) -> void:
@@ -42,7 +42,7 @@ func _init(table: Dictionary, records: Array[Dictionary]) -> void:
 	var root: TreeItem = _tree.create_item()
 	for record: Dictionary in _records:
 		var item: TreeItem = root.create_child()
-		item.set_text(0, DictionaryDB.record_get_id(record))
+		item.set_text(0, DB.record_get_id(record))
 
 	_vbox.add_child(_tree)
 
@@ -53,6 +53,6 @@ func _init(table: Dictionary, records: Array[Dictionary]) -> void:
 
 func _on_confirmed() -> void:
 	for record: Dictionary in _records:
-		DictionaryDB.table_erase_record(_table, record)
+		DB.table_erase_record(_table, record)
 
 	records_deleted.emit()

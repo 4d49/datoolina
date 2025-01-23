@@ -4,7 +4,7 @@
 extends RefCounted
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 static var _formats: Array[Dictionary] = []
@@ -55,22 +55,22 @@ static func import_table(path: String) -> Dictionary[StringName, Variant]:
 
 		return format.importer.call(path)
 
-	return DictionaryDB.NULL_TABLE
+	return DB.NULL_TABLE
 
 
 
 
 static func deserialize_dictionary_table(data: Dictionary) -> Dictionary[StringName, Variant]:
-	var table: Dictionary[StringName, Variant] = DictionaryDB.create_table(data.id, data.get("description", ""))
+	var table: Dictionary[StringName, Variant] = DB.create_table(data.id, data.get("description", ""))
 
 	for c: Dictionary in data.columns:
-		var column: Dictionary[StringName, Variant] = DictionaryDB.table_create_column(
+		var column: Dictionary[StringName, Variant] = DB.table_create_column(
 			table, c.id, c.type, c.value,
 			c.hint, c.hint_string, c.get("description", "")
 		)
 
 	for r: Dictionary in data.records:
-		var record: Dictionary[StringName, Variant] = DictionaryDB.table_create_record(table, r.id)
+		var record: Dictionary[StringName, Variant] = DB.table_create_record(table, r.id)
 		# HACK: In the future, it should be removed.
 		for key: StringName in r:
 			record[key] = r[key]
@@ -84,21 +84,21 @@ static func _table_import_cfg(path: String) -> Dictionary[StringName, Variant]:
 	var error: Error = config.load(path)
 	if error:
 		printerr(error_string(error))
-		return DictionaryDB.NULL_TABLE
+		return DB.NULL_TABLE
 
-	var data: Dictionary = config.get_value("", "table", DictionaryDB.NULL_TABLE)
+	var data: Dictionary = config.get_value("", "table", DB.NULL_TABLE)
 	return deserialize_dictionary_table(data)
 
 
 static func _table_import_json(path: String) -> Dictionary[StringName, Variant]:
 	var file_as_string: String = FileAccess.get_file_as_string(path)
 	if file_as_string.is_empty():
-		return DictionaryDB.NULL_DATABASE
+		return DB.NULL_DATABASE
 
 	var json := JSON.new()
 
 	var data: Variant = json.parse_string(file_as_string)
 	if data == null:
-		return DictionaryDB.NULL_DATABASE
+		return DB.NULL_DATABASE
 
 	return deserialize_dictionary_table(data)

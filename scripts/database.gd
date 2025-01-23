@@ -64,16 +64,6 @@ const NULL_RECORD: Dictionary[StringName, Variant] = {
 
 
 static func is_valid_id(id: StringName) -> bool:
-#	if id.is_empty() or id == ID:
-#		return false
-#
-#	for c: String in String(id):
-#		if (c == "_") or (c >= "0" and c <= "9") or (c >= "a" and c <= "z"):
-#			continue
-#		else:
-#			return false
-#
-#	return true
 	return id != ID and id.is_valid_ascii_identifier()
 
 
