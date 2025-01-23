@@ -93,8 +93,10 @@ func update_table() -> void:
 
 		_table_view.set_column_title(i, column.id)
 		_table_view.set_column_tooltip(i, column.description)
-		_table_view.set_column_type(i, column.type, TypeHintUtils.table_view_hint(column.hint, column.hint_string))
-#		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, column.hint, column.hint_string))
+
+		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
+		_table_view.set_column_type(i, column.type, hint)
+		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
 
 	var records: Array[Dictionary] = _table.records
 	_table_view.set_row_count(records.size())
