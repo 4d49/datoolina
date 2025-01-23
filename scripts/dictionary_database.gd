@@ -267,6 +267,19 @@ static func default_validator(type: Type, hint: Hint, hint_string: String) -> Ca
 
 			return clampi.bind(min, max)
 
+		Type.INT when hint == Hint.ENUM:
+			var values: Array[int] = hint_string_to_enum(hint_string).values()
+
+			var map: Dictionary[int, Variant] = {}
+			for i: int in values:
+				map[i] = null
+			values.make_read_only()
+
+			var first: int = values[0]
+
+			return func(value: int) -> int:
+				return value if map.has(value) else first
+
 		Type.FLOAT when hint == Hint.RANGE:
 			var range: PackedFloat32Array = hint_string_to_range(hint_string)
 
