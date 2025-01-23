@@ -4,7 +4,7 @@
 extends RefCounted
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 static var _format_handlers: Array[Dictionary] = []
@@ -56,27 +56,27 @@ static func load_database(path: String) -> Dictionary[StringName, Variant]:
 
 		return format.file_loader.call(path)
 
-	return DictionaryDB.NULL_DATABASE
+	return DB.NULL_DATABASE
 
 
 
 
 static func _deserialize_database(data: Dictionary) -> Dictionary[StringName, Variant]:
-	var database: Dictionary[StringName, Variant] = DictionaryDB.create_database(data.id)
+	var database: Dictionary[StringName, Variant] = DB.create_database(data.id)
 
 	for t: Dictionary in data.tables:
 		# For backward compatibility, `get` is used here and below.
 		# It should be removed in the future.
-		var table: Dictionary[StringName, Variant] = DictionaryDB.database_create_table(database, t.id, t.get("description", ""))
+		var table: Dictionary[StringName, Variant] = DB.database_create_table(database, t.id, t.get("description", ""))
 
 		for c: Dictionary in t.columns:
-			var column: Dictionary[StringName, Variant] = DictionaryDB.table_create_column(
+			var column: Dictionary[StringName, Variant] = DB.table_create_column(
 				table, c.id, c.type, c.value,
 				c.hint, c.hint_string, c.get("description", ""),
 			)
 
 		for r: Dictionary in t.records:
-			var record: Dictionary[StringName, Variant] = DictionaryDB.table_create_record(table, r.id)
+			var record: Dictionary[StringName, Variant] = DB.table_create_record(table, r.id)
 			# HACK: In the future, it should be removed.
 			for key: StringName in r:
 				record[key] = r[key]
@@ -86,21 +86,21 @@ static func _deserialize_database(data: Dictionary) -> Dictionary[StringName, Va
 static func _database_load_cfg(path: String) -> Dictionary[StringName, Variant]:
 	var config := ConfigFile.new()
 	if config.load(path):
-		return DictionaryDB.NULL_DATABASE
+		return DB.NULL_DATABASE
 
-	var data: Dictionary = config.get_value("", "database", DictionaryDB.NULL_DATABASE)
+	var data: Dictionary = config.get_value("", "database", DB.NULL_DATABASE)
 	return _deserialize_database(data)
 
 
 static func _database_load_json(path: String) -> Dictionary[StringName, Variant]:
 	var file_as_string: String = FileAccess.get_file_as_string(path)
 	if file_as_string.is_empty():
-		return DictionaryDB.NULL_DATABASE
+		return DB.NULL_DATABASE
 
 	var json := JSON.new()
 
 	var data: Variant = json.parse_string(file_as_string)
 	if data == null:
-		return DictionaryDB.NULL_DATABASE
+		return DB.NULL_DATABASE
 
 	return _deserialize_database(data)

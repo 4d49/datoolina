@@ -7,7 +7,7 @@ script/source = "# Copyright (c) 2024 Mansur Isaev and contributors - MIT Licens
 extends PanelContainer
 
 
-const DictionaryDB: GDScript = preload(\"res://scripts/dictionary_database.gd\")
+const DB: GDScript = preload(\"res://scripts/database.gd\")
 
 const AboutProgramDialog: GDScript = preload(\"res://scripts/about_program_dialog.gd\")
 const DatabaseCreateDialog: GDScript = preload(\"res://scripts/database_create_dialog.gd\")
@@ -47,7 +47,7 @@ var _edit_menu: MenuButton = null
 var _view_menu: MenuButton = null
 var _help_menu: MenuButton = null
 
-var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
+var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
 var _database_path: String = \"\"
 var _database_modified: bool = false
 
@@ -160,7 +160,7 @@ func get_database() -> Dictionary[StringName, Variant]:
 	return _database
 
 func get_database_id() -> StringName:
-	return DictionaryDB.database_get_id(_database)
+	return DB.database_get_id(_database)
 
 
 func show_database_dialog_create() -> void:

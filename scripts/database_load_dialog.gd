@@ -7,11 +7,11 @@ extends FileDialog
 signal database_loaded(database: Dictionary[StringName, Variant], path: String)
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 const DatabaseLoader: GDScript = preload("res://scripts/database_loader.gd")
 
 
-var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
+var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
 
 
 func _init(database: Dictionary[StringName, Variant]) -> void:

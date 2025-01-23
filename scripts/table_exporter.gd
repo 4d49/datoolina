@@ -4,7 +4,7 @@
 extends RefCounted
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 static var _formats: Array[Dictionary] = []
@@ -78,12 +78,12 @@ static func _serialize_records(records: Array[Dictionary]) -> Array:
 
 static func _serialize_column(column: Dictionary[StringName, Variant]) -> Dictionary:
 	return {
-		"id": DictionaryDB.column_get_id(column),
-		"type": DictionaryDB.column_get_type(column),
-		"value": DictionaryDB.column_get_default_value(column),
-		"hint": DictionaryDB.column_get_hint(column),
-		"hint_string": DictionaryDB.column_get_hint_string(column),
-		"description": DictionaryDB.column_get_description(column),
+		"id": DB.column_get_id(column),
+		"type": DB.column_get_type(column),
+		"value": DB.column_get_default_value(column),
+		"hint": DB.column_get_hint(column),
+		"hint_string": DB.column_get_hint_string(column),
+		"description": DB.column_get_description(column),
 	}
 static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 	var serialized: Array = []
@@ -97,10 +97,10 @@ static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 
 static func serialize_dictionary_table(table: Dictionary[StringName, Variant]) -> Dictionary:
 	return {
-		"id": DictionaryDB.table_get_id(table),
-		"description": DictionaryDB.table_get_description(table),
-		"columns": _serialize_columns(DictionaryDB.table_get_columns(table)),
-		"records": _serialize_records(DictionaryDB.table_get_records(table)),
+		"id": DB.table_get_id(table),
+		"description": DB.table_get_description(table),
+		"columns": _serialize_columns(DB.table_get_columns(table)),
+		"records": _serialize_records(DB.table_get_records(table)),
 	}
 
 static func _table_export_cfg(table: Dictionary[StringName, Variant], path: String) -> Error:

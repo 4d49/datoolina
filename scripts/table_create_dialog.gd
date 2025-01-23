@@ -7,7 +7,7 @@ extends ConfirmationDialog
 signal table_created
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 
 var _vbox: VBoxContainer = null
@@ -20,7 +20,7 @@ var _description_vbox: VBoxContainer = null
 var _description_label: Label = null
 var _description_edit: TextEdit = null
 
-var _database: Dictionary[StringName, Variant] = DictionaryDB.NULL_DATABASE
+var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
 
 
 func _init(database: Dictionary[StringName, Variant]) -> void:
@@ -73,10 +73,10 @@ func _init(database: Dictionary[StringName, Variant]) -> void:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DictionaryDB.is_valid_id(id)
+	return DB.is_valid_id(id)
 
 func has_table(id: StringName) -> bool:
-	return DictionaryDB.database_has_table_id(_database, id)
+	return DB.database_has_table_id(_database, id)
 
 
 func _on_line_edit_id_changed(id: StringName) -> void:
@@ -88,7 +88,7 @@ func _on_confirmed() -> void:
 	var description: String = _description_edit.get_text()
 
 	# A valid table is not `read-only`.
-	if DictionaryDB.database_create_table(_database, id, description).is_read_only():
+	if DB.database_create_table(_database, id, description).is_read_only():
 		return
 
 	table_created.emit()

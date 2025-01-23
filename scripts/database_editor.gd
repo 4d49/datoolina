@@ -10,7 +10,7 @@ signal database_changed(database: Dictionary[StringName, Variant])
 signal table_changed(table: Dictionary[StringName, Variant])
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 const DataTableView: GDScript = preload("res://scripts/data_table_view.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
@@ -54,7 +54,7 @@ var _table_import_dialog: TableImportDialog = null
 
 var _record_rename_dialog: RecordRenameDialog = null
 
-var _database := DictionaryDB.NULL_DATABASE
+var _database := DB.NULL_DATABASE
 
 
 func _init() -> void:
@@ -135,14 +135,14 @@ func get_table_view() -> TableView:
 
 
 func update_tabs(deselect: bool = true) -> void:
-	var tables: Array[Dictionary] = DictionaryDB.database_get_tables(_database)
+	var tables: Array[Dictionary] = DB.database_get_tables(_database)
 
 	if tables.is_empty():
 		_tab_bar.set_tab_count(1)
 		_tab_bar.set_tab_title(0, "<empty>")
 		_tab_bar.set_tab_tooltip(0, "")
 		_tab_bar.set_tab_disabled(0, true)
-		_tab_bar.set_tab_metadata(0, DictionaryDB.NULL_TABLE)
+		_tab_bar.set_tab_metadata(0, DB.NULL_TABLE)
 
 		_tab_list.hide()
 	else:
@@ -154,12 +154,12 @@ func update_tabs(deselect: bool = true) -> void:
 		for i: int in tables.size():
 			var table: Dictionary = tables[i]
 
-			_tab_bar.set_tab_title(i, DictionaryDB.table_get_id(table))
-			_tab_bar.set_tab_tooltip(i, DictionaryDB.table_get_description(table))
+			_tab_bar.set_tab_title(i, DB.table_get_id(table))
+			_tab_bar.set_tab_tooltip(i, DB.table_get_description(table))
 			_tab_bar.set_tab_disabled(i, false)
 			_tab_bar.set_tab_metadata(i, table)
 
-			popup.set_item_text(i, DictionaryDB.table_get_id(table))
+			popup.set_item_text(i, DB.table_get_id(table))
 
 		_tab_list.show()
 
@@ -183,7 +183,7 @@ func get_database() -> Dictionary:
 
 
 func has_table(id: StringName) -> bool:
-	return DictionaryDB.database_has_table_id(_database, id)
+	return DB.database_has_table_id(_database, id)
 
 
 func show_create_table_dialog() -> void:
@@ -229,10 +229,10 @@ func show_table_import_dialog() -> void:
 		if table.is_read_only():
 			return printerr("Invalid Table.")
 
-		while has_table(DictionaryDB.table_get_id(table)):
+		while has_table(DB.table_get_id(table)):
 			table.id += &"_copy"
 
-		var tables: Array = DictionaryDB.database_get_tables(_database)
+		var tables: Array = DB.database_get_tables(_database)
 		tables.push_back(table)
 
 		update_tabs(false)
@@ -350,9 +350,9 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 	)
 
 	var column_idx: int = 1 # Plus ID column offset.
-	for column: Dictionary in DictionaryDB.table_get_columns(_data_view.get_table()):
-		var id: StringName = DictionaryDB.column_get_id(column)
-		var validator: Callable = DictionaryDB.column_get_validator(column)
+	for column: Dictionary in DB.table_get_columns(_data_view.get_table()):
+		var id: StringName = DB.column_get_id(column)
+		var validator: Callable = DB.column_get_validator(column)
 
 		var setter: Callable = func(value: Variant) -> bool:
 			value = validator.call(value)

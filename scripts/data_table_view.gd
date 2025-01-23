@@ -4,7 +4,7 @@
 extends VBoxContainer
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
@@ -33,7 +33,7 @@ var _record_delete_dialog: RecordDeleteDialog = null
 var _record_rename_dialog: RecordRenameDialog = null
 var _records_delete_dialog: RecordsDeleteDialog = null
 
-var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
+var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
 
 
 func _init() -> void:
@@ -127,10 +127,10 @@ func get_table() -> Dictionary[StringName, Variant]:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DictionaryDB.is_valid_id(id)
+	return DB.is_valid_id(id)
 
 func has_record_id(id: StringName) -> bool:
-	return DictionaryDB.table_has_record_id(_table, id)
+	return DB.table_has_record_id(_table, id)
 
 
 func show_record_rename_dialog(record: Dictionary) -> void:
@@ -190,7 +190,7 @@ func _on_record_id_text_changed(id: StringName) -> void:
 	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
 
 func _on_create_pressed() -> void:
-	if not DictionaryDB.table_create_record(_table, _record_id.get_text()).is_read_only():
+	if not DB.table_create_record(_table, _record_id.get_text()).is_read_only():
 		table_modified.emit()
 		update_table()
 

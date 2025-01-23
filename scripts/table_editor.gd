@@ -4,7 +4,7 @@
 extends VBoxContainer
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
+const DB: GDScript = preload("res://scripts/database.gd")
 
 const ColumnRemoveDialog: GDScript = preload("res://scripts/column_remove_dialog.gd")
 const ColumnRenameDialog: GDScript = preload("res://scripts/column_rename_dialog.gd")
@@ -55,7 +55,7 @@ var _bottom_hbox: HBoxContainer = null
 var _column_id: LineEdit = null
 var _create_column: Button = null
 
-var _table: Dictionary[StringName, Variant] = DictionaryDB.NULL_TABLE
+var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
 var _edit_buffer: Array[Dictionary] = []
 
 
@@ -104,7 +104,7 @@ func _enter_tree() -> void:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DictionaryDB.is_valid_id(id)
+	return DB.is_valid_id(id)
 
 func has_column_id(id: StringName) -> bool:
 	for buffer: Dictionary in _edit_buffer:
@@ -135,17 +135,17 @@ static func create_edit_buffer(
 
 static func create_edit_buffer_from_column(column: Dictionary) -> Dictionary[StringName, Variant]:
 	return create_edit_buffer(
-		DictionaryDB.column_get_id(column),
-		DictionaryDB.column_get_type(column),
-		DictionaryDB.column_get_default_value(column),
-		DictionaryDB.column_get_hint(column),
-		DictionaryDB.column_get_hint_string(column),
-		DictionaryDB.column_get_description(column),
+		DB.column_get_id(column),
+		DB.column_get_type(column),
+		DB.column_get_default_value(column),
+		DB.column_get_hint(column),
+		DB.column_get_hint_string(column),
+		DB.column_get_description(column),
 	)
 
 
 func update_temp_params(table: Dictionary[StringName, Variant]) -> void:
-	var columns: Array[Dictionary] = DictionaryDB.table_get_columns(table)
+	var columns: Array[Dictionary] = DB.table_get_columns(table)
 	_edit_buffer.resize(columns.size())
 
 	for i: int in _edit_buffer.size():
@@ -187,7 +187,7 @@ func update_table() -> void:
 	_table_view.set_column_minimum_width(COLUMN_VALUE, 100)
 
 	_table_view.set_column_title(COLUMN_HINT, "Hint")
-	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DictionaryDB.Hint))
+	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DB.Hint))
 	_table_view.set_column_minimum_width(COLUMN_HINT, 100)
 
 	_table_view.set_column_title(COLUMN_HINT_STRING, "Hint String")
@@ -231,7 +231,7 @@ func show_column_remove_dialog() -> ColumnRemoveDialog:
 
 func apply_changed() -> void:
 	var table: Dictionary[StringName, Variant] = _table
-	var columns: Array[Dictionary] = DictionaryDB.table_get_columns(table)
+	var columns: Array[Dictionary] = DB.table_get_columns(table)
 
 	var queue_buffer: Array[Dictionary] = _edit_buffer
 
@@ -239,18 +239,18 @@ func apply_changed() -> void:
 		var buffer: Dictionary = queue_buffer[i]
 
 		if buffer.flag & FLAG_REMOVED:
-			DictionaryDB.table_remove_column_by_id(table, buffer.id)
+			DB.table_remove_column_by_id(table, buffer.id)
 		elif buffer.flag & FLAG_CREATED:
-			DictionaryDB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
+			DB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
 		else:
 			if buffer.flag & FLAG_CHANGE_ID:
-				DictionaryDB.table_set_column_id(table, i, buffer.id)
+				DB.table_set_column_id(table, i, buffer.id)
 			if buffer.flag & FLAG_CHANGE_TYPE:
-				DictionaryDB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
+				DB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
 			if buffer.flag & FLAG_CHANGE_VALUE:
-				DictionaryDB.column_set_default_value(columns[i], buffer.value)
+				DB.column_set_default_value(columns[i], buffer.value)
 			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
-				DictionaryDB.column_set_description(columns[i], buffer.description)
+				DB.column_set_description(columns[i], buffer.description)
 
 
 func _on_filter_line_text_changed(text: StringName) -> void:

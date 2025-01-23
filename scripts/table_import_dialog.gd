@@ -7,7 +7,6 @@ extends FileDialog
 signal table_imported(table: Dictionary[StringName, Variant])
 
 
-const DictionaryDB: GDScript = preload("res://scripts/dictionary_database.gd")
 const TableImporter: GDScript = preload("res://scripts/table_importer.gd")
 
 
