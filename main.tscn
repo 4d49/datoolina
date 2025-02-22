@@ -186,6 +186,7 @@ func show_open_file_dialog() -> void:
 		_database_load_dialog.queue_free()
 
 	_database_load_dialog = DatabaseLoadDialog.new(_database)
+	_database_load_dialog.set_current_dir(_database_path.get_base_dir())
 	_database_load_dialog.database_loaded.connect(func on_database_loaded(database: Dictionary, path: String) -> void:
 		_database_path = path
 		_database_modified = false
@@ -202,6 +203,7 @@ func show_database_save_dialog() -> void:
 		_database_save_dialog.queue_free()
 
 	_database_save_dialog = DatabaseSaveDialog.new(_database)
+	_database_save_dialog.set_current_dir(_database_path.get_base_dir())
 	_database_save_dialog.file_saved.connect(func on_file_saved(path: String) -> void:
 		_database_path = path
 
@@ -219,6 +221,7 @@ func show_database_export_dialog() -> void:
 		_database_export_dialog.queue_free()
 
 	_database_export_dialog = DatabaseExportDialog.new(_database)
+	_database_export_dialog.set_current_dir(_database_path.get_base_dir())
 	self.add_child(_database_export_dialog)
 
 	_database_export_dialog.popup_centered_clamped(Vector2i(640, 360))
