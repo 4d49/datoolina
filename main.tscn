@@ -15,6 +15,7 @@ const DatabaseEditor: GDScript = preload(\"res://scripts/database_editor.gd\")
 const DatabaseLoadDialog: GDScript = preload(\"res://scripts/database_load_dialog.gd\")
 const DatabaseSaver: GDScript = preload(\"res://scripts/database_saver.gd\")
 const DatabaseSaveDialog: GDScript = preload(\"res://scripts/database_save_dialog.gd\")
+const DatabaseExportDialog: GDScript = preload(\"res://scripts/database_export_dialog.gd\")
 const QuitDialog: GDScript = preload(\"res://scripts/quit_dialog.gd\")
 
 
@@ -59,6 +60,7 @@ var _status_bar: Label = null
 var _database_create_dialog: DatabaseCreateDialog = null
 var _database_load_dialog: DatabaseLoadDialog = null
 var _database_save_dialog: DatabaseSaveDialog = null
+var _database_export_dialog: DatabaseExportDialog = null
 
 var _about_program_dialog: AboutProgramDialog = null
 var _quit_dialog: QuitDialog = null
@@ -212,6 +214,16 @@ func show_database_save_dialog() -> void:
 	_database_save_dialog.popup_centered_clamped(Vector2i(640, 360))
 
 
+func show_database_export_dialog() -> void:
+	if is_instance_valid(_database_export_dialog):
+		_database_export_dialog.queue_free()
+
+	_database_export_dialog = DatabaseExportDialog.new(_database)
+	self.add_child(_database_export_dialog)
+
+	_database_export_dialog.popup_centered_clamped(Vector2i(640, 360))
+
+
 func save_file() -> void:
 	if _database_path.is_empty():
 		show_database_save_dialog()
@@ -274,7 +286,7 @@ func _on_file_menu_option(option: FileMenu) -> void:
 		FileMenu.SAVE_FILE_AS:
 			show_database_save_dialog()
 		FileMenu.EXPORT_AS:
-			pass
+			show_database_export_dialog()
 		FileMenu.QUIT:
 			quit()
 
@@ -316,6 +328,7 @@ func _on_database_changed(database: Dictionary) -> void:
 	var popup: PopupMenu = _file_menu.get_popup()
 	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE), is_invalid)
 	popup.set_item_disabled(popup.get_item_index(FileMenu.SAVE_FILE_AS), is_invalid)
+	popup.set_item_disabled(popup.get_item_index(FileMenu.EXPORT_AS), is_invalid)
 
 
 func _on_database_modified() -> void:
