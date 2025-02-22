@@ -58,7 +58,7 @@ var _status_bar: Label = null
 
 var _database_create_dialog: DatabaseCreateDialog = null
 var _database_load_dialog: DatabaseLoadDialog = null
-var _database_save_fialog: DatabaseSaveDialog = null
+var _database_save_dialog: DatabaseSaveDialog = null
 
 var _about_program_dialog: AboutProgramDialog = null
 var _quit_dialog: QuitDialog = null
@@ -195,26 +195,26 @@ func show_open_file_dialog() -> void:
 	_database_load_dialog.popup_centered_clamped(Vector2i(640, 360))
 
 
-func show_database_save_fialog() -> void:
-	if is_instance_valid(_database_save_fialog):
-		_database_save_fialog.queue_free()
+func show_database_save_dialog() -> void:
+	if is_instance_valid(_database_save_dialog):
+		_database_save_dialog.queue_free()
 
-	_database_save_fialog = DatabaseSaveDialog.new(_database)
-	_database_save_fialog.file_saved.connect(func on_file_saved(path: String) -> void:
+	_database_save_dialog = DatabaseSaveDialog.new(_database)
+	_database_save_dialog.file_saved.connect(func on_file_saved(path: String) -> void:
 		_database_path = path
 
 		database_saved.emit()
 		update_window_title()
 	)
 
-	self.add_child(_database_save_fialog)
+	self.add_child(_database_save_dialog)
 
-	_database_save_fialog.popup_centered_clamped(Vector2i(640, 360))
+	_database_save_dialog.popup_centered_clamped(Vector2i(640, 360))
 
 
 func save_file() -> void:
 	if _database_path.is_empty():
-		show_database_save_fialog()
+		show_database_save_dialog()
 	else:
 		var error: Error = DatabaseSaver.save_database(_database, _database_path)
 		if error:
@@ -272,7 +272,7 @@ func _on_file_menu_option(option: FileMenu) -> void:
 		FileMenu.SAVE_FILE:
 			save_file()
 		FileMenu.SAVE_FILE_AS:
-			show_database_save_fialog()
+			show_database_save_dialog()
 		FileMenu.EXPORT_AS:
 			pass
 		FileMenu.QUIT:
