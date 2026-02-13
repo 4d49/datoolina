@@ -62,6 +62,11 @@ var _quit_dialog: QuitDialog = null
 
 
 func _init() -> void:
+	# Initialize the database factory to ensure it's available for use
+	var factory_script: GDScript = load("res://scripts/database/impl/database_factory.gd")
+	var factory_instance: AbstractDatabaseFactory = factory_script.new()
+	DatabaseFactory.set_instance(factory_instance)
+
 	_vbox = VBoxContainer.new()
 	self.add_child(_vbox)
 
