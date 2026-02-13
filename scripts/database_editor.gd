@@ -241,7 +241,7 @@ func show_table_import_dialog() -> void:
 	_table_import_dialog.popup_centered(Vector2i(500, 300))
 
 
-func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_rename_table_dialog(table: AbstractTable) -> void:
 	var rename_table: TableRenameDialog = TableRenameDialog.new(_database, table)
 	rename_table.table_changed.connect(func on_table_renamed() -> void:
 		database_modified.emit()
