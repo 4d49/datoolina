@@ -5,12 +5,10 @@ extends HSplitContainer
 
 
 signal database_modified
-signal database_changed(database: Dictionary[StringName, Variant])
+signal database_changed(database: AbstractDatabase)
 
-signal table_changed(table: Dictionary[StringName, Variant])
+signal table_changed(table: AbstractTable)
 
-
-const DB: GDScript = preload("res://scripts/database.gd")
 
 const DataTableView: GDScript = preload("res://scripts/data_table_view.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
@@ -54,7 +52,7 @@ var _table_import_dialog: TableImportDialog = null
 
 var _record_rename_dialog: RecordRenameDialog = null
 
-var _database := DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
 func _init() -> void:
@@ -135,14 +133,14 @@ func get_table_view() -> TableView:
 
 
 func update_tabs(deselect: bool = true) -> void:
-	var tables: Array[Dictionary] = DB.database_get_tables(_database)
+	var tables: Array[StringName] = _database.get_table_names()
 
 	if tables.is_empty():
 		_tab_bar.set_tab_count(1)
 		_tab_bar.set_tab_title(0, "<empty>")
 		_tab_bar.set_tab_tooltip(0, "")
 		_tab_bar.set_tab_disabled(0, true)
-		_tab_bar.set_tab_metadata(0, DB.NULL_TABLE)
+		_tab_bar.set_tab_metadata(0, null)
 
 		_tab_list.hide()
 	else:
@@ -152,14 +150,14 @@ func update_tabs(deselect: bool = true) -> void:
 		popup.set_item_count(tables.size())
 
 		for i: int in tables.size():
-			var table: Dictionary = tables[i]
+			var table: AbstractTable = _database.get_table(tables[i])
 
-			_tab_bar.set_tab_title(i, DB.table_get_id(table))
-			_tab_bar.set_tab_tooltip(i, DB.table_get_description(table))
+			_tab_bar.set_tab_title(i, table.get_name())
+			_tab_bar.set_tab_tooltip(i, table.get_description())
 			_tab_bar.set_tab_disabled(i, false)
 			_tab_bar.set_tab_metadata(i, table)
 
-			popup.set_item_text(i, DB.table_get_id(table))
+			popup.set_item_text(i, table.get_name())
 
 		_tab_list.show()
 
@@ -171,19 +169,19 @@ func update_table() -> void:
 
 
 
-func set_database(database: Dictionary[StringName, Variant]) -> void:
+func set_database(database: AbstractDatabase) -> void:
 	if is_same(_database, database):
 		return
 
 	_database = database
 	database_changed.emit(database)
 
-func get_database() -> Dictionary:
+func get_database() -> AbstractDatabase:
 	return _database
 
 
-func has_table(id: StringName) -> bool:
-	return DB.database_has_table_id(_database, id)
+func has_table(name: StringName) -> bool:
+	return _database.has_table(name)
 
 
 func show_create_table_dialog() -> void:
@@ -225,16 +223,16 @@ func show_table_import_dialog() -> void:
 		_table_import_dialog.queue_free()
 
 	_table_import_dialog = TableImportDialog.new()
-	_table_import_dialog.table_imported.connect(func on_table_imported(table: Dictionary[StringName, Variant]) -> void:
-		if table.is_read_only():
+	_table_import_dialog.table_imported.connect(func on_table_imported(table: AbstractTable) -> void:
+		if not is_instance_valid(table):
 			return printerr("Invalid Table.")
 
-		while has_table(DB.table_get_id(table)):
-			table.id += &"_copy"
+		var table_name: StringName = table.get_name()
+		while _database.has_table(table.get_name()):
+			table_name += &"_copy"
+		table.set_name(table_name)
 
-		var tables: Array = DB.database_get_tables(_database)
-		tables.push_back(table)
-
+		_database.add_table(table)
 		update_tabs(false)
 	)
 
@@ -349,30 +347,31 @@ func create_property_helper_for_record(record: Dictionary, row_idx: int) -> Prop
 		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
 	)
 
-	var column_idx: int = 1 # Plus ID column offset.
-	for column: Dictionary in DB.table_get_columns(_data_view.get_table()):
-		var id: StringName = DB.column_get_id(column)
-		var validator: Callable = DB.column_get_validator(column)
-
-		var setter: Callable = func(value: Variant) -> bool:
-			value = validator.call(value)
-
-			if is_same(record[id], value):
-				return false
-
-			record[id] = value
-			database_modified.emit()
-
-			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
-				table_view.queue_redraw()
-
-			return true
-		var getter: Callable = func() -> Variant:
-			return record[id]
-
-		property_helper.add_property(id, column.type, setter, getter, column.description, column.hint, column.hint_string)
-
-		column_idx += 1
+#	# TODO: Fix this place latter.
+#	var column_idx: int = 1 # Plus ID column offset.
+#	for column: Dictionary in DB.table_get_columns(_data_view.get_table()):
+#		var id: StringName = DB.column_get_id(column)
+#		var validator: Callable = DB.column_get_validator(column)
+#
+#		var setter: Callable = func(value: Variant) -> bool:
+#			value = validator.call(value)
+#
+#			if is_same(record[id], value):
+#				return false
+#
+#			record[id] = value
+#			database_modified.emit()
+#
+#			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
+#				table_view.queue_redraw()
+#
+#			return true
+#		var getter: Callable = func() -> Variant:
+#			return record[id]
+#
+#		property_helper.add_property(id, column.type, setter, getter, column.description, column.hint, column.hint_string)
+#
+#		column_idx += 1
 
 	return property_helper
 

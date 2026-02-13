@@ -7,14 +7,11 @@ extends ConfirmationDialog
 signal table_deleted
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
+var _database: AbstractDatabase = null
+var _table: AbstractTable = null
 
 
-var _database: Dictionary = DB.NULL_DATABASE
-var _table: Dictionary = DB.NULL_TABLE
-
-
-func _init(database: Dictionary, table: Dictionary) -> void:
+func _init(database: AbstractDatabase, table: AbstractTable) -> void:
 	_database = database
 	_table = table
 
@@ -29,7 +26,7 @@ func _init(database: Dictionary, table: Dictionary) -> void:
 
 
 func _on_confirmed() -> void:
-	if DB.database_erase_table(_database, _table):
+	if _database.remove_table(_table.get_name()):
 		table_deleted.emit()
 
 func _on_visibility_changed() -> void:

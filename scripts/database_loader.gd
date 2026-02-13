@@ -4,9 +4,6 @@
 extends RefCounted
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 static var _format_handlers: Array[Dictionary] = []
 
 
@@ -49,58 +46,63 @@ static func get_support_file_extension() -> PackedStringArray:
 	return support_extension
 
 
-static func load_database(path: String) -> Dictionary[StringName, Variant]:
+static func load_database(path: String) -> AbstractDatabase:
 	for format: Dictionary in _format_handlers:
 		if not format.handler.call(path):
 			continue
 
 		return format.file_loader.call(path)
 
-	return DB.NULL_DATABASE
+	return null
 
 
 
 
-static func _deserialize_database(data: Dictionary) -> Dictionary[StringName, Variant]:
-	var database: Dictionary[StringName, Variant] = DB.create_database(data.id)
+static func _deserialize_database(data: Dictionary) -> AbstractDatabase:
+	var database: AbstractDatabase = DatabaseFactory.create_database("FIXME")
 
 	for t: Dictionary in data.tables:
 		# For backward compatibility, `get` is used here and below.
 		# It should be removed in the future.
-		var table: Dictionary[StringName, Variant] = DB.database_create_table(database, t.id, t.get("description", ""))
+#		var table: Dictionary[StringName, Variant] = DB.database_create_table(database, t.id, t.get("description", ""))
+		var schema: AbstractSchema = null # FIXME
+		var table: AbstractTable = DatabaseFactory.create_table("FIXME", schema)
 
 		for c: Dictionary in t.columns:
-			var column: Dictionary[StringName, Variant] = DB.table_create_column(
-				table, c.id, c.type, c.value,
-				c.hint, c.hint_string, c.get("description", ""),
-			)
+			# FIXME: Требуется реализация!
+#			var column: Dictionary[StringName, Variant] = DB.table_create_column(
+#				table, c.id, c.type, c.value,
+#				c.hint, c.hint_string, c.get("description", ""),
+#			)
+			continue
 
 		for r: Dictionary in t.records:
-			var record: Dictionary[StringName, Variant] = DB.table_create_record(table, r.id)
+			# FIXME: Нам требуется знать primary key value of new record!
+			var record: AbstractRow = DatabaseFactory.create_row(schema)
 			# HACK: In the future, it should be removed.
 			for key: StringName in r:
 				record[key] = r[key]
 
 	return database
 
-static func _database_load_cfg(path: String) -> Dictionary[StringName, Variant]:
+static func _database_load_cfg(path: String) -> AbstractDatabase:
 	var config := ConfigFile.new()
 	if config.load(path):
-		return DB.NULL_DATABASE
+		return null
 
-	var data: Dictionary = config.get_value("", "database", DB.NULL_DATABASE)
+	var data: Dictionary = config.get_value("", "database", null)
 	return _deserialize_database(data)
 
 
-static func _database_load_json(path: String) -> Dictionary[StringName, Variant]:
+static func _database_load_json(path: String) -> AbstractDatabase:
 	var file_as_string: String = FileAccess.get_file_as_string(path)
 	if file_as_string.is_empty():
-		return DB.NULL_DATABASE
+		return null
 
 	var json := JSON.new()
 
 	var data: Variant = json.parse_string(file_as_string)
 	if data == null:
-		return DB.NULL_DATABASE
+		return null
 
 	return _deserialize_database(data)

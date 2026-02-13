@@ -1,10 +1,8 @@
 # Copyright (c) 2024-2025 Mansur Isaev and contributors - MIT License
 # See `LICENSE.md` included in the source distribution for details.
 
+# FIXME: Фактически нужна новая реализация класса!
 extends RefCounted
-
-
-const DB: GDScript = preload("res://scripts/database.gd")
 
 
 static var _format_handlers: Array[Dictionary] = []
@@ -49,7 +47,7 @@ static func get_support_file_extension() -> PackedStringArray:
 	return support_extension
 
 
-static func save_database(database: Dictionary[StringName, Variant], path: String) -> Error:
+static func save_database(database: AbstractDatabase, path: String) -> Error:
 	for format: Dictionary in _format_handlers:
 		if not format.handler.call(path):
 			continue
@@ -59,17 +57,18 @@ static func save_database(database: Dictionary[StringName, Variant], path: Strin
 	return FAILED
 
 
-
-
-static func _serialize_record(record: Dictionary[StringName, Variant]) -> Dictionary:
+# FIXME: Требуется новая реализация!
+static func _serialize_record(record: AbstractRow) -> Dictionary:
 	var serialized: Dictionary = {}
 
 	for key: String in record:
 		serialized[key] = record[key]
 
 	return serialized
-static func _serialize_records(records: Array[Dictionary]) -> Array:
-	var serialized: Array = []
+
+# FIXME: Требуется новая реализация!
+static func _serialize_records(records: Array[AbstractRow]) -> Array:
+	var serialized: Array[Dictionary] = []
 	serialized.resize(records.size())
 
 	for i: int in records.size():
@@ -77,17 +76,21 @@ static func _serialize_records(records: Array[Dictionary]) -> Array:
 
 	return serialized
 
-static func _serialize_column(column: Dictionary[StringName, Variant]) -> Dictionary:
-	return {
-		"id": DB.column_get_id(column),
-		"type": DB.column_get_type(column),
-		"value": DB.column_get_default_value(column),
-		"hint": DB.column_get_hint(column),
-		"hint_string": DB.column_get_hint_string(column),
-		"description": DB.column_get_description(column),
-	}
-static func _serialize_columns(columns: Array[Dictionary]) -> Array:
-	var serialized: Array = []
+# FIXME: Требуется новая реализация!
+static func _serialize_column(column: AbstractColumn) -> Dictionary:
+#	return {
+#		"id": DB.column_get_id(column),
+#		"type": DB.column_get_type(column),
+#		"value": DB.column_get_default_value(column),
+#		"hint": DB.column_get_hint(column),
+#		"hint_string": DB.column_get_hint_string(column),
+#		"description": DB.column_get_description(column),
+#	}
+	return {}
+
+# FIXME: Требуется новая реализация!
+static func _serialize_columns(columns: Array[AbstractColumn]) -> Array:
+	var serialized: Array[Dictionary] = []
 	serialized.resize(columns.size())
 
 	for i: int in columns.size():
@@ -95,15 +98,19 @@ static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 
 	return serialized
 
-static func _serialize_table(table: Dictionary) -> Dictionary:
-	return {
-		"id": DB.table_get_id(table),
-		"description": DB.table_get_description(table),
-		"columns": _serialize_columns(DB.table_get_columns(table)),
-		"records": _serialize_records(DB.table_get_records(table)),
-	}
-static func _serialize_tables(tables: Array[Dictionary]) -> Array:
-	var serialized: Array = []
+# FIXME: Требуется новая реализация!
+static func _serialize_table(table: AbstractTable) -> Dictionary:
+#	return {
+#		"id": DB.table_get_id(table),
+#		"description": DB.table_get_description(table),
+#		"columns": _serialize_columns(DB.table_get_columns(table)),
+#		"records": _serialize_records(DB.table_get_records(table)),
+#	}
+	return {}
+
+# FIXME: Требуется новая реализация!
+static func _serialize_tables(tables: Array[AbstractTable]) -> Array:
+	var serialized: Array[Dictionary] = []
 	serialized.resize(tables.size())
 
 	for i: int in tables.size():
@@ -111,13 +118,16 @@ static func _serialize_tables(tables: Array[Dictionary]) -> Array:
 
 	return serialized
 
-static func _serialize_database(database: Dictionary) -> Dictionary:
-	return {
-		"id": DB.database_get_id(database),
-		"tables": _serialize_tables(DB.database_get_tables(database)),
-	}
+# FIXME: Требуется новая реализация!
+static func _serialize_database(database: AbstractDatabase) -> Dictionary:
+#	return {
+#		"id": DB.database_get_id(database),
+#		"tables": _serialize_tables(DB.database_get_tables(database)),
+#	}
+	return {}
 
-static func _database_save_cfg(database: Dictionary, path: String) -> Error:
+# FIXME: Требуется новая реализация!
+static func _database_save_cfg(database: AbstractDatabase, path: String) -> Error:
 	var serialized: Dictionary = _serialize_database(database)
 
 	var config := ConfigFile.new()
@@ -125,8 +135,8 @@ static func _database_save_cfg(database: Dictionary, path: String) -> Error:
 
 	return config.save(path)
 
-
-static func _database_save_json(database: Dictionary, path: String) -> Error:
+# FIXME: Требуется новая реализация!
+static func _database_save_json(database: AbstractDatabase, path: String) -> Error:
 	var serialized: Dictionary = _serialize_database(database)
 
 	var file := FileAccess.open(path, FileAccess.WRITE)

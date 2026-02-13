@@ -7,9 +7,6 @@ extends ConfirmationDialog
 signal table_changed
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 var _vbox: VBoxContainer = null
 
 var _id_hbox: VBoxContainer = null
@@ -20,19 +17,19 @@ var _description_vbox: VBoxContainer = null
 var _description_label: Label = null
 var _description_edit: TextEdit = null
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
-var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
+var _database: AbstractDatabase = null
+var _table: AbstractTable = null
 
 var _original_id: StringName = &""
 var _original_description: String = ""
 
 
-func _init(database: Dictionary, table: Dictionary) -> void:
+func _init(database: AbstractDatabase, table: AbstractTable) -> void:
 	_database = database
 	_table = table
 
-	_original_id = DB.table_get_id(table)
-	_original_description = DB.table_get_description(table)
+	_original_id = database.get_name()
+	_original_description = database.get_description()
 
 	self.set_title("Rename Table")
 
@@ -49,7 +46,7 @@ func _init(database: Dictionary, table: Dictionary) -> void:
 	_id_hbox.add_child(_id_lable)
 
 	_id_edit = LineEdit.new()
-	_id_edit.set_text(DB.table_get_id(table))
+	_id_edit.set_text(_original_id)
 	_id_edit.set_clear_button_enabled(true)
 	_id_edit.set_h_size_flags(Control.SIZE_EXPAND_FILL)
 	_id_edit.call_deferred(&"grab_focus")
@@ -66,7 +63,7 @@ func _init(database: Dictionary, table: Dictionary) -> void:
 	_description_vbox.add_child(_description_label)
 
 	_description_edit = TextEdit.new()
-	_description_edit.set_text(DB.table_get_description(table))
+	_description_edit.set_text(_original_description)
 	_description_edit.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	_description_edit.set_custom_minimum_size(Vector2(350, 75))
 	_description_edit.text_changed.connect(_validate_changes)
@@ -81,7 +78,7 @@ func _init(database: Dictionary, table: Dictionary) -> void:
 
 
 func is_available_table_id(id: StringName) -> bool:
-	return DB.is_valid_id(id) and not DB.database_has_table_id(_database, id)
+	return id.is_valid_ascii_identifier() and not _database.has_table(id)
 
 
 func _validate_changes() -> void:
@@ -102,9 +99,11 @@ func _on_confirmed() -> void:
 	var new_description: String = _description_edit.get_text()
 
 	var changed: bool = false
-	if _original_id != new_id and DB.table_set_id(_table, new_id):
+	if _original_id != new_id:
+		_table.set_name(new_id)
 		changed = true
-	if _original_description != new_description and DB.table_set_description(_table, new_description):
+	if _original_description != new_description:
+		_table.set_description(new_description)
 		changed = true
 
 	if changed:

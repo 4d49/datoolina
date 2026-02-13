@@ -4,9 +4,6 @@
 extends RefCounted
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 static var _formats: Array[Dictionary] = []
 
 
@@ -76,15 +73,18 @@ static func _serialize_records(records: Array[Dictionary]) -> Array:
 
 	return serialized
 
+# FIXME: Нуждается в исправление!
 static func _serialize_column(column: Dictionary[StringName, Variant]) -> Dictionary:
-	return {
-		"id": DB.column_get_id(column),
-		"type": DB.column_get_type(column),
-		"value": DB.column_get_default_value(column),
-		"hint": DB.column_get_hint(column),
-		"hint_string": DB.column_get_hint_string(column),
-		"description": DB.column_get_description(column),
-	}
+#	return {
+#		"id": DB.column_get_id(column),
+#		"type": DB.column_get_type(column),
+#		"value": DB.column_get_default_value(column),
+#		"hint": DB.column_get_hint(column),
+#		"hint_string": DB.column_get_hint_string(column),
+#		"description": DB.column_get_description(column),
+#	}
+	return {}
+
 static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 	var serialized: Array = []
 	serialized.resize(columns.size())
@@ -95,13 +95,15 @@ static func _serialize_columns(columns: Array[Dictionary]) -> Array:
 	return serialized
 
 
+# FIXME: Нуждается в исправление!
 static func serialize_dictionary_table(table: Dictionary[StringName, Variant]) -> Dictionary:
-	return {
-		"id": DB.table_get_id(table),
-		"description": DB.table_get_description(table),
-		"columns": _serialize_columns(DB.table_get_columns(table)),
-		"records": _serialize_records(DB.table_get_records(table)),
-	}
+#	return {
+#		"id": DB.table_get_id(table),
+#		"description": DB.table_get_description(table),
+#		"columns": _serialize_columns(DB.table_get_columns(table)),
+#		"records": _serialize_records(DB.table_get_records(table)),
+#	}
+	return {}
 
 static func _table_export_cfg(table: Dictionary[StringName, Variant], path: String) -> Error:
 	var serialized: Dictionary = serialize_dictionary_table(table)

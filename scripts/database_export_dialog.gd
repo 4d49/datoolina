@@ -4,14 +4,13 @@
 extends FileDialog
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
 const DatabaseExporter: GDScript = preload("res://scripts/database_exporter.gd")
 
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
-func _init(database: Dictionary[StringName, Variant]) -> void:
+func _init(database: AbstractDatabase) -> void:
 	_database = database
 
 	self.set_title("Export Database As...")

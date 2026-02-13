@@ -7,15 +7,11 @@ extends ConfirmationDialog
 signal column_renamed(id: StringName)
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 var _line_edit: LineEdit = null
+var _table: AbstractTable = null
 
-var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
 
-
-func _init(table: Dictionary[StringName, Variant], current_column_id: String) -> void:
+func _init(table: AbstractTable, current_column_id: String) -> void:
 	self.set_title("Rename Column")
 	self.set_flag(Window.FLAG_RESIZE_DISABLED, true)
 
@@ -36,10 +32,10 @@ func _init(table: Dictionary[StringName, Variant], current_column_id: String) ->
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DB.is_valid_id(id)
+	return id.is_valid_ascii_identifier()
 
-func has_column(id: StringName) -> bool:
-	return DB.table_has_column_id(_table, id)
+func has_column(column_name: StringName) -> bool:
+	return _table.has_column(column_name)
 
 
 func _on_id_changed(id: StringName) -> void:

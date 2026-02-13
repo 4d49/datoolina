@@ -4,9 +4,6 @@
 extends ConfirmationDialog
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 signal records_deleted
 
 
@@ -14,11 +11,11 @@ var _vbox: VBoxContainer = null
 var _label: Label = null
 var _tree: Tree = null
 
-var _table: Dictionary = DB.NULL_TABLE
-var _records: Array = DB.NULL_RECORDS
+var _table: AbstractTable = null
+var _records: Array[AbstractRow] = []
 
 
-func _init(table: Dictionary, records: Array[Dictionary]) -> void:
+func _init(table: AbstractTable, records: Array[AbstractRow]) -> void:
 	_table = table
 	_records = records
 
@@ -40,9 +37,10 @@ func _init(table: Dictionary, records: Array[Dictionary]) -> void:
 	_tree.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 
 	var root: TreeItem = _tree.create_item()
-	for record: Dictionary in _records:
+	for record: AbstractRow in records:
 		var item: TreeItem = root.create_child()
-		item.set_text(0, DB.record_get_id(record))
+		# FIXME: Нуждается в рефакторинге
+		item.set_text(0, "FIXME")
 
 	_vbox.add_child(_tree)
 
@@ -52,7 +50,7 @@ func _init(table: Dictionary, records: Array[Dictionary]) -> void:
 
 
 func _on_confirmed() -> void:
-	for record: Dictionary in _records:
-		DB.table_erase_record(_table, record)
+	for record: AbstractRow in _records:
+		_table.remove_row(record)
 
 	records_deleted.emit()

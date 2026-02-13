@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://bw2ejrh206k2k"]
+[gd_scene format=3 uid="uid://bw2ejrh206k2k"]
 
 [sub_resource type="GDScript" id="GDScript_xjt66"]
 script/source = "# Copyright (c) 2024 Mansur Isaev and contributors - MIT License
@@ -6,8 +6,6 @@ script/source = "# Copyright (c) 2024 Mansur Isaev and contributors - MIT Licens
 
 extends PanelContainer
 
-
-const DB: GDScript = preload(\"res://scripts/database.gd\")
 
 const AboutProgramDialog: GDScript = preload(\"res://scripts/about_program_dialog.gd\")
 const DatabaseCreateDialog: GDScript = preload(\"res://scripts/database_create_dialog.gd\")
@@ -20,7 +18,7 @@ const QuitDialog: GDScript = preload(\"res://scripts/quit_dialog.gd\")
 
 
 signal database_saved
-signal database_changed(database: Dictionary[StringName, Variant])
+signal database_changed(database: AbstractDatabase)
 
 
 enum FileMenu {
@@ -48,7 +46,7 @@ var _edit_menu: MenuButton = null
 var _view_menu: MenuButton = null
 var _help_menu: MenuButton = null
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 var _database_path: String = \"\"
 var _database_modified: bool = false
 
@@ -151,18 +149,18 @@ func _enter_tree() -> void:
 	window.close_requested.connect(quit)
 
 
-func set_database(database: Dictionary[StringName, Variant]) -> void:
+func set_database(database: AbstractDatabase) -> void:
 	if is_same(_database, database):
 		return
 
 	_database = database
 	database_changed.emit(database)
 
-func get_database() -> Dictionary[StringName, Variant]:
+func get_database() -> AbstractDatabase:
 	return _database
 
 func get_database_id() -> StringName:
-	return DB.database_get_id(_database)
+	return _database.get_name()
 
 
 func show_database_dialog_create() -> void:
@@ -170,7 +168,7 @@ func show_database_dialog_create() -> void:
 		_database_create_dialog.queue_free()
 
 	_database_create_dialog = DatabaseCreateDialog.new()
-	_database_create_dialog.database_created.connect(func on_database_created(database: Dictionary) -> void:
+	_database_create_dialog.database_created.connect(func on_database_created(database: AbstractDatabase) -> void:
 		_database_path = \"\"
 		_database_modified = true
 
@@ -187,7 +185,7 @@ func show_open_file_dialog() -> void:
 
 	_database_load_dialog = DatabaseLoadDialog.new(_database)
 	_database_load_dialog.set_current_dir(_database_path.get_base_dir())
-	_database_load_dialog.database_loaded.connect(func on_database_loaded(database: Dictionary, path: String) -> void:
+	_database_load_dialog.database_loaded.connect(func on_database_loaded(database: AbstractDatabase, path: String) -> void:
 		_database_path = path
 		_database_modified = false
 
@@ -360,7 +358,7 @@ func _on_table_view_changed() -> void:
 	_update_status(_table_view.get_row_count(), _table_view.get_visible_rows_count(), _table_view.get_selected_rows_count())
 "
 
-[node name="Control" type="PanelContainer"]
+[node name="Control" type="PanelContainer" unique_id=154128689]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

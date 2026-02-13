@@ -4,8 +4,6 @@
 extends VBoxContainer
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
@@ -13,7 +11,7 @@ const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
 signal table_modified
-signal table_changed(table: Dictionary[StringName, Variant])
+signal table_changed(table: AbstractTable)
 
 
 enum RowContextMenu {
@@ -33,7 +31,7 @@ var _record_delete_dialog: RecordDeleteDialog = null
 var _record_rename_dialog: RecordRenameDialog = null
 var _records_delete_dialog: RecordsDeleteDialog = null
 
-var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
+var _table: AbstractTable = null
 
 
 func _init() -> void:
@@ -80,7 +78,11 @@ func get_table_view() -> TableView:
 
 
 func update_table() -> void:
-	var columns: Array[Dictionary] = _table.columns
+	if not is_instance_valid(_table):
+		return
+
+	var schema: AbstractSchema = _table.get_schema()
+	var columns: Array[AbstractColumn] = schema.get_columns()
 	_table_view.set_column_count(columns.size() + 1)
 
 	_table_view.set_column_title(0, "ID")
@@ -88,7 +90,7 @@ func update_table() -> void:
 	_table_view.set_column_comparator(0, TableView.default_comparator(TableView.Type.STRING_NAME, TableView.hint_none()))
 
 	for i: int in range(1, columns.size() + 1):
-		var column: Dictionary = columns[i - 1]
+		var column: AbstractColumn = columns[i - 1]
 		_table_view.set_column_metadata(i, column)
 
 		_table_view.set_column_title(i, column.id)
@@ -113,24 +115,24 @@ func update_table() -> void:
 	_table_view.emit_signal(&"table_changed")
 
 
-func set_table(table: Dictionary[StringName, Variant]) -> void:
+func set_table(table: AbstractTable) -> void:
 	if is_same(table, _table):
 		return
 
 	_table = table
-	_record_id.set_editable(not table.is_read_only() or not table.is_empty())
+	_record_id.set_editable(is_instance_valid(table))
 
 	update_table()
 
-func get_table() -> Dictionary[StringName, Variant]:
+func get_table() -> AbstractTable:
 	return _table
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DB.is_valid_id(id)
+	return id.is_valid_ascii_identifier()
 
-func has_record_id(id: StringName) -> bool:
-	return DB.table_has_record_id(_table, id)
+func has_record_by_primary_key(primary_key) -> bool:
+	return _table.has_row(primary_key)
 
 
 func show_record_rename_dialog(record: Dictionary) -> void:
@@ -187,12 +189,15 @@ func _on_filter_line_text_changed(text: String) -> void:
 	_table_view.emit_signal(&"table_changed")
 
 func _on_record_id_text_changed(id: StringName) -> void:
-	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
+	# FIXME: Требуется новая реализация
+#	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
+	return
 
 func _on_create_pressed() -> void:
-	if not DB.table_create_record(_table, _record_id.get_text()).is_read_only():
-		table_modified.emit()
-		update_table()
+#	# FIXME: Необходимо полностью пересмотреть код
+#	if not DB.table_create_record(_table, _record_id.get_text()).is_read_only():
+#		table_modified.emit()
+#		update_table()
 
 	_create_btn.set_disabled(true)
 

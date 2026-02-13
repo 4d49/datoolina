@@ -7,14 +7,13 @@ extends FileDialog
 signal file_saved(path: String)
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
 const DatabaseSaver: GDScript = preload("res://scripts/database_saver.gd")
 
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
-func _init(database: Dictionary[StringName, Variant]) -> void:
+func _init(database: AbstractDatabase) -> void:
 	_database = database
 
 	self.set_title("Save Database As...")

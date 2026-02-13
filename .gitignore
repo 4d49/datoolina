@@ -3,9 +3,14 @@
 
 # Godot auto generated files
 *.import
+*.tmp
 
 # Visual Studio Code
 .vscode/
 
 # Binary files
 bin/
+
+# Temp files
+temp/
+

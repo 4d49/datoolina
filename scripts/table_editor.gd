@@ -4,8 +4,6 @@
 extends VBoxContainer
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
 const ColumnRemoveDialog: GDScript = preload("res://scripts/column_remove_dialog.gd")
 const ColumnRenameDialog: GDScript = preload("res://scripts/column_rename_dialog.gd")
 const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
@@ -55,11 +53,11 @@ var _bottom_hbox: HBoxContainer = null
 var _column_id: LineEdit = null
 var _create_column: Button = null
 
-var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
+var _table: AbstractTable = null
 var _edit_buffer: Array[Dictionary] = []
 
 
-func _init(table: Dictionary[StringName, Variant]) -> void:
+func _init(table: AbstractTable) -> void:
 	_table = table
 	update_temp_params(table)
 
@@ -104,7 +102,7 @@ func _enter_tree() -> void:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DB.is_valid_id(id)
+	return id.is_valid_ascii_identifier()
 
 func has_column_id(id: StringName) -> bool:
 	for buffer: Dictionary in _edit_buffer:
@@ -133,19 +131,25 @@ static func create_edit_buffer(
 		&"flag": FLAG_NONE,
 	}
 
-static func create_edit_buffer_from_column(column: Dictionary) -> Dictionary[StringName, Variant]:
-	return create_edit_buffer(
-		DB.column_get_id(column),
-		DB.column_get_type(column),
-		DB.column_get_default_value(column),
-		DB.column_get_hint(column),
-		DB.column_get_hint_string(column),
-		DB.column_get_description(column),
-	)
+static func create_edit_buffer_from_column(column: AbstractColumn) -> Dictionary[StringName, Variant]:
+	# FIXME: Требуются правки!
+#	return create_edit_buffer(
+#		DB.column_get_id(column),
+#		DB.column_get_type(column),
+#		DB.column_get_default_value(column),
+#		DB.column_get_hint(column),
+#		DB.column_get_hint_string(column),
+#		DB.column_get_description(column),
+#	)
+	return {
+
+	}
 
 
-func update_temp_params(table: Dictionary[StringName, Variant]) -> void:
-	var columns: Array[Dictionary] = DB.table_get_columns(table)
+
+func update_temp_params(table: AbstractTable) -> void:
+	var schema: AbstractSchema = table.get_schema()
+	var columns: Array[AbstractColumn] = schema.get_columns()
 	_edit_buffer.resize(columns.size())
 
 	for i: int in _edit_buffer.size():
@@ -187,7 +191,7 @@ func update_table() -> void:
 	_table_view.set_column_minimum_width(COLUMN_VALUE, 100)
 
 	_table_view.set_column_title(COLUMN_HINT, "Hint")
-	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DB.Hint))
+	# FIXME: _table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DB.Hint))
 	_table_view.set_column_minimum_width(COLUMN_HINT, 100)
 
 	_table_view.set_column_title(COLUMN_HINT_STRING, "Hint String")
@@ -230,27 +234,30 @@ func show_column_remove_dialog() -> ColumnRemoveDialog:
 
 
 func apply_changed() -> void:
-	var table: Dictionary[StringName, Variant] = _table
-	var columns: Array[Dictionary] = DB.table_get_columns(table)
+	var table: AbstractTable = _table
+	var schema: AbstractSchema = table.get_schema()
+
+	var columns: Array[AbstractColumn] = schema.get_columns()
 
 	var queue_buffer: Array[Dictionary] = _edit_buffer
 
 	for i: int in queue_buffer.size():
 		var buffer: Dictionary = queue_buffer[i]
 
-		if buffer.flag & FLAG_REMOVED:
-			DB.table_remove_column_by_id(table, buffer.id)
-		elif buffer.flag & FLAG_CREATED:
-			DB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
-		else:
-			if buffer.flag & FLAG_CHANGE_ID:
-				DB.table_set_column_id(table, i, buffer.id)
-			if buffer.flag & FLAG_CHANGE_TYPE:
-				DB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
-			if buffer.flag & FLAG_CHANGE_VALUE:
-				DB.column_set_default_value(columns[i], buffer.value)
-			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
-				DB.column_set_description(columns[i], buffer.description)
+		# FIXME: Ну тут и так всё понятно...
+#		if buffer.flag & FLAG_REMOVED:
+#			DB.table_remove_column_by_id(table, buffer.id)
+#		elif buffer.flag & FLAG_CREATED:
+#			DB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
+#		else:
+#			if buffer.flag & FLAG_CHANGE_ID:
+#				DB.table_set_column_id(table, i, buffer.id)
+#			if buffer.flag & FLAG_CHANGE_TYPE:
+#				DB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
+#			if buffer.flag & FLAG_CHANGE_VALUE:
+#				DB.column_set_default_value(columns[i], buffer.value)
+#			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
+#				DB.column_set_description(columns[i], buffer.description)
 
 
 func _on_filter_line_text_changed(text: StringName) -> void:
