@@ -23,7 +23,7 @@ enum ColumnContextMenu {
 }
 
 enum {
-	COLUMN_ID,
+	COLUMN_NAME,
 	COLUMN_TYPE,
 	COLUMN_VALUE,
 	COLUMN_HINT,
@@ -157,7 +157,7 @@ func update_temp_params(table: AbstractTable) -> void:
 
 
 func update_row(row_idx: int, buffer: Dictionary) -> void:
-	_table_view.set_cell_value_no_signal(row_idx, COLUMN_ID, buffer.id)
+	_table_view.set_cell_value_no_signal(row_idx, COLUMN_NAME, buffer.id)
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_TYPE, buffer.type)
 
 	_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, TypeHintUtils.table_view_hint(buffer.hint, buffer.hint_string))
@@ -178,9 +178,9 @@ func update_table_rows() -> void:
 
 func update_table() -> void:
 	_table_view.set_column_count(COLUMN_MAX)
-	_table_view.set_column_title(COLUMN_ID, "ID")
-	_table_view.set_column_type(COLUMN_ID, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
-	_table_view.set_column_minimum_width(COLUMN_ID, 100)
+	_table_view.set_column_title(COLUMN_NAME, "Name")
+	_table_view.set_column_type(COLUMN_NAME, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
+	_table_view.set_column_minimum_width(COLUMN_NAME, 100)
 
 	_table_view.set_column_title(COLUMN_TYPE, "Type")
 	_table_view.set_column_type(COLUMN_TYPE, TableView.Type.INT, TableView.hint_enum(Type))
@@ -216,7 +216,7 @@ func show_column_rename_dialog(row_idx: int, buffer: Dictionary[StringName, Vari
 		buffer.id = id
 		buffer.flag |= FLAG_CHANGE_ID
 
-		_table_view.set_cell_value_no_signal(row_idx, COLUMN_ID, id)
+		_table_view.set_cell_value_no_signal(row_idx, COLUMN_NAME, id)
 	)
 	self.add_child(_column_rename_dialog)
 
@@ -262,7 +262,7 @@ func apply_changed() -> void:
 
 func _on_filter_line_text_changed(text: StringName) -> void:
 	var callable: Callable = text.is_subsequence_ofn
-	_table_view.filter_rows_by_callable(COLUMN_ID, callable)
+	_table_view.filter_rows_by_callable(COLUMN_NAME, callable)
 
 
 func _on_column_id_changed(column_id: StringName) -> void:
@@ -340,7 +340,7 @@ func _on_table_cell_value_changed(row_idx: int, column_idx: int, value: Variant)
 
 
 func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
-	if column_idx != COLUMN_ID:
+	if column_idx != COLUMN_NAME:
 		return
 
 	show_column_rename_dialog(row_idx, _table_view.get_row_metadata(row_idx))
