@@ -32,6 +32,10 @@ extends RefCounted
 ## Returns the value associated with the given column name, or Variant() if the column does not exist.
 @abstract func get_value(column_name: StringName) -> Variant
 
+## Erases a value for a column.
+## Returns true if the value was successfully erased, false if the column does not exist.
+@abstract func erase_value(column_name: StringName) -> bool
+
 ## Validates the integrity of the row data.
 ## Returns true if all values are valid and consistent with the row's constraints, false otherwise.
 ## This method uses the schema to validate against column constraints.
