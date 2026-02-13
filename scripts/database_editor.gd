@@ -251,7 +251,7 @@ func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 
 	rename_table.popup_centered(Vector2i(300, 50))
 
-func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_delete_table_dialog(table: AbstractTable) -> void:
 	var delete_table: TableDeleteDialog = TableDeleteDialog.new(_database, table)
 	delete_table.table_deleted.connect(func on_table_deleted() -> void:
 		database_modified.emit()
