@@ -133,19 +133,14 @@ static func create_edit_buffer(
 	}
 
 static func create_edit_buffer_from_column(column: AbstractColumn) -> Dictionary[StringName, Variant]:
-	# FIXME: Требуются правки!
-#	return create_edit_buffer(
-#		DB.column_get_id(column),
-#		DB.column_get_type(column),
-#		DB.column_get_default_value(column),
-#		DB.column_get_hint(column),
-#		DB.column_get_hint_string(column),
-#		DB.column_get_description(column),
-#	)
-	return {
-
-	}
-
+	return create_edit_buffer(
+		column.get_name(),
+		column.get_built_in_type(),
+		column.get_default(),
+		PROPERTY_HINT_NONE, # FIXME: В будущем потребуется пересмотр.
+		"", # FIXME: В будущем возможно будет полностью удалено.
+		column.get_description(),
+	)
 
 
 func update_temp_params(table: AbstractTable) -> void:
