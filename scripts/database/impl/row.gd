@@ -27,14 +27,6 @@ func set_value(column_name: StringName, value: Variant) -> bool:
 	return _values.set(column_name, value)
 
 
-func has_column(column_name: StringName) -> bool:
-	return _schema.has_column(column_name)
-
-
-func get_column_names() -> Array[StringName]:
-	return _schema.get_column_names()
-
-
 func validate() -> bool:
 	for column_name: StringName in _values:
 		if not _schema.has_column(column_name):
