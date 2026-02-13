@@ -8,28 +8,28 @@ extends AbstractDatabaseFactory
 
 
 # Preload all concrete implementations
-const ConcreteColumn: GDScript = preload("concrete_column.gd")
-const ConcreteDatabase: GDScript = preload("concrete_database.gd")
-const ConcreteRow: GDScript = preload("concrete_row.gd")
-const ConcreteSchema: GDScript = preload("concrete_schema.gd")
-const ConcreteTable: GDScript = preload("concrete_table.gd")
+const Column: GDScript = preload("column.gd")
+const Database: GDScript = preload("database.gd")
+const Row: GDScript = preload("row.gd")
+const Schema: GDScript = preload("schema.gd")
+const Table: GDScript = preload("table.gd")
 
 
 func create_schema() -> AbstractSchema:
-	return ConcreteSchema.new()
+	return Schema.new()
 
 
 func create_database(name: StringName) -> AbstractDatabase:
-	return ConcreteDatabase.new(name)
+	return Database.new(name)
 
 
 func create_column(name: StringName, data_type: AbstractDataType) -> AbstractColumn:
 	# Note: Primary key handling is managed at the schema level, not in the column itself
-	return ConcreteColumn.new(name, data_type, null)
+	return Column.new(name, data_type, null)
 
 
 func create_row(schema: AbstractSchema) -> AbstractRow:
-	return ConcreteRow.new(schema)
+	return Row.new(schema)
 
 
 func create_data_type(type: Variant.Type) -> AbstractDataType:
@@ -56,4 +56,4 @@ func create_data_type(type: Variant.Type) -> AbstractDataType:
 
 
 func create_table(name: StringName, schema: AbstractSchema) -> AbstractTable:
-	return ConcreteTable.new(name, schema)
+	return Table.new(name, schema)
