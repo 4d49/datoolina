@@ -40,9 +40,9 @@ func is_valid_database_name(db_name: StringName) -> bool:
 
 func create_database(db_name: StringName) -> AbstractDatabase:
 	if is_valid_database_name(db_name):
-		return null
+		return DatabaseFactory.create_database(db_name)
 
-	return DatabaseFactory.create_database(db_name)
+	return null
 
 
 func _on_line_edit_text_changed(text: StringName) -> void:
