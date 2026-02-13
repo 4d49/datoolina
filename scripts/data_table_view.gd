@@ -78,17 +78,21 @@ func get_table_view() -> TableView:
 
 
 func update_table() -> void:
+	# Check table validity
 	if not is_instance_valid(_table):
 		return
 
+	# Get table schema and columns
 	var schema: AbstractSchema = _table.get_schema()
 	var columns: Array[AbstractColumn] = schema.get_columns()
 	_table_view.set_column_count(columns.size() + 1)
 
+	# Setup ID column
 	_table_view.set_column_title(0, "ID")
 	_table_view.set_column_type(0, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
 	_table_view.set_column_comparator(0, TableView.default_comparator(TableView.Type.STRING_NAME, TableView.hint_none()))
 
+	# Setup other columns
 	for i: int in range(1, columns.size() + 1):
 		var column: AbstractColumn = columns[i - 1]
 		_table_view.set_column_metadata(i, column)
@@ -96,23 +100,30 @@ func update_table() -> void:
 		_table_view.set_column_title(i, column.get_name())
 		_table_view.set_column_tooltip(i, column.get_description())
 
-		# FIXME: необходимо привести к нормальному виду создание подсказки типа для TableView.
+		# FIXME: need to properly implement type hint creation for TableView.
 #		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
 #		_table_view.set_column_type(i, column.type, hint)
 #		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
 		_table_view.set_column_type(i, column.get_built_in_type() as int)
 
-	var records: Array[Dictionary] = _table.records
-	_table_view.set_row_count(records.size())
+	# Get table rows
+	var rows: Array[AbstractRow] = _table.get_rows()
+	_table_view.set_row_count(rows.size())
 
-	for i: int in records.size():
-		var record: Dictionary = records[i]
-		_table_view.set_cell_value_no_signal(i, 0, record.id)
-		_table_view.set_row_metadata(i, record)
+	# Get primary key and column names information
+	var primary_key: Variant = schema.get_primary_key().get_name()
+	var columns_name: Array[StringName] = schema.get_column_names()
+
+	# Populate row data
+	for i: int in rows.size():
+		var row: AbstractRow = rows[i]
+		_table_view.set_cell_value_no_signal(i, 0, row.get_value(primary_key))
+		_table_view.set_row_metadata(i, row)
 
 		for j: int in range(1, columns.size() + 1):
-			_table_view.set_cell_value_no_signal(i, j, record[columns[j - 1][&"id"]])
+			_table_view.set_cell_value_no_signal(i, j, row.get_value(columns_name[j - 1]))
 
+	# Update table display
 	_table_view.update_table()
 	_table_view.emit_signal(&"table_changed")
 
