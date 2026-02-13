@@ -22,6 +22,9 @@ func _init(name: StringName, data_type: AbstractDataType) -> void:
 	_default_value = data_type.get_default()
 
 
+func set_name(name: StringName) -> void:
+	_name = name
+
 func get_name() -> StringName:
 	return _name
 
