@@ -322,8 +322,8 @@ func _on_database_saved() -> void:
 	update_window_title()
 
 
-func _on_database_changed(database: Dictionary) -> void:
-	var is_invalid: bool = database.is_empty() or database.is_read_only()
+func _on_database_changed(database: AbstractDatabase) -> void:
+	var is_invalid: bool = not is_instance_valid(database)
 
 	if not is_invalid:
 		update_window_title()
