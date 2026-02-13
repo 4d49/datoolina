@@ -93,12 +93,14 @@ func update_table() -> void:
 		var column: AbstractColumn = columns[i - 1]
 		_table_view.set_column_metadata(i, column)
 
-		_table_view.set_column_title(i, column.id)
-		_table_view.set_column_tooltip(i, column.description)
+		_table_view.set_column_title(i, column.get_name())
+		_table_view.set_column_tooltip(i, column.get_description())
 
-		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
-		_table_view.set_column_type(i, column.type, hint)
-		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
+		# FIXME: необходимо привести к нормальному виду создание подсказки типа для TableView.
+#		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
+#		_table_view.set_column_type(i, column.type, hint)
+#		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
+		_table_view.set_column_type(i, column.get_built_in_type() as int)
 
 	var records: Array[Dictionary] = _table.records
 	_table_view.set_row_count(records.size())
