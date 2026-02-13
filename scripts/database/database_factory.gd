@@ -30,12 +30,6 @@ static func get_instance() -> AbstractDatabaseFactory:
 	return _instance
 
 
-## Creates a new AbstractSchema instance.
-## Returns a new AbstractSchema instance with default configuration.
-static func create_schema() -> AbstractSchema:
-	return get_instance().create_schema()
-
-
 ## Creates a new AbstractDatabase instance.
 ## Returns a new AbstractDatabase instance with default configuration.
 static func create_database(name: StringName) -> AbstractDatabase:
@@ -52,8 +46,8 @@ static func create_column(name: StringName, data_type: AbstractDataType) -> Abst
 ## Creates a new AbstractRow instance.
 ## The row will be created according to the provided schema structure.
 ## Returns a new AbstractRow instance.
-static func create_row(schema: AbstractSchema) -> AbstractRow:
-	return get_instance().create_row(schema)
+static func create_row(table: AbstractTable) -> AbstractRow:
+	return get_instance().create_row(table)
 
 
 ## Creates a new AbstractDataType instance of the specified type.
@@ -68,5 +62,5 @@ static func create_data_type(type: Variant.Type) -> AbstractDataType:
 ## Creates a table and adds it to the database.
 ## The table will be created with the provided name and schema.
 ## Returns the newly created AbstractTable instance if successful, null otherwise.
-static func create_table(name: StringName, schema: AbstractSchema) -> AbstractTable:
-	return get_instance().create_table(name, schema)
+static func create_table(name: StringName) -> AbstractTable:
+	return get_instance().create_table(name)

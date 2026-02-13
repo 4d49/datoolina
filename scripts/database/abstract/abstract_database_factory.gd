@@ -12,8 +12,6 @@
 class_name AbstractDatabaseFactory
 extends RefCounted
 
-## Creates a new AbstractSchema instance.
-@abstract func create_schema() -> AbstractSchema
 
 ## Creates a new AbstractDatabase instance.
 @abstract func create_database(name: StringName) -> AbstractDatabase
@@ -22,10 +20,10 @@ extends RefCounted
 @abstract func create_column(name: StringName, data_type: AbstractDataType) -> AbstractColumn
 
 ## Creates a new AbstractRow instance.
-@abstract func create_row(schema: AbstractSchema) -> AbstractRow
+@abstract func create_row(table: AbstractTable) -> AbstractRow
 
 ## Creates a new AbstractDataType instance of the specified type.
 @abstract func create_data_type(type: Variant.Type) -> AbstractDataType
 
 ## Creates a new table and adds it to the database.
-@abstract func create_table(name: StringName, schema: AbstractSchema) -> AbstractTable
+@abstract func create_table(name: StringName) -> AbstractTable

@@ -14,8 +14,5 @@ extends RefCounted
 ## Serialize a row to a file
 @abstract func serialize_row(row: AbstractRow, path: String, options: Dictionary = {}) -> Error
 
-## Serialize the database schema to a file
-@abstract func serialize_schema(schema: AbstractSchema, path: String, options: Dictionary = {}) -> Error
-
 ## Serialize a data type to a file
 @abstract func serialize_data_type(data_type: AbstractDataType, path: String, options: Dictionary = {}) -> Error

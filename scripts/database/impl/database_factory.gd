@@ -11,12 +11,7 @@ extends AbstractDatabaseFactory
 const Column: GDScript = preload("column.gd")
 const Database: GDScript = preload("database.gd")
 const Row: GDScript = preload("row.gd")
-const Schema: GDScript = preload("schema.gd")
 const Table: GDScript = preload("table.gd")
-
-
-func create_schema() -> AbstractSchema:
-	return Schema.new()
 
 
 func create_database(name: StringName) -> AbstractDatabase:
@@ -27,8 +22,8 @@ func create_column(name: StringName, data_type: AbstractDataType) -> AbstractCol
 	return Column.new(name, data_type)
 
 
-func create_row(schema: AbstractSchema) -> AbstractRow:
-	return Row.new(schema)
+func create_row(table: AbstractTable) -> AbstractRow:
+	return Row.new(table)
 
 
 func create_data_type(type: Variant.Type) -> AbstractDataType:
@@ -54,5 +49,5 @@ func create_data_type(type: Variant.Type) -> AbstractDataType:
 	return data_type
 
 
-func create_table(name: StringName, schema: AbstractSchema) -> AbstractTable:
-	return Table.new(name, schema)
+func create_table(name: StringName) -> AbstractTable:
+	return Table.new(name)

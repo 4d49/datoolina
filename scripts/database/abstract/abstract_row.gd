@@ -12,9 +12,9 @@
 class_name AbstractRow
 extends RefCounted
 
-## Gets the schema associated with this row.
-## Returns the schema that defines the structure of this row.
-@abstract func get_schema() -> AbstractSchema
+
+## Returns the table associated with this row.
+@abstract func get_table() -> AbstractTable
 
 ## Checks if a column has a value set.
 ## Returns true if the column has a value, false otherwise.

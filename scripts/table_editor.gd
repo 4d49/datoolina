@@ -144,8 +144,7 @@ static func create_edit_buffer_from_column(column: AbstractColumn) -> Dictionary
 
 
 func update_temp_params(table: AbstractTable) -> void:
-	var schema: AbstractSchema = table.get_schema()
-	var columns: Array[AbstractColumn] = schema.get_columns()
+	var columns: Array[AbstractColumn] = table.get_columns()
 	_edit_buffer.resize(columns.size())
 
 	for i: int in _edit_buffer.size():
@@ -231,18 +230,15 @@ func show_column_remove_dialog() -> ColumnRemoveDialog:
 
 func apply_changed() -> void:
 	var table: AbstractTable = _table
-	var schema: AbstractSchema = table.get_schema()
-
-	var columns: Array[AbstractColumn] = schema.get_columns()
+	var columns: Array[AbstractColumn] = table.get_columns()
 
 	var queue_buffer: Array[Dictionary] = _edit_buffer
 
 	for i: int in queue_buffer.size():
 		var buffer: Dictionary = queue_buffer[i]
 
-		# FIXME: Ну тут и так всё понятно...
-#		if buffer.flag & FLAG_REMOVED:
-#			DB.table_remove_column_by_id(table, buffer.id)
+		if buffer.flag & FLAG_REMOVED:
+			table.remove_column(buffer.id)
 #		elif buffer.flag & FLAG_CREATED:
 #			DB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
 #		else:

@@ -347,11 +347,11 @@ func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyH
 #		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
 #	)
 
-	var schema: AbstractSchema = row.get_schema()
+	var table: AbstractTable = row.get_table()
 
-	var columns: Array[AbstractColumn] = schema.get_columns()
+	var columns: Array[AbstractColumn] = table.get_columns()
 	for i: int in columns.size():
-		var column: AbstractColumn = schema.get_column(i)
+		var column: AbstractColumn = table.get_column(i)
 		var column_name: StringName = column.get_name()
 
 		var setter: Callable = func(value: Variant) -> bool:

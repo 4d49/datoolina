@@ -65,8 +65,7 @@ static func _deserialize_database(data: Dictionary) -> AbstractDatabase:
 		# For backward compatibility, `get` is used here and below.
 		# It should be removed in the future.
 #		var table: Dictionary[StringName, Variant] = DB.database_create_table(database, t.id, t.get("description", ""))
-		var schema: AbstractSchema = null # FIXME
-		var table: AbstractTable = DatabaseFactory.create_table("FIXME", schema)
+		var table: AbstractTable = DatabaseFactory.create_table("FIXME")
 
 		for c: Dictionary in t.columns:
 			# FIXME: Требуется реализация!
@@ -78,7 +77,7 @@ static func _deserialize_database(data: Dictionary) -> AbstractDatabase:
 
 		for r: Dictionary in t.records:
 			# FIXME: Нам требуется знать primary key value of new record!
-			var record: AbstractRow = DatabaseFactory.create_row(schema)
+			var record: AbstractRow = DatabaseFactory.create_row(table)
 			# HACK: In the future, it should be removed.
 			for key: StringName in r:
 				record[key] = r[key]

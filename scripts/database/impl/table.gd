@@ -2,7 +2,7 @@
 # See `LICENSE.md` included in the source distribution for details.
 
 # Concrete implementation of a database table.
-# Stores schema and a collection of rows with validation.
+# Stores column definitions and provides schema validation.
 
 extends AbstractTable
 
@@ -10,16 +10,17 @@ extends AbstractTable
 var _name: StringName = &""
 var _description: String = ""
 
-# Reference to the table's schema
-var _schema: AbstractSchema = null
+var _columns: Array[AbstractColumn] = []
+var _column_map: Dictionary[StringName, AbstractColumn] = {}
+
+var _primary_key: AbstractColumn = null
 
 var _rows: Array[AbstractRow] = []
 var _row_map: Dictionary[Variant, AbstractRow] = {}
 
 
-func _init(name: StringName, schema: AbstractSchema) -> void:
+func _init(name: StringName) -> void:
 	_name = name
-	_schema = schema
 
 
 func set_name(name: StringName) -> void:
@@ -36,16 +37,10 @@ func get_description() -> String:
 	return _description
 
 
-func get_schema() -> AbstractSchema:
-	return _schema
 
 
-func get_column_names() -> Array[StringName]:
-	return _schema.get_column_names()
-
-
-func has_column(name: StringName) -> bool:
-	return _schema.has_column(name)
+func has_column(column_name: StringName) -> bool:
+	return _column_map.has(column_name)
 
 
 func add_column(column: AbstractColumn) -> bool:
@@ -54,70 +49,104 @@ func add_column(column: AbstractColumn) -> bool:
 
 	# Check if column with this name already exists
 	var name: StringName = column.get_name()
-	if _schema.has_column(name):
+	if has_column(name):
 		return false
 
-	# Add the column to schema
-	if not _schema.add_column(column):
-		return false
+	# Add the column to internal storage
+	if _column_map.set(name, column) and _columns:
+		_columns = []
 
-	# Update all existing rows with default value for new column
-	var default_value = column.get_default()
-	for row: AbstractRow in _rows:
-		row.insert_value(name, default_value)
+	# Check if this column should be the primary key (if no primary key exists yet)
+	# Note: The primary key flag is managed at the schema level, not within the column itself
+	if not is_instance_valid(_primary_key):
+		# This is a simplified approach - in a real implementation,
+		# we might need to track this information differently
+		_primary_key = column
 
 	return true
 
 
-func remove_column(column_name: StringName) -> bool:
-	if not _schema.has_column(column_name):
+func remove_column(column: AbstractColumn) -> bool:
+	if not is_instance_valid(column):
 		return false
 
-	# Remove the column from schema
-	if not _schema.remove_column(column_name):
+	if not is_same(column, find_column(column.get_name())):
 		return false
 
-	# Remove values for this column from all existing rows
-	for row: AbstractRow in _rows:
-		row.erase_value(column_name)
+	# Get the column to check if it was a primary key
+	if _column_map.erase(column.get_name()) and _columns:
+		_columns = []
 
 	return true
 
 
-func rename_column(old_name: StringName, new_name: StringName) -> bool:
-	# Validate that old column exists and new name is not taken
-	if not _schema.has_column(old_name) or _schema.has_column(new_name):
-		return false
+func get_column_count() -> int:
+	return _columns.size()
 
-	var column: AbstractColumn = _schema.find_column(old_name)
-	column.set_name(new_name)
 
-	_schema.remove_column(old_name)
-	_schema.add_column(column)
+func get_column_names() -> Array[StringName]:
+	return _column_map.keys()
 
-	# Update all existing rows to use the new column name
-	for row: AbstractRow in _rows:
-		var value: Variant = row.get_value(old_name)
-		row.erase_value(old_name)
-		row.insert_value(new_name, value)
 
-	return true
+func get_column(index: int) -> AbstractColumn:
+	return _columns.get(index)
+
+
+func find_column(column_name: StringName) -> AbstractColumn:
+	return _column_map.get(column_name)
+
+
+func get_columns() -> Array[AbstractColumn]:
+	if _columns.is_empty():
+		_columns = _column_map.values()
+		_columns.make_read_only()
+
+	return _columns
+
+
+
+
+func has_primary_key() -> bool:
+	return is_instance_valid(_primary_key)
+
+
+func get_primary_key() -> AbstractColumn:
+	return _primary_key
 
 
 func has_primary_key_column() -> bool:
-	return _schema.has_primary_key()
+	return has_primary_key()
 
 
 func get_primary_key_column() -> AbstractColumn:
-	return _schema.get_primary_key()
+	return get_primary_key()
+
+
+
+
+func validate_row(row: AbstractRow) -> bool:
+	for column_name: StringName in _column_map:
+		if row.has_value(column_name):
+			continue
+
+		var defualt_value: Variant = _column_map[column_name].get_default()
+		row.insert_value(column_name, defualt_value)
+
+	return true
+
+
+
+
+func has_row(primary_key: Variant) -> bool:
+	return _row_map.has(primary_key)
 
 
 func add_row(row: AbstractRow) -> bool:
-	if not _schema.validate_row(row):
+	if not validate_row(row):
 		return false
 
 	# Get the primary key column
-	var primary_key_column = _schema.get_primary_key()
+	var primary_key_column = get_primary_key()
 	if not is_instance_valid(primary_key_column):
 		return false
 
@@ -137,7 +166,7 @@ func add_row(row: AbstractRow) -> bool:
 
 func remove_row(row: AbstractRow) -> bool:
 	# Get the primary key column
-	var primary_key_column = _schema.get_primary_key()
+	var primary_key_column = get_primary_key()
 	if not is_instance_valid(primary_key_column):
 		# If no primary key, can't remove by primary key
 		return false
@@ -152,16 +181,16 @@ func remove_row(row: AbstractRow) -> bool:
 	return true
 
 
-func get_row(index: int) -> AbstractRow:
-	return get_rows().get(index)
-
-
 func find_row(primary_key: Variant) -> AbstractRow:
 	return _row_map.get(primary_key, null)
 
 
-func has_row(primary_key: Variant) -> bool:
-	return _row_map.has(primary_key)
+func get_row(index: int) -> AbstractRow:
+	return get_rows().get(index)
+
+
+func get_row_count() -> int:
+	return _row_map.size()
 
 
 func get_rows() -> Array[AbstractRow]:
@@ -170,7 +199,3 @@ func get_rows() -> Array[AbstractRow]:
 		_rows.make_read_only()
 
 	return _rows
-
-
-func get_row_count() -> int:
-	return _row_map.size()

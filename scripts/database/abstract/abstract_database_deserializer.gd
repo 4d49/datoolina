@@ -21,8 +21,5 @@ extends RefCounted
 ## Reconstructs a row object from a file
 @abstract func deserialize_row(path: String, options: Dictionary = {}) -> AbstractRow
 
-## Reconstructs a schema object from a file
-@abstract func deserialize_schema(path: String, options: Dictionary = {}) -> AbstractSchema
-
 ## Reconstructs a data type object from a file
 @abstract func deserialize_data_type(path: String, options: Dictionary = {}) -> AbstractDataType

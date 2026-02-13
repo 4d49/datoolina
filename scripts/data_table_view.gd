@@ -83,8 +83,7 @@ func update_table() -> void:
 		return
 
 	# Get table schema and columns
-	var schema: AbstractSchema = _table.get_schema()
-	var columns: Array[AbstractColumn] = schema.get_columns()
+	var columns: Array[AbstractColumn] = _table.get_columns()
 	_table_view.set_column_count(columns.size())
 
 	# Setup columns
@@ -105,15 +104,15 @@ func update_table() -> void:
 	_table_view.set_row_count(rows.size())
 
 	# Get column names information
-	var columns_name: Array[StringName] = schema.get_column_names()
+	var column_names: Array[StringName] = _table.get_column_names()
 
 	# Populate row data
 	for i: int in rows.size():
 		var row: AbstractRow = rows[i]
 		_table_view.set_row_metadata(i, row)
 
-		for j: int in columns_name.size():
-			_table_view.set_cell_value_no_signal(i, j, row.get_value(columns_name[j]))
+		for j: int in column_names.size():
+			_table_view.set_cell_value_no_signal(i, j, row.get_value(column_names[j]))
 
 	# Update table display
 	_table_view.update_table()
