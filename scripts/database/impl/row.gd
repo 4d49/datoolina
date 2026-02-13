@@ -16,6 +16,10 @@ func get_schema() -> AbstractSchema:
 	return _schema
 
 
+func has_value(column_name: StringName) -> bool:
+	return _values.has(column_name)
+
+
 func get_value(column_name: StringName) -> Variant:
 	return _values.get(column_name)
 
