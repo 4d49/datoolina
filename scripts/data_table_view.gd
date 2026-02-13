@@ -140,7 +140,7 @@ func has_record_by_primary_key(primary_key) -> bool:
 	return _table.has_row(primary_key)
 
 
-func show_record_rename_dialog(record: Dictionary) -> void:
+func show_record_rename_dialog(record: AbstractRow) -> void:
 	if is_instance_valid(_record_rename_dialog):
 		_record_rename_dialog.queue_free()
 
@@ -154,7 +154,7 @@ func show_record_rename_dialog(record: Dictionary) -> void:
 	_record_rename_dialog.popup_centered(Vector2i(300, 50))
 
 
-func show_record_delete_dialog(record: Dictionary, row_idx: int) -> void:
+func show_record_delete_dialog(record: AbstractRow, row_idx: int) -> void:
 	if is_instance_valid(_record_delete_dialog):
 		_record_delete_dialog.queue_free()
 
@@ -214,8 +214,8 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		return
 
 	elif selected_row.size() == 1:
-		var record: Dictionary = _table_view.get_row_metadata(row_idx)
-		if record.is_read_only():
+		var record: AbstractRow = _table_view.get_row_metadata(row_idx) as AbstractRow
+		if not is_instance_valid(record):
 			return
 
 		var popup := PopupMenu.new()
