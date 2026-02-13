@@ -68,7 +68,7 @@ func get_column_names() -> Array[StringName]:
 
 
 func has_column(name: StringName) -> bool:
-	return _columns.has(name)
+	return _column_map.has(name)
 
 
 func validate_row(row: AbstractRow) -> bool:
