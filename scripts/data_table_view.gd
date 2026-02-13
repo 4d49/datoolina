@@ -85,18 +85,12 @@ func update_table() -> void:
 	# Get table schema and columns
 	var schema: AbstractSchema = _table.get_schema()
 	var columns: Array[AbstractColumn] = schema.get_columns()
-	_table_view.set_column_count(columns.size() + 1)
+	_table_view.set_column_count(columns.size())
 
-	# Setup ID column
-	_table_view.set_column_title(0, "ID")
-	_table_view.set_column_type(0, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
-	_table_view.set_column_comparator(0, TableView.default_comparator(TableView.Type.STRING_NAME, TableView.hint_none()))
-
-	# Setup other columns
-	for i: int in range(1, columns.size() + 1):
-		var column: AbstractColumn = columns[i - 1]
+	# Setup columns
+	for i: int in columns.size():
+		var column: AbstractColumn = columns[i]
 		_table_view.set_column_metadata(i, column)
-
 		_table_view.set_column_title(i, column.get_name())
 		_table_view.set_column_tooltip(i, column.get_description())
 
@@ -110,18 +104,16 @@ func update_table() -> void:
 	var rows: Array[AbstractRow] = _table.get_rows()
 	_table_view.set_row_count(rows.size())
 
-	# Get primary key and column names information
-	var primary_key: Variant = schema.get_primary_key().get_name()
+	# Get column names information
 	var columns_name: Array[StringName] = schema.get_column_names()
 
 	# Populate row data
 	for i: int in rows.size():
 		var row: AbstractRow = rows[i]
-		_table_view.set_cell_value_no_signal(i, 0, row.get_value(primary_key))
 		_table_view.set_row_metadata(i, row)
 
-		for j: int in range(1, columns.size() + 1):
-			_table_view.set_cell_value_no_signal(i, j, row.get_value(columns_name[j - 1]))
+		for j: int in columns_name.size():
+			_table_view.set_cell_value_no_signal(i, j, row.get_value(columns_name[j]))
 
 	# Update table display
 	_table_view.update_table()
