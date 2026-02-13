@@ -284,10 +284,10 @@ func _on_database_changed(database: AbstractDatabase) -> void:
 func _on_tab_changed(tab_idx: int) -> void:
 	_inspector.clear()
 
-	var metadata = _tab_bar.get_tab_metadata(tab_idx)
-	if metadata is Dictionary:
-		_data_view.set_table(metadata)
-		table_changed.emit(metadata)
+	var table := _tab_bar.get_tab_metadata(tab_idx) as AbstractTable
+	if is_instance_valid(table):
+		_data_view.set_table(table)
+		table_changed.emit(table)
 
 func _on_tab_rmb_clicked(tab_idx: int) -> void:
 	var popup := PopupMenu.new()
