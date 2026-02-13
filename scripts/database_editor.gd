@@ -180,8 +180,8 @@ func get_database() -> AbstractDatabase:
 	return _database
 
 
-func has_table(name: StringName) -> bool:
-	return _database.has_table(name)
+func has_table(table_name: StringName) -> bool:
+	return _database.has_table(table_name)
 
 
 func show_create_table_dialog() -> void:
