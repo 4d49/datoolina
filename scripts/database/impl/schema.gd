@@ -72,20 +72,12 @@ func has_column(name: StringName) -> bool:
 
 
 func validate_row(row: AbstractRow) -> bool:
-	# Check that all columns from schema are present in the row
-	for column_name: StringName in get_column_names():
-		if not row.has_column(column_name):
-			return false
+	for column_name: StringName in _column_map:
+		if row.has_value(column_name):
+			continue
 
-		# Get the column from schema
-		var column = find_column(column_name)
-
-		# Get the value from row
-		var value = row.get_value(column_name)
-
-		# Validate the value against the column's data type
-		if not column.validate(value):
-			return false
+		var defualt_value: Variant = _column_map[column_name].get_default()
+		row.insert_value(column_name, defualt_value)
 
 	return true
 
