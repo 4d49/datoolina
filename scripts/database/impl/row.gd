@@ -20,8 +20,11 @@ func has_value(column_name: StringName) -> bool:
 	return _values.has(column_name)
 
 
-func get_value(column_name: StringName) -> Variant:
-	return _values.get(column_name)
+func insert_value(column_name: StringName, value: Variant) -> bool:
+	if not _schema.has_column(column_name):
+		return false
+
+	return _values.set(column_name, value)
 
 
 func set_value(column_name: StringName, value: Variant) -> bool:
@@ -29,6 +32,17 @@ func set_value(column_name: StringName, value: Variant) -> bool:
 		return false
 
 	return _values.set(column_name, value)
+
+
+func get_value(column_name: StringName) -> Variant:
+	return _values.get(column_name)
+
+
+func erase_value(column_name: StringName) -> bool:
+	if _schema.has_column(column_name):
+		return false
+
+	return _values.erase(column_name)
 
 
 func validate() -> bool:
