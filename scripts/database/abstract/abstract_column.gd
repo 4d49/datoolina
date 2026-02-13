@@ -13,23 +13,32 @@
 class_name AbstractColumn
 extends RefCounted
 
+
+## Sets the name for this column.
+@abstract func set_name(name: StringName) -> void
+
 ## Returns the column's name (e.g., "name", "age")
 @abstract func get_name() -> StringName
 
-## Returns the data type of this column (e.g., BoolDataType, StringDataType)
-@abstract func get_data_type() -> AbstractDataType
-
-## Validates a value against this column's data type and constraints
-@abstract func validate(value: Variant) -> bool
-
-## Returns the default value for this column
-@abstract func get_default() -> Variant
-
-## Returns the built-in variant type (e.g., Variant.Type.STRING, Variant.Type.INT)
-@abstract func get_built_in_type() -> Variant.Type
 
 ## Sets the description for this column.
 @abstract func set_description(description: String) -> void
 
 ## Gets the description of this column.
 @abstract func get_description() -> String
+
+
+## Returns the data type of this column (e.g., BoolDataType, StringDataType)
+@abstract func get_data_type() -> AbstractDataType
+
+
+## Validates a value against this column's data type and constraints
+@abstract func validate(value: Variant) -> bool
+
+
+## Returns the default value for this column
+@abstract func get_default() -> Variant
+
+
+## Returns the built-in variant type (e.g., Variant.Type.STRING, Variant.Type.INT)
+@abstract func get_built_in_type() -> Variant.Type
