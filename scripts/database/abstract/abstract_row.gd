@@ -20,6 +20,10 @@ extends RefCounted
 ## Returns true if the column has a value, false otherwise.
 @abstract func has_value(column_name: StringName) -> bool
 
+## Inserts a new value for a column.
+## Returns true if the value was successfully inserted, false if the column does not exist.
+@abstract func insert_value(column_name: StringName, value: Variant) -> bool
+
 ## Sets the value of a column by its name.
 ## Returns true if the value was successfully set, false if the column does not exist or the value is invalid.
 @abstract func set_value(column_name: StringName, value: Variant) -> bool
