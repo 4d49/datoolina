@@ -15,7 +15,8 @@ enum Type {
 	FLOAT = TYPE_FLOAT,
 	STRING = TYPE_STRING,
 	COLOR = TYPE_COLOR,
-	STRING_NAME = TYPE_STRING_NAME,
+	# FIXME: Позже пересмотреть систему типов.
+#	STRING_NAME = TYPE_STRING_NAME,
 }
 enum ColumnContextMenu {
 	RENAME,
