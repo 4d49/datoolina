@@ -262,14 +262,14 @@ func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	delete_table.popup_centered(Vector2i(300, 50))
 
 
-func show_record_rename_dialog(record: Dictionary[StringName, Variant]) -> RecordRenameDialog:
+func show_record_rename_dialog(row: AbstractRow) -> RecordRenameDialog:
 	if is_instance_valid(_record_rename_dialog):
 		_record_rename_dialog.queue_free()
 
-	if record.is_read_only():
+	if not is_instance_valid(row):
 		return
 
-	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), record)
+	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), row)
 	self.add_child(_record_rename_dialog)
 
 	_record_rename_dialog.popup_centered(Vector2i(300, 50))
@@ -329,62 +329,65 @@ func _on_new_table_menu_pressed(option: NewTabMenu) -> void:
 
 
 
-
-func create_property_helper_for_record(record: Dictionary, row_idx: int) -> PropertyHelper:
+# FIXME: Требуется новая реализация.
+func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyHelper:
 	var table_view: TableView = _table_view
 	var property_helper := PropertyHelper.new()
 
-	property_helper.add_category("Record Editor")
-	property_helper.add_property(
-		"id",
-		TYPE_STRING_NAME,
-		Callable(),
-		func get_id() -> StringName: return record.id,
-		"Record ID",
-		PROPERTY_HINT_NONE,
-		"",
-		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
-	)
+	property_helper.add_category("Row Editor")
+	# FIXME: Раньше мы учитывали ID отдельно, теперь необходимо заменить эту логику на обработку primary key.
+#	property_helper.add_property(
+#		"id",
+#		TYPE_STRING_NAME,
+#		Callable(),
+#		func get_id() -> StringName: return record.id,
+#		"Record ID",
+#		PROPERTY_HINT_NONE,
+#		"",
+#		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
+#	)
 
-#	# TODO: Fix this place latter.
-#	var column_idx: int = 1 # Plus ID column offset.
-#	for column: Dictionary in DB.table_get_columns(_data_view.get_table()):
-#		var id: StringName = DB.column_get_id(column)
-#		var validator: Callable = DB.column_get_validator(column)
-#
-#		var setter: Callable = func(value: Variant) -> bool:
-#			value = validator.call(value)
-#
-#			if is_same(record[id], value):
-#				return false
-#
-#			record[id] = value
-#			database_modified.emit()
-#
-#			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
-#				table_view.queue_redraw()
-#
-#			return true
-#		var getter: Callable = func() -> Variant:
-#			return record[id]
-#
+	var schema: AbstractSchema = row.get_schema()
+
+	var columns: Array[AbstractColumn] = schema.get_columns()
+	for i: int in columns.size():
+		var column: AbstractColumn = schema.get_column(i)
+		var column_name: StringName = column.get_name()
+
+		var setter: Callable = func(value: Variant) -> bool:
+			if not row.set_value(column_name, value):
+				return false
+
+			database_modified.emit()
+
+			if table_view.set_cell_value_no_signal(row_idx, i, value):
+				table_view.queue_redraw()
+
+			return true
+
+		var getter: Callable = func() -> Variant:
+			return row.get_value(column_name)
+
+		# FIXME: Реализовать позже подсказку типа.
+		property_helper.add_property(column_name, column.get_built_in_type(), setter, getter, column.get_description())
 #		property_helper.add_property(id, column.type, setter, getter, column.description, column.hint, column.hint_string)
-#
-#		column_idx += 1
 
 	return property_helper
+
 
 func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
 	const COLUMN_ID: int = 0
 
-	var record: Dictionary = _table_view.get_row_metadata(row_idx)
+	var row: AbstractRow = _table_view.get_row_metadata(row_idx) as AbstractRow
+	if not is_instance_valid(row):
+		return
 
 	if column_idx == COLUMN_ID:
-		var record_rename := show_record_rename_dialog(record)
+		var record_rename := show_record_rename_dialog(row)
 		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
 			_table_view.set_cell_value(row_idx, COLUMN_ID, id)
 			database_modified.emit()
 		)
 	else:
-		var property_helper := create_property_helper_for_record(record, row_idx)
+		var property_helper := create_property_helper_for_row(row, row_idx)
 		_inspector.set_object(property_helper)
