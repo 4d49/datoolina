@@ -28,8 +28,8 @@ func _init(database: AbstractDatabase, table: AbstractTable) -> void:
 	_database = database
 	_table = table
 
-	_original_id = database.get_name()
-	_original_description = database.get_description()
+	_original_id = table.get_name()
+	_original_description = table.get_description()
 
 	self.set_title("Rename Table")
 
