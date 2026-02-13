@@ -195,7 +195,7 @@ func show_create_table_dialog() -> void:
 	create_table.popup_centered(Vector2i(300, 50))
 
 
-func show_edit_table_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_edit_table_dialog(table: AbstractTable) -> void:
 	var table_editor: TableEditorDialog = TableEditorDialog.new(table)
 	table_editor.confirmed.connect(func on_confirmed() -> void:
 		database_modified.emit()

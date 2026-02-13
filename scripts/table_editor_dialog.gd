@@ -10,7 +10,7 @@ const TableEditor: GDScript = preload("res://scripts/table_editor.gd")
 var _table_editor: TableEditor = null
 
 
-func _init(table: Dictionary[StringName, Variant]) -> void:
+func _init(table: AbstractTable) -> void:
 	self.set_title("Edit Table")
 	self.set_min_size(Vector2i(500, 300))
 
