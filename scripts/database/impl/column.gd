@@ -16,10 +16,10 @@ var _default_value: Variant = null
 var _description: String = ""
 
 
-func _init(name: StringName, data_type: AbstractDataType, default_value: Variant = null) -> void:
+func _init(name: StringName, data_type: AbstractDataType) -> void:
 	_name = name
 	_data_type = data_type
-	_default_value = default_value
+	_default_value = data_type.get_default()
 
 
 func get_name() -> StringName:

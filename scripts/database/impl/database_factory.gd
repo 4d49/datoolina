@@ -24,8 +24,7 @@ func create_database(name: StringName) -> AbstractDatabase:
 
 
 func create_column(name: StringName, data_type: AbstractDataType) -> AbstractColumn:
-	# Note: Primary key handling is managed at the schema level, not in the column itself
-	return Column.new(name, data_type, null)
+	return Column.new(name, data_type)
 
 
 func create_row(schema: AbstractSchema) -> AbstractRow:
