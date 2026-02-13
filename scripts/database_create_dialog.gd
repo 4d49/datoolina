@@ -21,7 +21,7 @@ func _init() -> void:
 	_line_edit = LineEdit.new()
 	_line_edit.set_text("new_database")
 	_line_edit.select_all()
-	_line_edit.set_placeholder("Database ID")
+	_line_edit.set_placeholder("Database Name")
 	_line_edit.set_clear_button_enabled(true)
 	_line_edit.call_deferred(&"grab_focus")
 	_line_edit.text_changed.connect(_on_line_edit_text_changed)
@@ -34,21 +34,29 @@ func _init() -> void:
 	self.close_requested.connect(queue_free)
 
 
-func is_valid_id(id: StringName) -> bool:
-	return id.is_valid_ascii_identifier()
+func is_valid_database_name(db_name: StringName) -> bool:
+	return db_name.is_valid_ascii_identifier()
 
 
-func create_database(name: StringName) -> AbstractDatabase:
-	return DatabaseFactory.create_database(name)
+func create_database(db_name: StringName) -> AbstractDatabase:
+	if is_valid_database_name(db_name):
+		return null
+
+	return DatabaseFactory.create_database(db_name)
 
 
-func _on_line_edit_text_changed(id: StringName) -> void:
-	get_ok_button().set_disabled(not is_valid_id(id))
+func _on_line_edit_text_changed(text: StringName) -> void:
+	get_ok_button().set_disabled(not is_valid_database_name(text))
 
 
 func _on_confirmed() -> void:
-	var database := create_database(_line_edit.get_text())
-	if database.is_empty():
+	var db_name := _line_edit.get_text()
+	if not is_valid_database_name(db_name):
 		return
 
-	database_created.emit(database)
+	var db := create_database(db_name)
+	if is_instance_valid(db):
+		database_created.emit(db)
+		queue_free()
+	else:
+		printerr("Failed to create database with name: ", db_name)
