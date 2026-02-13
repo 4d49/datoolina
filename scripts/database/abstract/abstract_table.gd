@@ -36,6 +36,20 @@ extends RefCounted
 ## Returns true if the column exists, false otherwise.
 @abstract func has_column(name: StringName) -> bool
 
+
+## Adds a new column to the table's schema.
+## Returns true if the column was successfully added, false if a column with that name already exists.
+@abstract func add_column(column: AbstractColumn) -> bool
+
+## Removes a column from the table's schema.
+## Returns true if the column was successfully removed, false if it didn't exist.
+@abstract func remove_column(name: StringName) -> bool
+
+## Renames a column in the table's schema.
+## Returns true if the column was successfully renamed, false if the old column doesn't exist or new name is already taken.
+@abstract func rename_column(old_name: StringName, new_name: StringName) -> bool
+
+
 ## Checks if the table has a primary key column.
 ## Returns true if a primary key column exists, false otherwise.
 @abstract func has_primary_key_column() -> bool

@@ -48,6 +48,62 @@ func has_column(name: StringName) -> bool:
 	return _schema.has_column(name)
 
 
+func add_column(column: AbstractColumn) -> bool:
+	if not is_instance_valid(column):
+		return false
+
+	# Check if column with this name already exists
+	var name: StringName = column.get_name()
+	if _schema.has_column(name):
+		return false
+
+	# Add the column to schema
+	if not _schema.add_column(column):
+		return false
+
+	# Update all existing rows with default value for new column
+	var default_value = column.get_default()
+	for row: AbstractRow in _rows:
+		row.insert_value(name, default_value)
+
+	return true
+
+
+func remove_column(column_name: StringName) -> bool:
+	if not _schema.has_column(column_name):
+		return false
+
+	# Remove the column from schema
+	if not _schema.remove_column(column_name):
+		return false
+
+	# Remove values for this column from all existing rows
+	for row: AbstractRow in _rows:
+		row.erase_value(column_name)
+
+	return true
+
+
+func rename_column(old_name: StringName, new_name: StringName) -> bool:
+	# Validate that old column exists and new name is not taken
+	if not _schema.has_column(old_name) or _schema.has_column(new_name):
+		return false
+
+	var column: AbstractColumn = _schema.find_column(old_name)
+	column.set_name(new_name)
+
+	_schema.remove_column(old_name)
+	_schema.add_column(column)
+
+	# Update all existing rows to use the new column name
+	for row: AbstractRow in _rows:
+		var value: Variant = row.get_value(old_name)
+		row.erase_value(old_name)
+		row.insert_value(new_name, value)
+
+	return true
+
+
 func has_primary_key_column() -> bool:
 	return _schema.has_primary_key()
 
