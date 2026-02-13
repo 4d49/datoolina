@@ -12,6 +12,10 @@ func _init(schema: AbstractSchema) -> void:
 	_schema = schema
 
 
+func get_schema() -> AbstractSchema:
+	return _schema
+
+
 func get_value(column_name: StringName) -> Variant:
 	return _values.get(column_name)
 
