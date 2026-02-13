@@ -133,7 +133,7 @@ func get_table_view() -> TableView:
 
 
 func update_tabs(deselect: bool = true) -> void:
-	var tables: Array[StringName] = _database.get_table_names()
+	var tables: Array[AbstractTable] = _database.get_tables()
 
 	if tables.is_empty():
 		_tab_bar.set_tab_count(1)
@@ -150,7 +150,7 @@ func update_tabs(deselect: bool = true) -> void:
 		popup.set_item_count(tables.size())
 
 		for i: int in tables.size():
-			var table: AbstractTable = _database.get_table(tables[i])
+			var table: AbstractTable = tables[i]
 
 			_tab_bar.set_tab_title(i, table.get_name())
 			_tab_bar.set_tab_tooltip(i, table.get_description())
