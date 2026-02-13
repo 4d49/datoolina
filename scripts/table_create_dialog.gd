@@ -84,8 +84,7 @@ func _on_confirmed() -> void:
 	var table_name: StringName = _id_edit.get_text()
 	var description: String = _description_edit.get_text()
 
-	# FIXME: Требуется исправление!
-	var schema: AbstractSchema = null
+	var schema: AbstractSchema = DatabaseFactory.create_schema()
 	var table: AbstractTable = DatabaseFactory.create_table(table_name, schema)
 	if not is_instance_valid(table):
 		return
