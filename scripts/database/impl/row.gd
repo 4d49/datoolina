@@ -21,9 +21,6 @@ func has_value(column_name: StringName) -> bool:
 
 
 func insert_value(column_name: StringName, value: Variant) -> bool:
-	if not _schema.has_column(column_name):
-		return false
-
 	return _values.set(column_name, value)
 
 
@@ -39,9 +36,6 @@ func get_value(column_name: StringName) -> Variant:
 
 
 func erase_value(column_name: StringName) -> bool:
-	if _schema.has_column(column_name):
-		return false
-
 	return _values.erase(column_name)
 
 
