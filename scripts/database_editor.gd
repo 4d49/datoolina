@@ -276,9 +276,8 @@ func show_record_rename_dialog(record: Dictionary[StringName, Variant]) -> Recor
 	return _record_rename_dialog
 
 
-func _on_database_changed(database: Dictionary[StringName, Variant]) -> void:
-	_new_tab.set_disabled(database.is_read_only())
-
+func _on_database_changed(database: AbstractDatabase) -> void:
+	_new_tab.set_disabled(not is_instance_valid(database))
 	update_tabs()
 
 
