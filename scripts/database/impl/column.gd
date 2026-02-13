@@ -6,14 +6,13 @@
 extends AbstractColumn
 
 
-# The name of this column
 var _name: StringName = &""
+var _description: String = ""
+
 # The data type definition for this column
 var _data_type: AbstractDataType = null
 # The default value for this column (can be null if no default is set)
 var _default_value: Variant = null
-# Column description
-var _description: String = ""
 
 
 func _init(name: StringName, data_type: AbstractDataType) -> void:
@@ -27,6 +26,13 @@ func set_name(name: StringName) -> void:
 
 func get_name() -> StringName:
 	return _name
+
+
+func set_description(description: String) -> void:
+	_description = description
+
+func get_description() -> String:
+	return _description
 
 
 func get_data_type() -> AbstractDataType:
@@ -43,10 +49,3 @@ func get_default() -> Variant:
 
 func get_built_in_type() -> Variant.Type:
 	return _data_type.get_built_in_type()
-
-
-func set_description(description: String) -> void:
-	_description = description
-
-func get_description() -> String:
-	return _description
