@@ -16,6 +16,10 @@ extends RefCounted
 ## Returns the schema that defines the structure of this row.
 @abstract func get_schema() -> AbstractSchema
 
+## Checks if a column has a value set.
+## Returns true if the column has a value, false otherwise.
+@abstract func has_value(column_name: StringName) -> bool
+
 ## Sets the value of a column by its name.
 ## Returns true if the value was successfully set, false if the column does not exist or the value is invalid.
 @abstract func set_value(column_name: StringName, value: Variant) -> bool
