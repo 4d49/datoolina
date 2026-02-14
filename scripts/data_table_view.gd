@@ -99,7 +99,7 @@ func update_table() -> void:
 #		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
 		_table_view.set_column_type(i, column.get_built_in_type() as int)
 
-	# Get table rows
+	# Get table records
 	var records: Array[AbstractRecord] = _table.get_records()
 	_table_view.set_row_count(records.size())
 
