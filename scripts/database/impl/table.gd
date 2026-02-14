@@ -76,6 +76,7 @@ func remove_column(column: AbstractColumn) -> bool:
 	if not is_instance_valid(column):
 		return false
 
+	# Here we check if both instances are actually the same object.
 	if not is_same(column, find_column(column.get_name())):
 		return false
 
