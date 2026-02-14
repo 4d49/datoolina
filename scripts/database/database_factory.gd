@@ -63,7 +63,7 @@ static func create_data_type(type: Variant.Type) -> AbstractDataType:
 ## The table will be created with the provided name and schema.
 ## Returns the newly created AbstractTable instance if successful, null otherwise.
 static func create_table(name: StringName) -> AbstractTable:
-	var id_type: AbstractDataType = create_data_type(TYPE_STRING) # TODO: Replace by StringName
+	var id_type: AbstractDataType = create_data_type(TYPE_STRING_NAME)
 	var id_column: AbstractColumn = create_column(&"id", id_type)
 
 	var table: AbstractTable = _instance.create_table(name)

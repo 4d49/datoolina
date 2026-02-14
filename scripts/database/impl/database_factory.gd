@@ -31,6 +31,7 @@ func create_data_type(type: Variant.Type) -> AbstractDataType:
 	const FloatType: GDScript = preload("data_types/float_data_type.gd")
 	const IntType: GDScript = preload("data_types/int_data_type.gd")
 	const StringType: GDScript = preload("data_types/string_data_type.gd")
+	const StringNameType: GDScript = preload("data_types/string_name_data_type.gd")
 
 	var data_type: AbstractDataType = null
 
@@ -43,6 +44,8 @@ func create_data_type(type: Variant.Type) -> AbstractDataType:
 			data_type = FloatType.new()
 		TYPE_STRING:
 			data_type = StringType.new()
+		TYPE_STRING_NAME:
+			data_type = StringNameType.new()
 		_:
 			push_error("%s type is not supported!" % type_string(type))
 
