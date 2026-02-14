@@ -60,33 +60,9 @@ extends RefCounted
 @abstract func get_columns() -> Array[AbstractColumn]
 
 
-
-
-## Checks if the table has a primary key defined.
-## Returns true if a primary key is defined, false otherwise.
-@abstract func has_primary_key() -> bool
-
-## Retrieves the primary key column from the table's schema.
-## Returns the AbstractColumn representing the primary key, or null if no primary key is defined.
-@abstract func get_primary_key() -> AbstractColumn
-
-## Checks if the table has a primary key column.
-## Returns true if a primary key column exists, false otherwise.
-@abstract func has_primary_key_column() -> bool
-
-## Returns the first primary key column.
-## Returns the AbstractColumn that is a primary key, or null if no primary key exists.
-@abstract func get_primary_key_column() -> AbstractColumn
-
-
-
-
 ## Validates a record against the table's schema constraints.
 ## Returns true if the record contains valid data according to the schema (e.g., correct types, required fields), false otherwise.
 @abstract func validate_record(record: AbstractRecord) -> bool
-
-
-
 
 
 ## Checks if a record exists with the specified primary key value.

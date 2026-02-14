@@ -33,21 +33,21 @@ static func get_instance() -> AbstractDatabaseFactory:
 ## Creates a new AbstractDatabase instance.
 ## Returns a new AbstractDatabase instance with default configuration.
 static func create_database(name: StringName) -> AbstractDatabase:
-	return get_instance().create_database(name)
+	return _instance.create_database(name)
 
 
 ## Creates a new AbstractColumn instance with the specified properties.
 ## The column will have the provided name and data type.
 ## Returns a new AbstractColumn instance.
 static func create_column(name: StringName, data_type: AbstractDataType) -> AbstractColumn:
-	return get_instance().create_column(name, data_type)
+	return _instance.create_column(name, data_type)
 
 
 ## Creates a new AbstractRecord instance.
 ## The record will be created according to the provided schema structure.
 ## Returns a new AbstractRecord instance.
-static func create_record(table: AbstractTable) -> AbstractRecord:
-	return get_instance().create_record(table)
+static func create_record(id: StringName, table: AbstractTable) -> AbstractRecord:
+	return _instance.create_record(id, table)
 
 
 ## Creates a new AbstractDataType instance of the specified type.
@@ -56,11 +56,17 @@ static func create_record(table: AbstractTable) -> AbstractRecord:
 ## Warning: This is a simplified implementation. You may want to expand this
 ## with more data type factories based on your specific needs.
 static func create_data_type(type: Variant.Type) -> AbstractDataType:
-	return get_instance().create_data_type(type)
+	return _instance.create_data_type(type)
 
 
 ## Creates a table and adds it to the database.
 ## The table will be created with the provided name and schema.
 ## Returns the newly created AbstractTable instance if successful, null otherwise.
 static func create_table(name: StringName) -> AbstractTable:
-	return get_instance().create_table(name)
+	var id_type: AbstractDataType = create_data_type(TYPE_STRING) # TODO: Replace by StringName
+	var id_column: AbstractColumn = create_column(&"id", id_type)
+
+	var table: AbstractTable = _instance.create_table(name)
+	table.add_column(id_column)
+
+	return table

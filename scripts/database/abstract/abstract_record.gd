@@ -13,6 +13,16 @@ class_name AbstractRecord
 extends RefCounted
 
 
+## Sets the unique identifier for this record.
+##
+## The caller is responsible for guaranteeing that each record ID is unique
+## within the table. This method allows changing the ID of an existing record,
+## but it's the caller's responsibility to ensure no duplicate IDs exist in the table.
+@abstract func set_id(id: StringName) -> void
+
+## Gets the unique identifier for this record.
+@abstract func get_id() -> StringName
+
 ## Returns the table associated with this record.
 @abstract func get_table() -> AbstractTable
 

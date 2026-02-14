@@ -8,8 +8,16 @@ var _table: AbstractTable = null
 var _values: Dictionary[StringName, Variant] = {}
 
 
-func _init(table: AbstractTable) -> void:
+func _init(id: StringName, table: AbstractTable) -> void:
+	_values.set(&"id", id)
 	_table = table
+
+
+func set_id(id: StringName) -> void:
+	_values.set(&"id", id)
+
+func get_id() -> StringName:
+	return _values.get(&"id", &"null")
 
 
 func get_table() -> AbstractTable:
