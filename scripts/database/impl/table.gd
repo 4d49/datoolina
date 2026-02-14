@@ -111,8 +111,8 @@ func validate_record(record: AbstractRecord) -> bool:
 		if record.has_value(column_name):
 			continue
 
-		var defualt_value: Variant = _column_map[column_name].get_default()
-		record.insert_value(column_name, defualt_value)
+		var default_value: Variant = _column_map[column_name].get_default()
+		record.insert_value(column_name, default_value)
 
 	return true
 
