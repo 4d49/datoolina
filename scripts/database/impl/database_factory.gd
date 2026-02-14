@@ -22,8 +22,8 @@ func create_column(name: StringName, data_type: AbstractDataType) -> AbstractCol
 	return Column.new(name, data_type)
 
 
-func create_record(id: StringName, table: AbstractTable) -> AbstractRecord:
-	return Record.new(id, table)
+func create_record(table: AbstractTable) -> AbstractRecord:
+	return Record.new(table)
 
 
 func create_data_type(type: Variant.Type) -> AbstractDataType:

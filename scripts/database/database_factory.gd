@@ -17,7 +17,6 @@ extends RefCounted
 # Store the factory instance - initially null
 static var _instance: AbstractDatabaseFactory = null
 
-
 ## Sets the singleton instance of the database factory.
 ## This allows for custom factory implementations to be used instead of the default one.
 ## If no instance is set, the factory will create a default ConcreteDatabaseFactory instance.
@@ -29,12 +28,10 @@ static func set_instance(factory: AbstractDatabaseFactory) -> void:
 static func get_instance() -> AbstractDatabaseFactory:
 	return _instance
 
-
 ## Creates a new AbstractDatabase instance.
 ## Returns a new AbstractDatabase instance with default configuration.
 static func create_database(name: StringName) -> AbstractDatabase:
 	return _instance.create_database(name)
-
 
 ## Creates a new AbstractColumn instance with the specified properties.
 ## The column will have the provided name and data type.
@@ -42,13 +39,14 @@ static func create_database(name: StringName) -> AbstractDatabase:
 static func create_column(name: StringName, data_type: AbstractDataType) -> AbstractColumn:
 	return _instance.create_column(name, data_type)
 
-
 ## Creates a new AbstractRecord instance.
 ## The record will be created according to the provided schema structure.
 ## Returns a new AbstractRecord instance.
 static func create_record(id: StringName, table: AbstractTable) -> AbstractRecord:
-	return _instance.create_record(id, table)
+	var record: AbstractRecord = _instance.create_record(table)
+	record.set_value(&"id", id)
 
+	return record
 
 ## Creates a new AbstractDataType instance of the specified type.
 ## The data type will be created based on the provided Variant.Type.
@@ -57,7 +55,6 @@ static func create_record(id: StringName, table: AbstractTable) -> AbstractRecor
 ## with more data type factories based on your specific needs.
 static func create_data_type(type: Variant.Type) -> AbstractDataType:
 	return _instance.create_data_type(type)
-
 
 ## Creates a table and adds it to the database.
 ## The table will be created with the provided name and schema.
