@@ -35,8 +35,6 @@ func get_description() -> String:
 	return _description
 
 
-
-
 func has_column(column_name: StringName) -> bool:
 	return _column_map.has(column_name)
 
@@ -46,12 +44,16 @@ func add_column(column: AbstractColumn) -> bool:
 		return false
 
 	# Check if column with this name already exists
-	var name: StringName = column.get_name()
-	if has_column(name):
+	var column_name: StringName = column.get_name()
+	if has_column(column_name):
 		return false
 
+	var default_value: Variant = column.get_default()
+	for record_id: StringName in _record_map:
+		_record_map[record_id].insert_value(column_name, default_value)
+
 	# Add the column to internal storage
-	if _column_map.set(name, column) and _columns:
+	if _column_map.set(column_name, column) and _columns:
 		_columns = []
 
 	return true
@@ -77,11 +79,7 @@ func remove_column(column: AbstractColumn) -> bool:
 	if not is_same(column, find_column(column.get_name())):
 		return false
 
-	# Get the column to check if it was a primary key
-	if _column_map.erase(column.get_name()) and _columns:
-		_columns = []
-
-	return true
+	return erase_column(column.get_name())
 
 
 func get_column_count() -> int:
