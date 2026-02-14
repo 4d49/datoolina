@@ -57,6 +57,19 @@ func add_column(column: AbstractColumn) -> bool:
 	return true
 
 
+func erase_column(column_name: StringName) -> bool:
+	if not _column_map.erase(column_name):
+		return false
+
+	for record_id: StringName in _record_map:
+		_record_map[record_id].erase_value(column_name)
+
+	if _columns:
+		_columns = []
+
+	return false
+
+
 func remove_column(column: AbstractColumn) -> bool:
 	if not is_instance_valid(column):
 		return false

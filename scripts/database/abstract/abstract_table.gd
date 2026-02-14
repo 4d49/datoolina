@@ -33,6 +33,10 @@ extends RefCounted
 ## Returns true if the column was successfully added, false if a column with that name already exists.
 @abstract func add_column(column: AbstractColumn) -> bool
 
+## Erases a column from the table's schema by name.
+## Returns true if the column was successfully erased, false if it didn't exist.
+@abstract func erase_column(column_name: StringName) -> bool
+
 ## Removes a column from the table's schema.
 ## Returns true if the column was successfully removed, false if it didn't exist.
 @abstract func remove_column(column: AbstractColumn) -> bool
