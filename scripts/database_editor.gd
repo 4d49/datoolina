@@ -383,11 +383,12 @@ func _on_cell_double_clicked(record_idx: int, column_idx: int) -> void:
 		return
 
 	if column_idx == COLUMN_ID:
-		var record_rename := show_record_rename_dialog(record)
-		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
+		var on_record_renamed: Callable = func(id: StringName) -> void:
 			_table_view.set_cell_value(record_idx, COLUMN_ID, id)
 			database_modified.emit()
-		)
+
+		var record_rename := show_record_rename_dialog(record)
+		record_rename.record_renamed.connect(on_record_renamed)
 	else:
 		var property_helper := create_property_helper_for_record(record, record_idx)
 		_inspector.set_object(property_helper)
