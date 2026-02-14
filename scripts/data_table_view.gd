@@ -135,9 +135,6 @@ func get_table() -> AbstractTable:
 func is_valid_id(id: StringName) -> bool:
 	return id.is_valid_ascii_identifier()
 
-func has_record_by_primary_key(primary_key) -> bool:
-	return _table.has_record(primary_key)
-
 
 func show_record_rename_dialog(record: AbstractRecord) -> void:
 	if is_instance_valid(_record_rename_dialog):
