@@ -9,14 +9,14 @@ const ColumnRenameDialog: GDScript = preload("res://scripts/column_rename_dialog
 const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
+# TODO: Later, review the type system.
 enum Type {
 	BOOL = TYPE_BOOL,
 	INT = TYPE_INT,
 	FLOAT = TYPE_FLOAT,
 	STRING = TYPE_STRING,
 	COLOR = TYPE_COLOR,
-	# FIXME: Позже пересмотреть систему типов.
-#	STRING_NAME = TYPE_STRING_NAME,
+	STRING_NAME = TYPE_STRING_NAME,
 }
 enum ColumnContextMenu {
 	RENAME,
