@@ -125,15 +125,21 @@ func add_record(record: AbstractRecord) -> bool:
 	return true
 
 
+func erase_record(primary_key: Variant) -> bool:
+	if not _record_map.erase(primary_key):
+		return false
+
+	if _records:
+		_records = [] # Clear the array to be repopulated on next access
+
+	return true
+
+
 func remove_record(record: AbstractRecord) -> bool:
 	if not is_instance_valid(record):
 		return false
 
-	# Remove the record from the table using primary key as key
-	if _record_map.erase(record.get_id()) and _records:
-		_records = []  # Clear the array to be repopulated on next access
-
-	return true
+	return erase_record(record.get_id())
 
 
 func find_record(record_id: Variant) -> AbstractRecord:

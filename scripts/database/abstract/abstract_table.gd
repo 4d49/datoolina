@@ -19,15 +19,11 @@ extends RefCounted
 ## Gets the name of this table
 @abstract func get_name() -> StringName
 
-
 ## Sets the description for this table.
 @abstract func set_description(description: String) -> void
 
 ## Gets the description of this table.
 @abstract func get_description() -> String
-
-
-
 
 ## Checks if a column with the given name exists in the table's schema.
 ## Returns true if the column exists, false otherwise.
@@ -59,11 +55,9 @@ extends RefCounted
 ## The returned array is NOT GUARANTEED to be modifiable.
 @abstract func get_columns() -> Array[AbstractColumn]
 
-
 ## Validates a record against the table's schema constraints.
 ## Returns true if the record contains valid data according to the schema (e.g., correct types, required fields), false otherwise.
 @abstract func validate_record(record: AbstractRecord) -> bool
-
 
 ## Checks if a record exists with the specified primary key value.
 ## Returns true if a record with the given primary key exists, false otherwise.
@@ -77,6 +71,10 @@ extends RefCounted
 ## Removes a record from the table.
 ## Returns true if the record was successfully removed, false if the record was not found.
 @abstract func remove_record(record: AbstractRecord) -> bool
+
+## Erases a record from the table by its primary key.
+## Returns true if the record was successfully erased, false if the record was not found.
+@abstract func erase_record(primary_key: Variant) -> bool
 
 ## Retrieves a record by its primary key value.
 ## Returns the record with the specified primary key value, or null if not found.
