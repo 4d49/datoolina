@@ -193,16 +193,18 @@ func _on_filter_line_text_changed(text: String) -> void:
 	_table_view.filter_rows_by_callable(0, callable)
 	_table_view.emit_signal(&"table_changed")
 
+
 func _on_record_id_text_changed(id: StringName) -> void:
-	# FIXME: Требуется новая реализация
-#	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
-	return
+	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
+
 
 func _on_create_pressed() -> void:
-#	# FIXME: Необходимо полностью пересмотреть код
-#	if not DB.table_create_record(_table, _record_id.get_text()).is_read_only():
-#		table_modified.emit()
-#		update_table()
+	var id: StringName = _record_id.get_text()
+	var record: AbstractRecord = DatabaseFactory.create_record(id, _table)
+	_table.add_record(record)
+
+	table_modified.emit()
+	update_table()
 
 	_create_btn.set_disabled(true)
 
