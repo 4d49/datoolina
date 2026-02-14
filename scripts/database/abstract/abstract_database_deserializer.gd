@@ -4,7 +4,7 @@
 ## Abstract base class for deserializing database objects from files.
 ##
 ## This abstract class defines the interface for implementing deserialization
-## functionality that can reconstruct database components (tables, rows, schemas,
+## functionality that can reconstruct database components (tables, records, schemas,
 ## data types) from persisted data formats. Implementations should handle
 ## loading and parsing of serialized data into their respective object instances.
 
@@ -18,8 +18,8 @@ extends RefCounted
 ## Reconstructs a table object from a file
 @abstract func deserialize_table(path: String, options: Dictionary = {}) -> AbstractTable
 
-## Reconstructs a row object from a file
-@abstract func deserialize_row(path: String, options: Dictionary = {}) -> AbstractRow
+## Reconstructs a record object from a file
+@abstract func deserialize_record(path: String, options: Dictionary = {}) -> AbstractRecord
 
 ## Reconstructs a data type object from a file
 @abstract func deserialize_data_type(path: String, options: Dictionary = {}) -> AbstractDataType

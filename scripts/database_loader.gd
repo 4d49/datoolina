@@ -77,7 +77,7 @@ static func _deserialize_database(data: Dictionary) -> AbstractDatabase:
 
 		for r: Dictionary in t.records:
 			# FIXME: Нам требуется знать primary key value of new record!
-			var record: AbstractRow = DatabaseFactory.create_row(table)
+			var record: AbstractRecord = DatabaseFactory.create_record(table)
 			# HACK: In the future, it should be removed.
 			for key: StringName in r:
 				record[key] = r[key]

@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Mansur Isaev and contributors - MIT License
 # See `LICENSE.md` included in the source distribution for details.
 
-extends AbstractRow
+extends AbstractRecord
 
 
 var _table: AbstractTable = null

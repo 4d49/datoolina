@@ -58,7 +58,7 @@ static func save_database(database: AbstractDatabase, path: String) -> Error:
 
 
 # FIXME: Требуется новая реализация!
-static func _serialize_record(record: AbstractRow) -> Dictionary:
+static func _serialize_record(record: AbstractRecord) -> Dictionary:
 	var serialized: Dictionary = {}
 
 	for key: String in record:
@@ -67,7 +67,7 @@ static func _serialize_record(record: AbstractRow) -> Dictionary:
 	return serialized
 
 # FIXME: Требуется новая реализация!
-static func _serialize_records(records: Array[AbstractRow]) -> Array:
+static func _serialize_records(records: Array[AbstractRecord]) -> Array:
 	var serialized: Array[Dictionary] = []
 	serialized.resize(records.size())
 

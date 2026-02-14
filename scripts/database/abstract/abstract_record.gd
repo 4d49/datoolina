@@ -1,19 +1,19 @@
 # Copyright (c) 2026 Mansur Isaev and contributors - MIT License
 # See `LICENSE.md` included in the source distribution for details.
 
-## Abstract base class representing a row of data in a database table.
+## Abstract base class representing a record of data in a database table.
 ##
-## This abstract class defines the interface for row implementations that
-## store and manage data values for a specific schema. Rows contain
+## This abstract class defines the interface for record implementations that
+## store and manage data values for a specific schema. Records contain
 ## column-value pairs that represent individual records within a table,
 ## with validation and access methods to ensure data integrity.
 
 @abstract
-class_name AbstractRow
+class_name AbstractRecord
 extends RefCounted
 
 
-## Returns the table associated with this row.
+## Returns the table associated with this record.
 @abstract func get_table() -> AbstractTable
 
 ## Checks if a column has a value set.
@@ -36,7 +36,7 @@ extends RefCounted
 ## Returns true if the value was successfully erased, false if the column does not exist.
 @abstract func erase_value(column_name: StringName) -> bool
 
-## Validates the integrity of the row data.
-## Returns true if all values are valid and consistent with the row's constraints, false otherwise.
+## Validates the integrity of the record data.
+## Returns true if all values are valid and consistent with the record's constraints, false otherwise.
 ## This method uses the schema to validate against column constraints.
 @abstract func validate() -> bool

@@ -12,10 +12,10 @@ var _label: Label = null
 var _tree: Tree = null
 
 var _table: AbstractTable = null
-var _records: Array[AbstractRow] = []
+var _records: Array[AbstractRecord] = []
 
 
-func _init(table: AbstractTable, records: Array[AbstractRow]) -> void:
+func _init(table: AbstractTable, records: Array[AbstractRecord]) -> void:
 	_table = table
 	_records = records
 
@@ -37,7 +37,7 @@ func _init(table: AbstractTable, records: Array[AbstractRow]) -> void:
 	_tree.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 
 	var root: TreeItem = _tree.create_item()
-	for record: AbstractRow in records:
+	for record: AbstractRecord in records:
 		var item: TreeItem = root.create_child()
 		# FIXME: Нуждается в рефакторинге
 		item.set_text(0, "FIXME")
@@ -50,7 +50,7 @@ func _init(table: AbstractTable, records: Array[AbstractRow]) -> void:
 
 
 func _on_confirmed() -> void:
-	for record: AbstractRow in _records:
-		_table.remove_row(record)
+	for record: AbstractRecord in _records:
+		_table.remove_record(record)
 
 	records_deleted.emit()

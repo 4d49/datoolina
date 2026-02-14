@@ -58,7 +58,7 @@ static func export_database(database: AbstractDatabase, path: String) -> Error:
 
 
 # FIXME: Требуется новая реализация!
-static func _serialize_record(record: AbstractRow) -> Dictionary:
+static func _serialize_record(record: AbstractRecord) -> Dictionary:
 	return {}
 
 static func _serialize_table(table: AbstractTable) -> Dictionary:
@@ -66,8 +66,8 @@ static func _serialize_table(table: AbstractTable) -> Dictionary:
 
 	var serialized: Dictionary = {}
 
-	for row: AbstractRow in table.get_rows():
-		serialized[row.get_value(primary_key)] = _serialize_record(row)
+	for record: AbstractRecord in table.get_records():
+		serialized[record.get_value(primary_key)] = _serialize_record(record)
 
 	return serialized
 

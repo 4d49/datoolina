@@ -262,14 +262,14 @@ func show_delete_table_dialog(table: AbstractTable) -> void:
 	delete_table.popup_centered(Vector2i(300, 50))
 
 
-func show_record_rename_dialog(row: AbstractRow) -> RecordRenameDialog:
+func show_record_rename_dialog(record: AbstractRecord) -> RecordRenameDialog:
 	if is_instance_valid(_record_rename_dialog):
 		_record_rename_dialog.queue_free()
 
-	if not is_instance_valid(row):
+	if not is_instance_valid(record):
 		return
 
-	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), row)
+	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), record)
 	self.add_child(_record_rename_dialog)
 
 	_record_rename_dialog.popup_centered(Vector2i(300, 50))
@@ -330,11 +330,11 @@ func _on_new_table_menu_pressed(option: NewTabMenu) -> void:
 
 
 # FIXME: Требуется новая реализация.
-func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyHelper:
+func create_property_helper_for_record(record: AbstractRecord, row_idx: int) -> PropertyHelper:
 	var table_view: TableView = _table_view
 	var property_helper := PropertyHelper.new()
 
-	property_helper.add_category("Row Editor")
+	property_helper.add_category("Record Editor")
 	# FIXME: Раньше мы учитывали ID отдельно, теперь необходимо заменить эту логику на обработку primary key.
 #	property_helper.add_property(
 #		"id",
@@ -347,7 +347,7 @@ func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyH
 #		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
 #	)
 
-	var table: AbstractTable = row.get_table()
+	var table: AbstractTable = record.get_table()
 
 	var columns: Array[AbstractColumn] = table.get_columns()
 	for i: int in columns.size():
@@ -355,7 +355,7 @@ func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyH
 		var column_name: StringName = column.get_name()
 
 		var setter: Callable = func(value: Variant) -> bool:
-			if not row.set_value(column_name, value):
+			if not record.set_value(column_name, value):
 				return false
 
 			database_modified.emit()
@@ -366,7 +366,7 @@ func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyH
 			return true
 
 		var getter: Callable = func() -> Variant:
-			return row.get_value(column_name)
+			return record.get_value(column_name)
 
 		# FIXME: Реализовать позже подсказку типа.
 		property_helper.add_property(column_name, column.get_built_in_type(), setter, getter, column.get_description())
@@ -375,19 +375,19 @@ func create_property_helper_for_row(row: AbstractRow, row_idx: int) -> PropertyH
 	return property_helper
 
 
-func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
+func _on_cell_double_clicked(record_idx: int, column_idx: int) -> void:
 	const COLUMN_ID: int = 0
 
-	var row: AbstractRow = _table_view.get_row_metadata(row_idx) as AbstractRow
-	if not is_instance_valid(row):
+	var record: AbstractRecord = _table_view.get_row_metadata(record_idx) as AbstractRecord
+	if not is_instance_valid(record):
 		return
 
 	if column_idx == COLUMN_ID:
-		var record_rename := show_record_rename_dialog(row)
+		var record_rename := show_record_rename_dialog(record)
 		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
-			_table_view.set_cell_value(row_idx, COLUMN_ID, id)
+			_table_view.set_cell_value(record_idx, COLUMN_ID, id)
 			database_modified.emit()
 		)
 	else:
-		var property_helper := create_property_helper_for_row(row, row_idx)
+		var property_helper := create_property_helper_for_record(record, record_idx)
 		_inspector.set_object(property_helper)

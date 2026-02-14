@@ -11,10 +11,10 @@ extends ConfirmationDialog
 var _line_edit: LineEdit = null
 
 var _table: AbstractTable = null
-var _record: AbstractRow = null
+var _record: AbstractRecord = null
 
 
-func _init(table: AbstractTable, record: AbstractRow) -> void:
+func _init(table: AbstractTable, record: AbstractRecord) -> void:
 	self.set_title("Rename Record")
 	self.set_flag(Window.FLAG_RESIZE_DISABLED, true)
 

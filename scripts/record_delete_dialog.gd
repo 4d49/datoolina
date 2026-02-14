@@ -8,10 +8,10 @@ signal record_deleted
 
 
 var _table: AbstractTable = null
-var _record: AbstractRow = null
+var _record: AbstractRecord = null
 
 
-func _init(table: AbstractTable, record: AbstractRow) -> void:
+func _init(table: AbstractTable, record: AbstractRecord) -> void:
 	_table = table
 	_record = record
 
@@ -27,5 +27,5 @@ func _init(table: AbstractTable, record: AbstractRow) -> void:
 
 
 func _on_confirmed() -> void:
-	if _table.remove_row(_record):
+	if _table.remove_record(_record):
 		record_deleted.emit()

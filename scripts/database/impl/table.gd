@@ -15,8 +15,8 @@ var _column_map: Dictionary[StringName, AbstractColumn] = {}
 
 var _primary_key: AbstractColumn = null
 
-var _rows: Array[AbstractRow] = []
-var _row_map: Dictionary[Variant, AbstractRow] = {}
+var _records: Array[AbstractRecord] = []
+var _record_map: Dictionary[Variant, AbstractRecord] = {}
 
 
 func _init(name: StringName) -> void:
@@ -124,25 +124,25 @@ func get_primary_key_column() -> AbstractColumn:
 
 
 
-func validate_row(row: AbstractRow) -> bool:
+func validate_record(record: AbstractRecord) -> bool:
 	for column_name: StringName in _column_map:
-		if row.has_value(column_name):
+		if record.has_value(column_name):
 			continue
 
 		var defualt_value: Variant = _column_map[column_name].get_default()
-		row.insert_value(column_name, defualt_value)
+		record.insert_value(column_name, defualt_value)
 
 	return true
 
 
 
 
-func has_row(primary_key: Variant) -> bool:
-	return _row_map.has(primary_key)
+func has_record(primary_key: Variant) -> bool:
+	return _record_map.has(primary_key)
 
 
-func add_row(row: AbstractRow) -> bool:
-	if not validate_row(row):
+func add_record(record: AbstractRecord) -> bool:
+	if not validate_record(record):
 		return false
 
 	# Get the primary key column
@@ -150,52 +150,52 @@ func add_row(row: AbstractRow) -> bool:
 	if not is_instance_valid(primary_key_column):
 		return false
 
-	# Get the primary key value from the row
-	var primary_key_value = row.get_value(primary_key_column.get_name())
+	# Get the primary key value from the record
+	var primary_key_value = record.get_value(primary_key_column.get_name())
 
-	# Check if a row with this primary key already exists
-	if _row_map.has(primary_key_value):
+	# Check if a record with this primary key already exists
+	if _record_map.has(primary_key_value):
 		return false
 
-	# Add the row to the table using primary key as key
-	if _row_map.set(primary_key_value, row) and _rows:
-		_rows = []  # Clear the array to be repopulated on next access
+	# Add the record to the table using primary key as key
+	if _record_map.set(primary_key_value, record) and _records:
+		_records = []  # Clear the array to be repopulated on next access
 
 	return true
 
 
-func remove_row(row: AbstractRow) -> bool:
+func remove_record(record: AbstractRecord) -> bool:
 	# Get the primary key column
 	var primary_key_column = get_primary_key()
 	if not is_instance_valid(primary_key_column):
 		# If no primary key, can't remove by primary key
 		return false
 
-	# Get the primary key value from the row
-	var primary_key_value = row.get_value(primary_key_column.get_name())
+	# Get the primary key value from the record
+	var primary_key_value = record.get_value(primary_key_column.get_name())
 
-	# Remove the row from the table using primary key as key
-	if _row_map.erase(primary_key_value) and _rows:
-		_rows = []  # Clear the array to be repopulated on next access
+	# Remove the record from the table using primary key as key
+	if _record_map.set(primary_key_value, record) and _records:
+		_records = []  # Clear the array to be repopulated on next access
 
 	return true
 
 
-func find_row(primary_key: Variant) -> AbstractRow:
-	return _row_map.get(primary_key, null)
+func find_record(primary_key: Variant) -> AbstractRecord:
+	return _record_map.get(primary_key, null)
 
 
-func get_row(index: int) -> AbstractRow:
-	return get_rows().get(index)
+func get_record(index: int) -> AbstractRecord:
+	return get_records().get(index)
 
 
-func get_row_count() -> int:
-	return _row_map.size()
+func get_record_count() -> int:
+	return _record_map.size()
 
 
-func get_rows() -> Array[AbstractRow]:
-	if _rows.is_empty():
-		_rows = _row_map.values()
-		_rows.make_read_only()
+func get_records() -> Array[AbstractRecord]:
+	if _records.is_empty():
+		_records = _record_map.values()
+		_records.make_read_only()
 
-	return _rows
+	return _records

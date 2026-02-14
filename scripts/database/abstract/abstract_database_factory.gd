@@ -4,7 +4,7 @@
 ## Abstract base class for database object factory implementations.
 ##
 ## This abstract class defines the interface for creating database components
-## such as schemas, tables, columns, rows, and data types. It provides a
+## such as schemas, tables, columns, records, and data types. It provides a
 ## standardized way to instantiate database objects, allowing for flexible
 ## implementation of different database backends or storage mechanisms.
 
@@ -19,8 +19,8 @@ extends RefCounted
 ## Creates a new AbstractColumn instance with the specified properties.
 @abstract func create_column(name: StringName, data_type: AbstractDataType) -> AbstractColumn
 
-## Creates a new AbstractRow instance.
-@abstract func create_row(table: AbstractTable) -> AbstractRow
+## Creates a new AbstractRecord instance.
+@abstract func create_record(table: AbstractTable) -> AbstractRecord
 
 ## Creates a new AbstractDataType instance of the specified type.
 @abstract func create_data_type(type: Variant.Type) -> AbstractDataType

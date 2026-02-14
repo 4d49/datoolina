@@ -10,7 +10,7 @@ extends AbstractDatabaseFactory
 # Preload all concrete implementations
 const Column: GDScript = preload("column.gd")
 const Database: GDScript = preload("database.gd")
-const Row: GDScript = preload("row.gd")
+const Record: GDScript = preload("record.gd")
 const Table: GDScript = preload("table.gd")
 
 
@@ -22,8 +22,8 @@ func create_column(name: StringName, data_type: AbstractDataType) -> AbstractCol
 	return Column.new(name, data_type)
 
 
-func create_row(table: AbstractTable) -> AbstractRow:
-	return Row.new(table)
+func create_record(table: AbstractTable) -> AbstractRecord:
+	return Record.new(table)
 
 
 func create_data_type(type: Variant.Type) -> AbstractDataType:

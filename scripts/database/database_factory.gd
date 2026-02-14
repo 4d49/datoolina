@@ -43,11 +43,11 @@ static func create_column(name: StringName, data_type: AbstractDataType) -> Abst
 	return get_instance().create_column(name, data_type)
 
 
-## Creates a new AbstractRow instance.
-## The row will be created according to the provided schema structure.
-## Returns a new AbstractRow instance.
-static func create_row(table: AbstractTable) -> AbstractRow:
-	return get_instance().create_row(table)
+## Creates a new AbstractRecord instance.
+## The record will be created according to the provided schema structure.
+## Returns a new AbstractRecord instance.
+static func create_record(table: AbstractTable) -> AbstractRecord:
+	return get_instance().create_record(table)
 
 
 ## Creates a new AbstractDataType instance of the specified type.

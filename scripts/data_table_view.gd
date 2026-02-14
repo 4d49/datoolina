@@ -100,19 +100,19 @@ func update_table() -> void:
 		_table_view.set_column_type(i, column.get_built_in_type() as int)
 
 	# Get table rows
-	var rows: Array[AbstractRow] = _table.get_rows()
-	_table_view.set_row_count(rows.size())
+	var records: Array[AbstractRecord] = _table.get_records()
+	_table_view.set_row_count(records.size())
 
 	# Get column names information
 	var column_names: Array[StringName] = _table.get_column_names()
 
 	# Populate row data
-	for i: int in rows.size():
-		var row: AbstractRow = rows[i]
-		_table_view.set_row_metadata(i, row)
+	for i: int in records.size():
+		var record: AbstractRecord = records[i]
+		_table_view.set_row_metadata(i, record)
 
 		for j: int in column_names.size():
-			_table_view.set_cell_value_no_signal(i, j, row.get_value(column_names[j]))
+			_table_view.set_cell_value_no_signal(i, j, record.get_value(column_names[j]))
 
 	# Update table display
 	_table_view.update_table()
@@ -136,10 +136,10 @@ func is_valid_id(id: StringName) -> bool:
 	return id.is_valid_ascii_identifier()
 
 func has_record_by_primary_key(primary_key) -> bool:
-	return _table.has_row(primary_key)
+	return _table.has_record(primary_key)
 
 
-func show_record_rename_dialog(record: AbstractRow) -> void:
+func show_record_rename_dialog(record: AbstractRecord) -> void:
 	if is_instance_valid(_record_rename_dialog):
 		_record_rename_dialog.queue_free()
 
@@ -153,7 +153,7 @@ func show_record_rename_dialog(record: AbstractRow) -> void:
 	_record_rename_dialog.popup_centered(Vector2i(300, 50))
 
 
-func show_record_delete_dialog(record: AbstractRow, row_idx: int) -> void:
+func show_record_delete_dialog(record: AbstractRecord, row_idx: int) -> void:
 	if is_instance_valid(_record_delete_dialog):
 		_record_delete_dialog.queue_free()
 
@@ -166,7 +166,7 @@ func show_record_delete_dialog(record: AbstractRow, row_idx: int) -> void:
 
 	_record_delete_dialog.popup_centered(Vector2i(300, 50))
 
-func show_records_delete_dialog(records: Array[Dictionary], selected_rows: PackedInt32Array) -> RecordsDeleteDialog:
+func show_records_delete_dialog(records: Array[AbstractRecord], selected_rows: PackedInt32Array) -> RecordsDeleteDialog:
 	if is_instance_valid(_records_delete_dialog):
 		_records_delete_dialog.queue_free()
 
@@ -213,7 +213,7 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		return
 
 	elif selected_row.size() == 1:
-		var record: AbstractRow = _table_view.get_row_metadata(row_idx) as AbstractRow
+		var record: AbstractRecord = _table_view.get_row_metadata(row_idx) as AbstractRecord
 		if not is_instance_valid(record):
 			return
 
@@ -233,7 +233,7 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		popup.popup(Rect2i(get_screen_transform() * get_local_mouse_position(), Vector2i.ZERO))
 
 	else:
-		var records: Array[Dictionary] = []
+		var records: Array[AbstractRecord] = []
 		records.resize(selected_row.size())
 
 		for i: int in selected_row.size():
