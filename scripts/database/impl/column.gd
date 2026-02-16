@@ -35,6 +35,12 @@ func get_description() -> String:
 	return _description
 
 
+func set_data_type(data_type: AbstractDataType) -> void:
+	assert(is_instance_valid(data_type), "Data type must be a valid instance")
+
+	_data_type = data_type
+	_default_value = data_type.get_default()
+
 func get_data_type() -> AbstractDataType:
 	return _data_type
 

@@ -28,6 +28,9 @@ extends RefCounted
 @abstract func get_description() -> String
 
 
+## Sets the data type for this column
+@abstract func set_data_type(data_type: AbstractDataType) -> void
+
 ## Returns the data type of this column (e.g., BoolDataType, StringDataType)
 @abstract func get_data_type() -> AbstractDataType
 
