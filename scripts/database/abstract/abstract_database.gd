@@ -26,6 +26,10 @@ extends RefCounted
 ## Returns true if the table was successfully added, false if a table with that name already exists.
 @abstract func add_table(table: AbstractTable) -> bool
 
+## Returns a table by its index in the internal array.
+## Returns the table if it exists, or null if the index is out of bounds.
+@abstract func get_table(index: int) -> AbstractTable
+
 ## Retrieves a table by its name.
 ## Returns the table if it exists, or null if not found.
 @abstract func find_table(name: StringName) -> AbstractTable
