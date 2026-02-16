@@ -13,7 +13,7 @@ var _max_value: int = MAX_VALUE
 
 
 func validate(value: Variant) -> bool:
-	if value is int:
+	if value is int or value is float:
 		return value >= _min_value and value <= _max_value
 
 	return false

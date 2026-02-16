@@ -5,7 +5,7 @@ extends AbstractDataType
 
 
 func validate(value: Variant) -> bool:
-	return value is StringName
+	return value is StringName or value is String
 
 
 func get_default() -> StringName:
