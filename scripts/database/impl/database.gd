@@ -46,6 +46,10 @@ func add_table(table: AbstractTable) -> bool:
 	return true
 
 
+func get_table_count() -> int:
+	return _table_map.size()
+
+
 func get_table(index: int) -> AbstractTable:
 	return _tables[index]
 
