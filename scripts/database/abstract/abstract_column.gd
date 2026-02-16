@@ -36,6 +36,9 @@ extends RefCounted
 @abstract func validate(value: Variant) -> bool
 
 
+## Sets the default value for this column
+@abstract func set_default(default_value: Variant) -> void
+
 ## Returns the default value for this column
 @abstract func get_default() -> Variant
 

@@ -47,5 +47,10 @@ func get_default() -> Variant:
 	return _default_value
 
 
+func set_default(default_value: Variant) -> void:
+	assert(_data_type.validate(default_value), "Default value does not conform to the column's data type")
+	_default_value = default_value
+
+
 func get_built_in_type() -> Variant.Type:
 	return _data_type.get_built_in_type()
