@@ -239,17 +239,41 @@ func apply_changed() -> void:
 
 		if buffer.flag & FLAG_REMOVED:
 			table.remove_column(buffer.id)
-#		elif buffer.flag & FLAG_CREATED:
-#			DB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
-#		else:
-#			if buffer.flag & FLAG_CHANGE_ID:
-#				DB.table_set_column_id(table, i, buffer.id)
-#			if buffer.flag & FLAG_CHANGE_TYPE:
-#				DB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
-#			if buffer.flag & FLAG_CHANGE_VALUE:
-#				DB.column_set_default_value(columns[i], buffer.value)
-#			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
-#				DB.column_set_description(columns[i], buffer.description)
+		elif buffer.flag & FLAG_CREATED:
+			var data_type: AbstractDataType = DatabaseFactory.create_data_type(buffer.type)
+
+			var column: AbstractColumn = DatabaseFactory.create_column(buffer.id, data_type)
+			column.set_description(buffer.description)
+			column.set_default(buffer.value)
+
+			table.add_column(column)
+		else:
+			if buffer.flag & FLAG_CHANGE_ID:
+				var column: AbstractColumn = columns[i]
+				var old_name: StringName = column.get_name()
+				var new_name: StringName = buffer.id
+				column.set_name(new_name)
+
+				for record: AbstractRecord in table.get_records():
+					var value: Variant = record.get_value(old_name)
+					record.erase_value(old_name)
+					record.insert_value(new_name, value)
+			if buffer.flag & FLAG_CHANGE_TYPE:
+				var new_type: AbstractDataType = DatabaseFactory.create_data_type(buffer.type)
+
+				var column: AbstractColumn = columns[i]
+				column.set_data_type(new_type)
+
+				var column_name: StringName = column.get_name()
+				var default_value: Variant = new_type.get_default()
+
+				for record: AbstractRecord in table.get_records():
+					record.erase_value(column_name)
+					record.insert_value(column_name, default_value)
+			if buffer.flag & FLAG_CHANGE_VALUE:
+				columns[i].set_default(buffer.value)
+			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
+				columns[i].set_description(buffer.description)
 
 
 func _on_filter_line_text_changed(text: StringName) -> void:
