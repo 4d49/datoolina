@@ -39,8 +39,9 @@ func add_table(table: AbstractTable) -> bool:
 	if not can_add_table(table):
 		return false
 
-	if _table_map.set(table.get_name(), table) and _tables:
-		_tables = []
+	if _table_map.set(table.get_name(), table):
+		_tables = _table_map.values()
+		_tables.make_read_only()
 
 	return true
 
@@ -54,17 +55,14 @@ func has_table(name: StringName) -> bool:
 
 
 func remove_table(name: StringName) -> bool:
-	if _table_map.erase(name) and _tables:
-		_tables = []
+	if _table_map.erase(name):
+		_tables = _table_map.values()
+		_tables.make_read_only()
 
 	return true
 
 
 func get_tables() -> Array[AbstractTable]:
-	if _tables.is_empty():
-		_tables = _table_map.values()
-		_tables.make_read_only()
-
 	return _tables
 
 
