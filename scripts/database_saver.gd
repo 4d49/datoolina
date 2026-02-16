@@ -57,38 +57,39 @@ static func save_database(database: AbstractDatabase, path: String) -> Error:
 	return FAILED
 
 
-# FIXME: Требуется новая реализация!
-static func _serialize_record(record: AbstractRecord) -> Dictionary:
+static func _serialize_record(record: AbstractRecord, columns: Array[StringName]) -> Dictionary:
 	var serialized: Dictionary = {}
 
-	for key: String in record:
-		serialized[key] = record[key]
+	for key: String in columns:
+		serialized[key] = record.get_value(key)
 
 	return serialized
 
-# FIXME: Требуется новая реализация!
-static func _serialize_records(records: Array[AbstractRecord]) -> Array:
+
+static func _serialize_records(table: AbstractTable) -> Array:
+	var records: Array[AbstractRecord] = table.get_records()
+	var columns: Array[StringName] = table.get_column_names()
+
 	var serialized: Array[Dictionary] = []
 	serialized.resize(records.size())
 
 	for i: int in records.size():
-		serialized[i] = _serialize_record(records[i])
+		serialized[i] = _serialize_record(records[i], columns)
 
 	return serialized
 
-# FIXME: Требуется новая реализация!
-static func _serialize_column(column: AbstractColumn) -> Dictionary:
-#	return {
-#		"id": DB.column_get_id(column),
-#		"type": DB.column_get_type(column),
-#		"value": DB.column_get_default_value(column),
-#		"hint": DB.column_get_hint(column),
-#		"hint_string": DB.column_get_hint_string(column),
-#		"description": DB.column_get_description(column),
-#	}
-	return {}
 
-# FIXME: Требуется новая реализация!
+static func _serialize_column(column: AbstractColumn) -> Dictionary:
+	return {
+		"id": column.get_name(),
+		"type": column.get_built_in_type(),
+		"value": column.get_default(),
+		"hint": PROPERTY_HINT_NONE,
+		"hint_string": "",
+		"description": column.get_description(),
+	}
+
+
 static func _serialize_columns(columns: Array[AbstractColumn]) -> Array:
 	var serialized: Array[Dictionary] = []
 	serialized.resize(columns.size())
@@ -98,17 +99,16 @@ static func _serialize_columns(columns: Array[AbstractColumn]) -> Array:
 
 	return serialized
 
-# FIXME: Требуется новая реализация!
-static func _serialize_table(table: AbstractTable) -> Dictionary:
-#	return {
-#		"id": DB.table_get_id(table),
-#		"description": DB.table_get_description(table),
-#		"columns": _serialize_columns(DB.table_get_columns(table)),
-#		"records": _serialize_records(DB.table_get_records(table)),
-#	}
-	return {}
 
-# FIXME: Требуется новая реализация!
+static func _serialize_table(table: AbstractTable) -> Dictionary:
+	return {
+		"id": table.get_name(),
+		"columns": _serialize_columns(table.get_columns()),
+		"records": _serialize_records(table),
+		"description": table.get_description(),
+	}
+
+
 static func _serialize_tables(tables: Array[AbstractTable]) -> Array:
 	var serialized: Array[Dictionary] = []
 	serialized.resize(tables.size())
@@ -118,15 +118,14 @@ static func _serialize_tables(tables: Array[AbstractTable]) -> Array:
 
 	return serialized
 
-# FIXME: Требуется новая реализация!
-static func _serialize_database(database: AbstractDatabase) -> Dictionary:
-#	return {
-#		"id": DB.database_get_id(database),
-#		"tables": _serialize_tables(DB.database_get_tables(database)),
-#	}
-	return {}
 
-# FIXME: Требуется новая реализация!
+static func _serialize_database(database: AbstractDatabase) -> Dictionary:
+	return {
+		"id": database.get_name(),
+		"tables": _serialize_tables(database.get_tables()),
+	}
+
+
 static func _database_save_cfg(database: AbstractDatabase, path: String) -> Error:
 	var serialized: Dictionary = _serialize_database(database)
 
@@ -135,7 +134,7 @@ static func _database_save_cfg(database: AbstractDatabase, path: String) -> Erro
 
 	return config.save(path)
 
-# FIXME: Требуется новая реализация!
+
 static func _database_save_json(database: AbstractDatabase, path: String) -> Error:
 	var serialized: Dictionary = _serialize_database(database)
 
@@ -143,7 +142,7 @@ static func _database_save_json(database: AbstractDatabase, path: String) -> Err
 	if file == null:
 		return FileAccess.get_open_error()
 
-	file.store_string(JSON.stringify(serialized, "\t"))
+	file.store_string(JSON.stringify(serialized, "\t", false))
 	file.close()
 
 	return OK
