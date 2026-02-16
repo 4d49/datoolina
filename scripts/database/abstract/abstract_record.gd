@@ -26,6 +26,9 @@ extends RefCounted
 ## Returns the table associated with this record.
 @abstract func get_table() -> AbstractTable
 
+## Returns an array of all column names in this record.
+@abstract func get_keys() -> Array[StringName]
+
 ## Checks if a column has a value set.
 ## Returns true if the column has a value, false otherwise.
 @abstract func has_value(column_name: StringName) -> bool

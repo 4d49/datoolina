@@ -23,6 +23,10 @@ func get_table() -> AbstractTable:
 	return _table
 
 
+func get_keys() -> Array[StringName]:
+	return _values.keys()
+
+
 func has_value(column_name: StringName) -> bool:
 	return _values.has(column_name)
 
