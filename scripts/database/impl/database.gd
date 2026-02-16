@@ -45,7 +45,7 @@ func add_table(table: AbstractTable) -> bool:
 	return true
 
 
-func get_table(name: StringName) -> AbstractTable:
+func find_table(name: StringName) -> AbstractTable:
 	return _table_map.get(name)
 
 

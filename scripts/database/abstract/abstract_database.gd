@@ -28,7 +28,7 @@ extends RefCounted
 
 ## Retrieves a table by its name.
 ## Returns the table if it exists, or null if not found.
-@abstract func get_table(name: StringName) -> AbstractTable
+@abstract func find_table(name: StringName) -> AbstractTable
 
 ## Checks if a table with the given name exists.
 ## Returns true if the table exists, false otherwise.
