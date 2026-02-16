@@ -62,35 +62,39 @@ static func _deserialize_database(data: Dictionary) -> AbstractDatabase:
 	var database: AbstractDatabase = DatabaseFactory.create_database("FIXME")
 
 	for t: Dictionary in data.tables:
-		# For backward compatibility, `get` is used here and below.
-		# It should be removed in the future.
-#		var table: Dictionary[StringName, Variant] = DB.database_create_table(database, t.id, t.get("description", ""))
-		var table: AbstractTable = DatabaseFactory.create_table("FIXME")
+		var table: AbstractTable = DatabaseFactory.create_table(t.id)
+		table.set_description(t.description)
 
 		for c: Dictionary in t.columns:
-			# FIXME: Требуется реализация!
-#			var column: Dictionary[StringName, Variant] = DB.table_create_column(
-#				table, c.id, c.type, c.value,
-#				c.hint, c.hint_string, c.get("description", ""),
-#			)
-			continue
+			var data_type: AbstractDataType = DatabaseFactory.create_data_type(c.type)
+			var column: AbstractColumn = DatabaseFactory.create_column(c.id, data_type)
+			column.set_description(c.description)
+			column.set_data_type(data_type)
+			column.set_default(c.value)
+			table.add_column(column)
 
 		for r: Dictionary in t.records:
-			# FIXME: Нам требуется знать primary key value of new record!
-			var record: AbstractRecord = DatabaseFactory.create_record(table)
-			# HACK: In the future, it should be removed.
+			var record: AbstractRecord = DatabaseFactory.create_record(r.id, table)
+			table.add_record(record)
+
 			for key: StringName in r:
-				record[key] = r[key]
+				record.set_value(key, r[key])
+
+		database.add_table(table)
 
 	return database
+
 
 static func _database_load_cfg(path: String) -> AbstractDatabase:
 	var config := ConfigFile.new()
 	if config.load(path):
 		return null
 
-	var data: Dictionary = config.get_value("", "database", null)
-	return _deserialize_database(data)
+	var data: Variant = config.get_value("", "database", null)
+	if data is Dictionary:
+		return _deserialize_database(data)
+
+	return null
 
 
 static func _database_load_json(path: String) -> AbstractDatabase:
@@ -98,10 +102,8 @@ static func _database_load_json(path: String) -> AbstractDatabase:
 	if file_as_string.is_empty():
 		return null
 
-	var json := JSON.new()
+	var data: Variant = JSON.parse_string(file_as_string)
+	if data is Dictionary:
+		return _deserialize_database(data)
 
-	var data: Variant = json.parse_string(file_as_string)
-	if data == null:
-		return null
-
-	return _deserialize_database(data)
+	return null
