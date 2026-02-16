@@ -14,12 +14,3 @@ extends RefCounted
 
 ## Reconstructs a database object from a file
 @abstract func deserialize_database(path: String, options: Dictionary = {}) -> AbstractDatabase
-
-## Reconstructs a table object from a file
-@abstract func deserialize_table(path: String, options: Dictionary = {}) -> AbstractTable
-
-## Reconstructs a record object from a file
-@abstract func deserialize_record(path: String, options: Dictionary = {}) -> AbstractRecord
-
-## Reconstructs a data type object from a file
-@abstract func deserialize_data_type(path: String, options: Dictionary = {}) -> AbstractDataType
