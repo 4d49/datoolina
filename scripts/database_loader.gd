@@ -59,7 +59,7 @@ static func load_database(path: String) -> AbstractDatabase:
 
 
 static func _deserialize_database(data: Dictionary) -> AbstractDatabase:
-	var database: AbstractDatabase = DatabaseFactory.create_database("FIXME")
+	var database: AbstractDatabase = DatabaseFactory.create_database(data.id)
 
 	for t: Dictionary in data.tables:
 		var table: AbstractTable = DatabaseFactory.create_table(t.id)
