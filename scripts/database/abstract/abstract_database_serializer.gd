@@ -31,9 +31,9 @@ extends RefCounted
 ## Save the database to a file.
 ## Saves the given database to the specified file path.
 ## Returns an error code indicating success or failure of the operation.
-@abstract func save(database: AbstractDatabase, path: String, options: Dictionary = {}) -> Error
+@abstract func save(database: AbstractDatabase, path: String) -> Error
 
 ## Load a database from a file.
 ## Loads and deserializes a database from the specified file path.
 ## Returns the loaded database instance, or null if loading failed.
-@abstract func load(path: String, options: Dictionary = {}) -> AbstractDatabase
+@abstract func load(path: String) -> AbstractDatabase
