@@ -7,10 +7,10 @@ extends PanelContainer
 const AboutProgramDialog: GDScript = preload("res://scripts/about_program_dialog.gd")
 const DatabaseCreateDialog: GDScript = preload("res://scripts/database_create_dialog.gd")
 const DatabaseEditor: GDScript = preload("res://scripts/database_editor.gd")
-const DatabaseLoadDialog: GDScript = preload("res://scripts/database_load_dialog.gd")
-const DatabaseSaver: GDScript = preload("res://scripts/database_saver.gd")
-const DatabaseSaveDialog: GDScript = preload("res://scripts/database_save_dialog.gd")
 const DatabaseExportDialog: GDScript = preload("res://scripts/database_export_dialog.gd")
+const DatabaseLoadDialog: GDScript = preload("res://scripts/database_load_dialog.gd")
+const DatabaseSaveDialog: GDScript = preload("res://scripts/database_save_dialog.gd")
+const DatabaseStorageManager: GDScript = preload("res://scripts/database_storage_manager.gd")
 const QuitDialog: GDScript = preload("res://scripts/quit_dialog.gd")
 
 
@@ -231,7 +231,7 @@ func save_file() -> void:
 	if _database_path.is_empty():
 		show_database_save_dialog()
 	else:
-		var error: Error = DatabaseSaver.save_database(_database, _database_path)
+		var error: Error = DatabaseStorageManager.save_database(_database, _database_path)
 		if error:
 			push_error(error_string(error))
 		else:
