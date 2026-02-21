@@ -4,17 +4,14 @@
 extends ConfirmationDialog
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 signal record_deleted
 
 
-var _table: Dictionary = DB.NULL_TABLE
-var _record: Dictionary = DB.NULL_RECORD
+var _table: AbstractTable = null
+var _record: AbstractRecord = null
 
 
-func _init(table: Dictionary, record: Dictionary) -> void:
+func _init(table: AbstractTable, record: AbstractRecord) -> void:
 	_table = table
 	_record = record
 
@@ -30,5 +27,5 @@ func _init(table: Dictionary, record: Dictionary) -> void:
 
 
 func _on_confirmed() -> void:
-	if DB.table_erase_record(_table, _record):
+	if _table.remove_record(_record):
 		record_deleted.emit()

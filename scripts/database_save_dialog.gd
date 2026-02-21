@@ -7,14 +7,13 @@ extends FileDialog
 signal file_saved(path: String)
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-const DatabaseSaver: GDScript = preload("res://scripts/database_saver.gd")
+const DatabaseStorageManager: GDScript = preload("res://scripts/database_storage_manager.gd")
 
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
-func _init(database: Dictionary[StringName, Variant]) -> void:
+func _init(database: AbstractDatabase) -> void:
 	_database = database
 
 	self.set_title("Save Database As...")
@@ -30,11 +29,11 @@ func _init(database: Dictionary[StringName, Variant]) -> void:
 
 
 func get_support_file_extension() -> PackedStringArray:
-	return DatabaseSaver.get_support_file_extension()
+	return DatabaseStorageManager.get_support_file_extension()
 
 
 func _on_file_selected(path: String) -> void:
-	var error: Error = DatabaseSaver.save_database(_database, path)
+	var error: Error = DatabaseStorageManager.save_database(_database, path)
 	if error:
 		printerr(error_string(error))
 	else:

@@ -4,13 +4,12 @@
 extends VBoxContainer
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
 const ColumnRemoveDialog: GDScript = preload("res://scripts/column_remove_dialog.gd")
 const ColumnRenameDialog: GDScript = preload("res://scripts/column_rename_dialog.gd")
 const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
+# TODO: Later, review the type system.
 enum Type {
 	BOOL = TYPE_BOOL,
 	INT = TYPE_INT,
@@ -25,7 +24,7 @@ enum ColumnContextMenu {
 }
 
 enum {
-	COLUMN_ID,
+	COLUMN_NAME,
 	COLUMN_TYPE,
 	COLUMN_VALUE,
 	COLUMN_HINT,
@@ -55,11 +54,11 @@ var _bottom_hbox: HBoxContainer = null
 var _column_id: LineEdit = null
 var _create_column: Button = null
 
-var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
+var _table: AbstractTable = null
 var _edit_buffer: Array[Dictionary] = []
 
 
-func _init(table: Dictionary[StringName, Variant]) -> void:
+func _init(table: AbstractTable) -> void:
 	_table = table
 	update_temp_params(table)
 
@@ -104,7 +103,7 @@ func _enter_tree() -> void:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DB.is_valid_id(id)
+	return id.is_valid_ascii_identifier()
 
 func has_column_id(id: StringName) -> bool:
 	for buffer: Dictionary in _edit_buffer:
@@ -133,19 +132,19 @@ static func create_edit_buffer(
 		&"flag": FLAG_NONE,
 	}
 
-static func create_edit_buffer_from_column(column: Dictionary) -> Dictionary[StringName, Variant]:
+static func create_edit_buffer_from_column(column: AbstractColumn) -> Dictionary[StringName, Variant]:
 	return create_edit_buffer(
-		DB.column_get_id(column),
-		DB.column_get_type(column),
-		DB.column_get_default_value(column),
-		DB.column_get_hint(column),
-		DB.column_get_hint_string(column),
-		DB.column_get_description(column),
+		column.get_name(),
+		column.get_built_in_type(),
+		column.get_default(),
+		PROPERTY_HINT_NONE, # FIXME: В будущем потребуется пересмотр.
+		"", # FIXME: В будущем возможно будет полностью удалено.
+		column.get_description(),
 	)
 
 
-func update_temp_params(table: Dictionary[StringName, Variant]) -> void:
-	var columns: Array[Dictionary] = DB.table_get_columns(table)
+func update_temp_params(table: AbstractTable) -> void:
+	var columns: Array[AbstractColumn] = table.get_columns()
 	_edit_buffer.resize(columns.size())
 
 	for i: int in _edit_buffer.size():
@@ -153,7 +152,7 @@ func update_temp_params(table: Dictionary[StringName, Variant]) -> void:
 
 
 func update_row(row_idx: int, buffer: Dictionary) -> void:
-	_table_view.set_cell_value_no_signal(row_idx, COLUMN_ID, buffer.id)
+	_table_view.set_cell_value_no_signal(row_idx, COLUMN_NAME, buffer.id)
 	_table_view.set_cell_value_no_signal(row_idx, COLUMN_TYPE, buffer.type)
 
 	_table_view.set_cell_custom_type(row_idx, COLUMN_VALUE, buffer.type, TypeHintUtils.table_view_hint(buffer.hint, buffer.hint_string))
@@ -174,9 +173,9 @@ func update_table_rows() -> void:
 
 func update_table() -> void:
 	_table_view.set_column_count(COLUMN_MAX)
-	_table_view.set_column_title(COLUMN_ID, "ID")
-	_table_view.set_column_type(COLUMN_ID, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
-	_table_view.set_column_minimum_width(COLUMN_ID, 100)
+	_table_view.set_column_title(COLUMN_NAME, "Name")
+	_table_view.set_column_type(COLUMN_NAME, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
+	_table_view.set_column_minimum_width(COLUMN_NAME, 100)
 
 	_table_view.set_column_title(COLUMN_TYPE, "Type")
 	_table_view.set_column_type(COLUMN_TYPE, TableView.Type.INT, TableView.hint_enum(Type))
@@ -187,7 +186,7 @@ func update_table() -> void:
 	_table_view.set_column_minimum_width(COLUMN_VALUE, 100)
 
 	_table_view.set_column_title(COLUMN_HINT, "Hint")
-	_table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DB.Hint))
+	# FIXME: _table_view.set_column_type(COLUMN_HINT, TableView.Type.INT, TableView.hint_enum(DB.Hint))
 	_table_view.set_column_minimum_width(COLUMN_HINT, 100)
 
 	_table_view.set_column_title(COLUMN_HINT_STRING, "Hint String")
@@ -212,7 +211,7 @@ func show_column_rename_dialog(row_idx: int, buffer: Dictionary[StringName, Vari
 		buffer.id = id
 		buffer.flag |= FLAG_CHANGE_ID
 
-		_table_view.set_cell_value_no_signal(row_idx, COLUMN_ID, id)
+		_table_view.set_cell_value_no_signal(row_idx, COLUMN_NAME, id)
 	)
 	self.add_child(_column_rename_dialog)
 
@@ -230,8 +229,8 @@ func show_column_remove_dialog() -> ColumnRemoveDialog:
 
 
 func apply_changed() -> void:
-	var table: Dictionary[StringName, Variant] = _table
-	var columns: Array[Dictionary] = DB.table_get_columns(table)
+	var table: AbstractTable = _table
+	var columns: Array[AbstractColumn] = table.get_columns()
 
 	var queue_buffer: Array[Dictionary] = _edit_buffer
 
@@ -239,23 +238,47 @@ func apply_changed() -> void:
 		var buffer: Dictionary = queue_buffer[i]
 
 		if buffer.flag & FLAG_REMOVED:
-			DB.table_remove_column_by_id(table, buffer.id)
+			table.remove_column(buffer.id)
 		elif buffer.flag & FLAG_CREATED:
-			DB.table_create_column(table, buffer.id, buffer.type, buffer.value, buffer.hint, buffer.hint_string)
+			var data_type: AbstractDataType = DatabaseFactory.create_data_type(buffer.type)
+
+			var column: AbstractColumn = DatabaseFactory.create_column(buffer.id, data_type)
+			column.set_description(buffer.description)
+			column.set_default(buffer.value)
+
+			table.add_column(column)
 		else:
 			if buffer.flag & FLAG_CHANGE_ID:
-				DB.table_set_column_id(table, i, buffer.id)
+				var column: AbstractColumn = columns[i]
+				var old_name: StringName = column.get_name()
+				var new_name: StringName = buffer.id
+				column.set_name(new_name)
+
+				for record: AbstractRecord in table.get_records():
+					var value: Variant = record.get_value(old_name)
+					record.erase_value(old_name)
+					record.insert_value(new_name, value)
 			if buffer.flag & FLAG_CHANGE_TYPE:
-				DB.table_set_column_type(table, i, buffer.type, buffer.hint, buffer.hint_string)
+				var new_type: AbstractDataType = DatabaseFactory.create_data_type(buffer.type)
+
+				var column: AbstractColumn = columns[i]
+				column.set_data_type(new_type)
+
+				var column_name: StringName = column.get_name()
+				var default_value: Variant = new_type.get_default()
+
+				for record: AbstractRecord in table.get_records():
+					record.erase_value(column_name)
+					record.insert_value(column_name, default_value)
 			if buffer.flag & FLAG_CHANGE_VALUE:
-				DB.column_set_default_value(columns[i], buffer.value)
+				columns[i].set_default(buffer.value)
 			if buffer.flag & FLAG_CHANGE_DESCRIPTION:
-				DB.column_set_description(columns[i], buffer.description)
+				columns[i].set_description(buffer.description)
 
 
 func _on_filter_line_text_changed(text: StringName) -> void:
 	var callable: Callable = text.is_subsequence_ofn
-	_table_view.filter_rows_by_callable(COLUMN_ID, callable)
+	_table_view.filter_rows_by_callable(COLUMN_NAME, callable)
 
 
 func _on_column_id_changed(column_id: StringName) -> void:
@@ -333,7 +356,7 @@ func _on_table_cell_value_changed(row_idx: int, column_idx: int, value: Variant)
 
 
 func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
-	if column_idx != COLUMN_ID:
+	if column_idx != COLUMN_NAME:
 		return
 
 	show_column_rename_dialog(row_idx, _table_view.get_row_metadata(row_idx))

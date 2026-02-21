@@ -4,9 +4,6 @@
 extends RefCounted
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 static var _formats: Array[Dictionary] = []
 
 
@@ -49,7 +46,7 @@ static func get_support_file_extension() -> PackedStringArray:
 	return support_extension
 
 
-static func export_database(database: Dictionary[StringName, Variant], path: String) -> Error:
+static func export_database(database: AbstractDatabase, path: String) -> Error:
 	for format: Dictionary in _formats:
 		if not format.handler.call(path):
 			continue
@@ -60,27 +57,29 @@ static func export_database(database: Dictionary[StringName, Variant], path: Str
 
 
 
+# FIXME: Требуется новая реализация!
+static func _serialize_record(record: AbstractRecord) -> Dictionary:
+	return {}
 
-static func _serialize_record(record: Dictionary[StringName, Variant]) -> Dictionary:
-	return record # For now, we are leaving the record unchanged, but it may change in the future.
+static func _serialize_table(table: AbstractTable) -> Dictionary:
+	var primary_key: StringName = table.get_schema().get_primary_key().get_name()
 
-static func _serialize_table(table: Dictionary[StringName, Variant]) -> Dictionary:
 	var serialized: Dictionary = {}
 
-	for record: Dictionary in table.records:
-		serialized[record.id] = _serialize_record(record)
+	for record: AbstractRecord in table.get_records():
+		serialized[record.get_value(primary_key)] = _serialize_record(record)
 
 	return serialized
 
-static func _serialize_database(database: Dictionary[StringName, Variant]) -> Dictionary:
+static func _serialize_database(database: AbstractDatabase) -> Dictionary:
 	var serialized: Dictionary = {}
 
-	for table: Dictionary in database.tables:
-		serialized[table.id] = _serialize_table(table)
+	for table: AbstractTable in database.get_tables():
+		serialized[table.get_name()] = _serialize_table(table)
 
 	return serialized
 
-static func _database_export_json(database: Dictionary[StringName, Variant], path: String) -> Error:
+static func _database_export_json(database: AbstractDatabase, path: String) -> Error:
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		printerr(error_string(FileAccess.get_open_error()))

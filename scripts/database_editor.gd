@@ -5,12 +5,10 @@ extends HSplitContainer
 
 
 signal database_modified
-signal database_changed(database: Dictionary[StringName, Variant])
+signal database_changed(database: AbstractDatabase)
 
-signal table_changed(table: Dictionary[StringName, Variant])
+signal table_changed(table: AbstractTable)
 
-
-const DB: GDScript = preload("res://scripts/database.gd")
 
 const DataTableView: GDScript = preload("res://scripts/data_table_view.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
@@ -54,7 +52,7 @@ var _table_import_dialog: TableImportDialog = null
 
 var _record_rename_dialog: RecordRenameDialog = null
 
-var _database := DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
 func _init() -> void:
@@ -135,14 +133,14 @@ func get_table_view() -> TableView:
 
 
 func update_tabs(deselect: bool = true) -> void:
-	var tables: Array[Dictionary] = DB.database_get_tables(_database)
+	var tables: Array[AbstractTable] = _database.get_tables()
 
 	if tables.is_empty():
 		_tab_bar.set_tab_count(1)
 		_tab_bar.set_tab_title(0, "<empty>")
 		_tab_bar.set_tab_tooltip(0, "")
 		_tab_bar.set_tab_disabled(0, true)
-		_tab_bar.set_tab_metadata(0, DB.NULL_TABLE)
+		_tab_bar.set_tab_metadata(0, null)
 
 		_tab_list.hide()
 	else:
@@ -152,14 +150,14 @@ func update_tabs(deselect: bool = true) -> void:
 		popup.set_item_count(tables.size())
 
 		for i: int in tables.size():
-			var table: Dictionary = tables[i]
+			var table: AbstractTable = tables[i]
 
-			_tab_bar.set_tab_title(i, DB.table_get_id(table))
-			_tab_bar.set_tab_tooltip(i, DB.table_get_description(table))
+			_tab_bar.set_tab_title(i, table.get_name())
+			_tab_bar.set_tab_tooltip(i, table.get_description())
 			_tab_bar.set_tab_disabled(i, false)
 			_tab_bar.set_tab_metadata(i, table)
 
-			popup.set_item_text(i, DB.table_get_id(table))
+			popup.set_item_text(i, table.get_name())
 
 		_tab_list.show()
 
@@ -171,19 +169,19 @@ func update_table() -> void:
 
 
 
-func set_database(database: Dictionary[StringName, Variant]) -> void:
+func set_database(database: AbstractDatabase) -> void:
 	if is_same(_database, database):
 		return
 
 	_database = database
 	database_changed.emit(database)
 
-func get_database() -> Dictionary:
+func get_database() -> AbstractDatabase:
 	return _database
 
 
-func has_table(id: StringName) -> bool:
-	return DB.database_has_table_id(_database, id)
+func has_table(table_name: StringName) -> bool:
+	return _database.has_table(table_name)
 
 
 func show_create_table_dialog() -> void:
@@ -197,7 +195,7 @@ func show_create_table_dialog() -> void:
 	create_table.popup_centered(Vector2i(300, 50))
 
 
-func show_edit_table_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_edit_table_dialog(table: AbstractTable) -> void:
 	var table_editor: TableEditorDialog = TableEditorDialog.new(table)
 	table_editor.confirmed.connect(func on_confirmed() -> void:
 		database_modified.emit()
@@ -225,16 +223,16 @@ func show_table_import_dialog() -> void:
 		_table_import_dialog.queue_free()
 
 	_table_import_dialog = TableImportDialog.new()
-	_table_import_dialog.table_imported.connect(func on_table_imported(table: Dictionary[StringName, Variant]) -> void:
-		if table.is_read_only():
+	_table_import_dialog.table_imported.connect(func on_table_imported(table: AbstractTable) -> void:
+		if not is_instance_valid(table):
 			return printerr("Invalid Table.")
 
-		while has_table(DB.table_get_id(table)):
-			table.id += &"_copy"
+		var table_name: StringName = table.get_name()
+		while _database.has_table(table.get_name()):
+			table_name += &"_copy"
+		table.set_name(table_name)
 
-		var tables: Array = DB.database_get_tables(_database)
-		tables.push_back(table)
-
+		_database.add_table(table)
 		update_tabs(false)
 	)
 
@@ -243,7 +241,7 @@ func show_table_import_dialog() -> void:
 	_table_import_dialog.popup_centered(Vector2i(500, 300))
 
 
-func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_rename_table_dialog(table: AbstractTable) -> void:
 	var rename_table: TableRenameDialog = TableRenameDialog.new(_database, table)
 	rename_table.table_changed.connect(func on_table_renamed() -> void:
 		database_modified.emit()
@@ -253,7 +251,7 @@ func show_rename_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 
 	rename_table.popup_centered(Vector2i(300, 50))
 
-func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_delete_table_dialog(table: AbstractTable) -> void:
 	var delete_table: TableDeleteDialog = TableDeleteDialog.new(_database, table)
 	delete_table.table_deleted.connect(func on_table_deleted() -> void:
 		database_modified.emit()
@@ -264,11 +262,11 @@ func show_delete_table_dialog(table: Dictionary[StringName, Variant]) -> void:
 	delete_table.popup_centered(Vector2i(300, 50))
 
 
-func show_record_rename_dialog(record: Dictionary[StringName, Variant]) -> RecordRenameDialog:
+func show_record_rename_dialog(record: AbstractRecord) -> RecordRenameDialog:
 	if is_instance_valid(_record_rename_dialog):
 		_record_rename_dialog.queue_free()
 
-	if record.is_read_only():
+	if not is_instance_valid(record):
 		return
 
 	_record_rename_dialog = RecordRenameDialog.new(_data_view.get_table(), record)
@@ -278,19 +276,18 @@ func show_record_rename_dialog(record: Dictionary[StringName, Variant]) -> Recor
 	return _record_rename_dialog
 
 
-func _on_database_changed(database: Dictionary[StringName, Variant]) -> void:
-	_new_tab.set_disabled(database.is_read_only())
-
+func _on_database_changed(database: AbstractDatabase) -> void:
+	_new_tab.set_disabled(not is_instance_valid(database))
 	update_tabs()
 
 
 func _on_tab_changed(tab_idx: int) -> void:
 	_inspector.clear()
 
-	var metadata = _tab_bar.get_tab_metadata(tab_idx)
-	if metadata is Dictionary:
-		_data_view.set_table(metadata)
-		table_changed.emit(metadata)
+	var table := _tab_bar.get_tab_metadata(tab_idx) as AbstractTable
+	if is_instance_valid(table):
+		_data_view.set_table(table)
+		table_changed.emit(table)
 
 func _on_tab_rmb_clicked(tab_idx: int) -> void:
 	var popup := PopupMenu.new()
@@ -332,61 +329,66 @@ func _on_new_table_menu_pressed(option: NewTabMenu) -> void:
 
 
 
-
-func create_property_helper_for_record(record: Dictionary, row_idx: int) -> PropertyHelper:
+# FIXME: Требуется новая реализация.
+func create_property_helper_for_record(record: AbstractRecord, row_idx: int) -> PropertyHelper:
 	var table_view: TableView = _table_view
 	var property_helper := PropertyHelper.new()
 
 	property_helper.add_category("Record Editor")
-	property_helper.add_property(
-		"id",
-		TYPE_STRING_NAME,
-		Callable(),
-		func get_id() -> StringName: return record.id,
-		"Record ID",
-		PROPERTY_HINT_NONE,
-		"",
-		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
-	)
+	# FIXME: Раньше мы учитывали ID отдельно, теперь необходимо заменить эту логику на обработку primary key.
+#	property_helper.add_property(
+#		"id",
+#		TYPE_STRING_NAME,
+#		Callable(),
+#		func get_id() -> StringName: return record.id,
+#		"Record ID",
+#		PROPERTY_HINT_NONE,
+#		"",
+#		PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_READ_ONLY,
+#	)
 
-	var column_idx: int = 1 # Plus ID column offset.
-	for column: Dictionary in DB.table_get_columns(_data_view.get_table()):
-		var id: StringName = DB.column_get_id(column)
-		var validator: Callable = DB.column_get_validator(column)
+	var table: AbstractTable = record.get_table()
+
+	var columns: Array[AbstractColumn] = table.get_columns()
+	for i: int in columns.size():
+		var column: AbstractColumn = table.get_column(i)
+		var column_name: StringName = column.get_name()
 
 		var setter: Callable = func(value: Variant) -> bool:
-			value = validator.call(value)
-
-			if is_same(record[id], value):
+			if not record.set_value(column_name, value):
 				return false
 
-			record[id] = value
 			database_modified.emit()
 
-			if table_view.set_cell_value_no_signal(row_idx, column_idx, value):
+			if table_view.set_cell_value_no_signal(row_idx, i, value):
 				table_view.queue_redraw()
 
 			return true
+
 		var getter: Callable = func() -> Variant:
-			return record[id]
+			return record.get_value(column_name)
 
-		property_helper.add_property(id, column.type, setter, getter, column.description, column.hint, column.hint_string)
-
-		column_idx += 1
+		# FIXME: Реализовать позже подсказку типа.
+		property_helper.add_property(column_name, column.get_built_in_type(), setter, getter, column.get_description())
+#		property_helper.add_property(id, column.type, setter, getter, column.description, column.hint, column.hint_string)
 
 	return property_helper
 
-func _on_cell_double_clicked(row_idx: int, column_idx: int) -> void:
+
+func _on_cell_double_clicked(record_idx: int, column_idx: int) -> void:
 	const COLUMN_ID: int = 0
 
-	var record: Dictionary = _table_view.get_row_metadata(row_idx)
+	var record: AbstractRecord = _table_view.get_row_metadata(record_idx) as AbstractRecord
+	if not is_instance_valid(record):
+		return
 
 	if column_idx == COLUMN_ID:
-		var record_rename := show_record_rename_dialog(record)
-		record_rename.record_renamed.connect(func on_record_renamed(id: StringName) -> void:
-			_table_view.set_cell_value(row_idx, COLUMN_ID, id)
+		var on_record_renamed: Callable = func(id: StringName) -> void:
+			_table_view.set_cell_value(record_idx, COLUMN_ID, id)
 			database_modified.emit()
-		)
+
+		var record_rename := show_record_rename_dialog(record)
+		record_rename.record_renamed.connect(on_record_renamed)
 	else:
-		var property_helper := create_property_helper_for_record(record, row_idx)
+		var property_helper := create_property_helper_for_record(record, record_idx)
 		_inspector.set_object(property_helper)

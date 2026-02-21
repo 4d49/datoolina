@@ -4,17 +4,16 @@
 extends FileDialog
 
 
-signal database_loaded(database: Dictionary[StringName, Variant], path: String)
+signal database_loaded(database: AbstractDatabase, path: String)
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-const DatabaseLoader: GDScript = preload("res://scripts/database_loader.gd")
+const DatabaseStorageManager: GDScript = preload("res://scripts/database_storage_manager.gd")
 
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
-func _init(database: Dictionary[StringName, Variant]) -> void:
+func _init(database: AbstractDatabase) -> void:
 	_database = database
 
 	self.set_title("Open Database")
@@ -30,11 +29,11 @@ func _init(database: Dictionary[StringName, Variant]) -> void:
 
 
 func get_support_file_extension() -> PackedStringArray:
-	return DatabaseLoader.get_support_file_extension()
+	return DatabaseStorageManager.get_support_file_extension()
 
 
 func _on_file_selected(path: String) -> void:
-	var database: Dictionary[StringName, Variant] = DatabaseLoader.load_database(path)
+	var database: AbstractDatabase = DatabaseStorageManager.load_database(path)
 	database_loaded.emit(database, path)
 
 	queue_free()

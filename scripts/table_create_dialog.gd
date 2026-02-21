@@ -7,9 +7,6 @@ extends ConfirmationDialog
 signal table_created
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
-
 var _vbox: VBoxContainer = null
 
 var _id_hbox: VBoxContainer = null
@@ -20,10 +17,10 @@ var _description_vbox: VBoxContainer = null
 var _description_label: Label = null
 var _description_edit: TextEdit = null
 
-var _database: Dictionary[StringName, Variant] = DB.NULL_DATABASE
+var _database: AbstractDatabase = null
 
 
-func _init(database: Dictionary[StringName, Variant]) -> void:
+func _init(database: AbstractDatabase) -> void:
 	_database = database
 
 	self.set_title("Create Table")
@@ -73,10 +70,10 @@ func _init(database: Dictionary[StringName, Variant]) -> void:
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DB.is_valid_id(id)
+	return id.is_valid_ascii_identifier()
 
-func has_table(id: StringName) -> bool:
-	return DB.database_has_table_id(_database, id)
+func has_table(table_name: StringName) -> bool:
+	return _database.has_table(table_name)
 
 
 func _on_line_edit_id_changed(id: StringName) -> void:
@@ -84,11 +81,14 @@ func _on_line_edit_id_changed(id: StringName) -> void:
 
 
 func _on_confirmed() -> void:
-	var id: StringName = _id_edit.get_text()
+	var table_name: StringName = _id_edit.get_text()
 	var description: String = _description_edit.get_text()
 
-	# A valid table is not `read-only`.
-	if DB.database_create_table(_database, id, description).is_read_only():
+	var table: AbstractTable = DatabaseFactory.create_table(table_name)
+	if not is_instance_valid(table):
 		return
+
+	table.set_description(description)
+	_database.add_table(table)
 
 	table_created.emit()

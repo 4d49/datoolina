@@ -4,8 +4,6 @@
 extends VBoxContainer
 
 
-const DB: GDScript = preload("res://scripts/database.gd")
-
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
@@ -13,7 +11,7 @@ const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
 signal table_modified
-signal table_changed(table: Dictionary[StringName, Variant])
+signal table_changed(table: AbstractTable)
 
 
 enum RowContextMenu {
@@ -33,7 +31,7 @@ var _record_delete_dialog: RecordDeleteDialog = null
 var _record_rename_dialog: RecordRenameDialog = null
 var _records_delete_dialog: RecordsDeleteDialog = null
 
-var _table: Dictionary[StringName, Variant] = DB.NULL_TABLE
+var _table: AbstractTable = null
 
 
 func _init() -> void:
@@ -80,60 +78,69 @@ func get_table_view() -> TableView:
 
 
 func update_table() -> void:
-	var columns: Array[Dictionary] = _table.columns
-	_table_view.set_column_count(columns.size() + 1)
+	# Check table validity
+	if not is_instance_valid(_table):
+		return
 
-	_table_view.set_column_title(0, "ID")
-	_table_view.set_column_type(0, TableView.Type.STRING_NAME, TableView.hint_none(), str, Callable())
-	_table_view.set_column_comparator(0, TableView.default_comparator(TableView.Type.STRING_NAME, TableView.hint_none()))
+	# Get table schema and columns
+	var columns: Array[AbstractColumn] = _table.get_columns()
+	_table_view.set_column_count(columns.size())
 
-	for i: int in range(1, columns.size() + 1):
-		var column: Dictionary = columns[i - 1]
+	# Setup columns
+	for i: int in columns.size():
+		var column: AbstractColumn = columns[i]
 		_table_view.set_column_metadata(i, column)
+		_table_view.set_column_title(i, column.get_name())
+		_table_view.set_column_tooltip(i, column.get_description())
 
-		_table_view.set_column_title(i, column.id)
-		_table_view.set_column_tooltip(i, column.description)
+		# FIXME: need to properly implement type hint creation for TableView.
+#		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
+#		_table_view.set_column_type(i, column.type, hint)
+#		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
+		_table_view.set_column_type(i, column.get_built_in_type() as int)
 
-		var hint: Dictionary = TypeHintUtils.table_view_hint(column.hint, column.hint_string)
-		_table_view.set_column_type(i, column.type, hint)
-		_table_view.set_column_comparator(i, TableView.default_comparator(column.type, hint))
-
-	var records: Array[Dictionary] = _table.records
+	# Get table records
+	var records: Array[AbstractRecord] = _table.get_records()
 	_table_view.set_row_count(records.size())
 
+	# Get column names information
+	var column_names: Array[StringName] = _table.get_column_names()
+
+	# Populate row data
 	for i: int in records.size():
-		var record: Dictionary = records[i]
-		_table_view.set_cell_value_no_signal(i, 0, record.id)
+		var record: AbstractRecord = records[i]
 		_table_view.set_row_metadata(i, record)
 
-		for j: int in range(1, columns.size() + 1):
-			_table_view.set_cell_value_no_signal(i, j, record[columns[j - 1][&"id"]])
+		for j: int in column_names.size():
+			_table_view.set_cell_value_no_signal(i, j, record.get_value(column_names[j]))
 
+	# Update table display
 	_table_view.update_table()
 	_table_view.emit_signal(&"table_changed")
 
 
-func set_table(table: Dictionary[StringName, Variant]) -> void:
+func set_table(table: AbstractTable) -> void:
 	if is_same(table, _table):
 		return
 
 	_table = table
-	_record_id.set_editable(not table.is_read_only() or not table.is_empty())
+	_record_id.set_editable(is_instance_valid(table))
 
 	update_table()
 
-func get_table() -> Dictionary[StringName, Variant]:
+func get_table() -> AbstractTable:
 	return _table
 
 
 func is_valid_id(id: StringName) -> bool:
-	return DB.is_valid_id(id)
+	return id.is_valid_ascii_identifier()
+
 
 func has_record_id(id: StringName) -> bool:
-	return DB.table_has_record_id(_table, id)
+	return _table.has_record(id)
 
 
-func show_record_rename_dialog(record: Dictionary) -> void:
+func show_record_rename_dialog(record: AbstractRecord) -> void:
 	if is_instance_valid(_record_rename_dialog):
 		_record_rename_dialog.queue_free()
 
@@ -147,7 +154,7 @@ func show_record_rename_dialog(record: Dictionary) -> void:
 	_record_rename_dialog.popup_centered(Vector2i(300, 50))
 
 
-func show_record_delete_dialog(record: Dictionary, row_idx: int) -> void:
+func show_record_delete_dialog(record: AbstractRecord, row_idx: int) -> void:
 	if is_instance_valid(_record_delete_dialog):
 		_record_delete_dialog.queue_free()
 
@@ -160,7 +167,7 @@ func show_record_delete_dialog(record: Dictionary, row_idx: int) -> void:
 
 	_record_delete_dialog.popup_centered(Vector2i(300, 50))
 
-func show_records_delete_dialog(records: Array[Dictionary], selected_rows: PackedInt32Array) -> RecordsDeleteDialog:
+func show_records_delete_dialog(records: Array[AbstractRecord], selected_rows: PackedInt32Array) -> RecordsDeleteDialog:
 	if is_instance_valid(_records_delete_dialog):
 		_records_delete_dialog.queue_free()
 
@@ -186,13 +193,18 @@ func _on_filter_line_text_changed(text: String) -> void:
 	_table_view.filter_rows_by_callable(0, callable)
 	_table_view.emit_signal(&"table_changed")
 
+
 func _on_record_id_text_changed(id: StringName) -> void:
 	_create_btn.set_disabled(not is_valid_id(id) or has_record_id(id))
 
+
 func _on_create_pressed() -> void:
-	if not DB.table_create_record(_table, _record_id.get_text()).is_read_only():
-		table_modified.emit()
-		update_table()
+	var id: StringName = _record_id.get_text()
+	var record: AbstractRecord = DatabaseFactory.create_record(id, _table)
+	_table.add_record(record)
+
+	table_modified.emit()
+	update_table()
 
 	_create_btn.set_disabled(true)
 
@@ -204,8 +216,8 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		return
 
 	elif selected_row.size() == 1:
-		var record: Dictionary = _table_view.get_row_metadata(row_idx)
-		if record.is_read_only():
+		var record: AbstractRecord = _table_view.get_row_metadata(row_idx) as AbstractRecord
+		if not is_instance_valid(record):
 			return
 
 		var popup := PopupMenu.new()
@@ -224,7 +236,7 @@ func _on_row_rmb_clicked(row_idx: int) -> void:
 		popup.popup(Rect2i(get_screen_transform() * get_local_mouse_position(), Vector2i.ZERO))
 
 	else:
-		var records: Array[Dictionary] = []
+		var records: Array[AbstractRecord] = []
 		records.resize(selected_row.size())
 
 		for i: int in selected_row.size():
