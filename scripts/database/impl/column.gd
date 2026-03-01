@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Mansur Isaev and contributors - MIT License
+# Copyright (c) 2024-2026 Mansur Isaev and contributors - MIT License
 
 # Concrete implementation of a database column.
 # Stores column metadata including name, data type, default value, and constraints.

@@ -7,7 +7,7 @@ This program is in an early development stage and may contain bugs or limited fe
 ![](https://github.com/user-attachments/assets/e54e0474-0e23-42c7-b0f1-ab458b0a7c2e)
 
 # License
-Copyright (c) 2024 Mansur Isaev and contributors
+Copyright (c) 2024-2026 Mansur Isaev and contributors
 
 Unless otherwise specified, files in this repository are licensed under the
 MIT license. See [LICENSE.md](LICENSE.md) for more information.

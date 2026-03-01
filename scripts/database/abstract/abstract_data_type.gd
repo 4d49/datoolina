@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Mansur Isaev and contributors - MIT License
+# Copyright (c) 2024-2026 Mansur Isaev and contributors - MIT License
 # See `LICENSE.md` included in the source distribution for details.
 
 ## Abstract base class defining the interface for data types in the database system.
