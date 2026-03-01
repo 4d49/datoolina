@@ -39,8 +39,7 @@ func _init(table: AbstractTable, records: Array[AbstractRecord]) -> void:
 	var root: TreeItem = _tree.create_item()
 	for record: AbstractRecord in records:
 		var item: TreeItem = root.create_child()
-		# FIXME: Нуждается в рефакторинге
-		item.set_text(0, "FIXME")
+		item.set_text(0, record.get_id())
 
 	_vbox.add_child(_tree)
 
