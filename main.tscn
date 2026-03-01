@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://df4urr7ph38yc" path="res://main.gd" id="1_ig7tw"]
 
-[node name="Control" type="PanelContainer" unique_id=154128689]
+[node name="Main" type="PanelContainer" unique_id=154128689]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
