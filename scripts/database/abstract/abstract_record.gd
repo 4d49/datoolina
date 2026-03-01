@@ -53,3 +53,12 @@ extends RefCounted
 ## Returns true if all values are valid and consistent with the record's constraints, false otherwise.
 ## This method uses the schema to validate against column constraints.
 @abstract func validate() -> bool
+
+## Clears all data and internal structures of this record.
+## This method provides a way to reset the record state, clearing all values
+## and references to the associated table. It serves as a cleanup mechanism that allows for
+## guaranteed memory deallocation in concrete implementations.
+## The behavior is similar to the built-in `free` method, but with the guarantee
+## that internal structures will be properly cleared and memory will be released
+## in concrete implementations after this method is called.
+@abstract func clear() -> void

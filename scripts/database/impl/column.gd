@@ -9,9 +9,7 @@ extends AbstractColumn
 var _name: StringName = &""
 var _description: String = ""
 
-# The data type definition for this column
 var _data_type: AbstractDataType = null
-# The default value for this column (can be null if no default is set)
 var _default_value: Variant = null
 
 
@@ -60,3 +58,8 @@ func set_default(default_value: Variant) -> void:
 
 func get_built_in_type() -> Variant.Type:
 	return _data_type.get_built_in_type()
+
+
+func clear() -> void:
+	_data_type = null
+	_default_value = null

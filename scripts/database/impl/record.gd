@@ -65,3 +65,8 @@ func validate() -> bool:
 #			return false
 
 	return true
+
+
+func clear() -> void:
+	_table = null
+	_values.clear()

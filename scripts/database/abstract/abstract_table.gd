@@ -94,3 +94,12 @@ extends RefCounted
 ## Returns an array of all records in the table.
 ## The returned array is NOT GUARANTEED to be modifiable.
 @abstract func get_records() -> Array[AbstractRecord]
+
+## Clears all data and internal structures of this table.
+## This method provides a way to reset the table state, clearing all columns
+## and their associated records. It serves as a cleanup mechanism that allows for
+## guaranteed memory deallocation in concrete implementations.
+## The behavior is similar to the built-in `free` method, but with the guarantee
+## that internal structures will be properly cleared and memory will be released
+## in concrete implementations after this method is called.
+@abstract func clear() -> void

@@ -48,3 +48,13 @@ extends RefCounted
 
 ## Returns the built-in variant type (e.g., Variant.Type.STRING, Variant.Type.INT)
 @abstract func get_built_in_type() -> Variant.Type
+
+
+## Clears all data and internal structures of this column.
+## This method provides a way to reset the column state, clearing all references
+## to data type and default value. It serves as a cleanup mechanism that allows for
+## guaranteed memory deallocation in concrete implementations.
+## The behavior is similar to the built-in `free` method, but with the guarantee
+## that internal structures will be properly cleared and memory will be released
+## in concrete implementations after this method is called.
+@abstract func clear() -> void

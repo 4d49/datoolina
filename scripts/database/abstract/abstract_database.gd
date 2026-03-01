@@ -11,6 +11,7 @@
 class_name AbstractDatabase
 extends RefCounted
 
+
 ## Sets the name for this database.
 ## The name is used to identify the database instance.
 @abstract func set_name(name: StringName) -> void
@@ -51,3 +52,12 @@ extends RefCounted
 
 ## Returns an array of all table names in the database.
 @abstract func get_table_names() -> Array[StringName]
+
+## Clears all data and internal structures of this database.
+## This method provides a way to reset the database state, clearing all tables
+## and their associated data. It serves as a cleanup mechanism that allows for
+## guaranteed memory deallocation in concrete implementations.
+## The behavior is similar to the built-in `free` method, but with the guarantee
+## that internal structures will be properly cleared and memory will be released
+## in concrete implementations after this method is called.
+@abstract func clear() -> void

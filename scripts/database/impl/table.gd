@@ -172,3 +172,17 @@ func get_records() -> Array[AbstractRecord]:
 		_records.make_read_only()
 
 	return _records
+
+
+func clear() -> void:
+	for column: AbstractColumn in get_columns():
+		column.clear()
+
+	_columns = []
+	_column_map.clear()
+
+	for record: AbstractRecord in get_records():
+		record.clear()
+
+	_records = []
+	_record_map.clear()

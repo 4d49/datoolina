@@ -76,3 +76,11 @@ func get_tables() -> Array[AbstractTable]:
 
 func get_table_names() -> Array[StringName]:
 	return _table_map.keys()
+
+
+func clear() -> void:
+	for table: AbstractTable in get_tables():
+		table.clear()
+
+	_tables = []
+	_table_map.clear()
