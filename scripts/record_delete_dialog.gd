@@ -28,4 +28,5 @@ func _init(table: AbstractTable, record: AbstractRecord) -> void:
 
 func _on_confirmed() -> void:
 	if _table.remove_record(_record):
+		_record.clear()
 		record_deleted.emit()

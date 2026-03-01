@@ -155,6 +155,9 @@ func set_database(database: AbstractDatabase) -> void:
 	if is_same(_database, database):
 		return
 
+	if is_instance_valid(_database):
+		_database.clear()
+
 	_database = database
 	database_changed.emit(database)
 

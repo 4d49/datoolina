@@ -27,6 +27,7 @@ func _init(database: AbstractDatabase, table: AbstractTable) -> void:
 
 func _on_confirmed() -> void:
 	if _database.remove_table(_table.get_name()):
+		_table.clear()
 		table_deleted.emit()
 
 func _on_visibility_changed() -> void:

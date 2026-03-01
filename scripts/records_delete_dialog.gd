@@ -50,6 +50,7 @@ func _init(table: AbstractTable, records: Array[AbstractRecord]) -> void:
 
 func _on_confirmed() -> void:
 	for record: AbstractRecord in _records:
-		_table.remove_record(record)
+		if _table.remove_record(record):
+			record.clear()
 
 	records_deleted.emit()
