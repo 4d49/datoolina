@@ -20,6 +20,10 @@ run/low_processor_mode=true
 boot_splash/bg_color=Color(0.113725, 0.133333, 0.160784, 1)
 config/icon="res://icon.svg"
 
+[audio]
+
+driver/driver="Dummy"
+
 [compression]
 
 formats/zstd/long_distance_matching=true
@@ -40,11 +44,21 @@ window/size/viewport_height=540
 window/energy_saving/keep_screen_on=false
 window/subwindows/embed_subwindows=false
 
+[filesystem]
+
+import/fbx2gltf/enabled=false
+import/blender/enabled=false
+import/fbx/enabled=false
+
 [gui]
 
 theme/custom="res://default_theme.tres"
 
+[physics]
+
+2d/physics_engine="Dummy"
+3d/physics_engine="Dummy"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
