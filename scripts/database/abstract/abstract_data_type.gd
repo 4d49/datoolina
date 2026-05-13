@@ -33,6 +33,8 @@ enum Hint {
 ## For example, returns Variant.Type.INT for integer types, Variant.Type.STRING for strings, etc.
 @abstract func get_built_in_type() -> Variant.Type
 
+@abstract func get_type_hint() -> Hint
+
 ## Returns a human-readable name for this data type.
 ## This is useful for debugging, error messages, and user interfaces.
 @abstract func get_type_name() -> StringName
