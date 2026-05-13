@@ -209,7 +209,7 @@ func show_edit_table_dialog(table: AbstractTable) -> void:
 	table_editor.set_transient_to_focused(true)
 
 
-func show_table_export_dialog(table: Dictionary[StringName, Variant]) -> void:
+func show_table_export_dialog(table: AbstractTable) -> void:
 	if is_instance_valid(_table_export_dialog):
 		_table_export_dialog.queue_free()
 
