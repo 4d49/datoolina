@@ -11,6 +11,14 @@
 class_name AbstractDataType
 extends RefCounted
 
+
+enum Hint {
+	NONE = PROPERTY_HINT_NONE,
+	RANGE = PROPERTY_HINT_RANGE,
+	ENUM = PROPERTY_HINT_ENUM,
+}
+
+
 ## Validates if a given value conforms to the constraints of this data type.
 ## Returns true if the value is valid according to the type's rules (e.g., correct type, range, format), false otherwise.
 ## see get_default() for default value constraints
