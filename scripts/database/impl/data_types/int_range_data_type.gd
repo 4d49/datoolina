@@ -13,15 +13,15 @@ var _min_value: int = MIN_VALUE
 var _max_value: int = MAX_VALUE
 
 
-func set_min(min: Variant) -> void:
-	_min_value = min
+func set_min(value: Variant) -> void:
+	_min_value = maxi(value, MIN_VALUE)
 
 func get_min() -> int:
 	return _min_value
 
 
-func set_max(max: Variant) -> void:
-	_max_value = max
+func set_max(value: Variant) -> void:
+	_max_value = mini(value, MAX_VALUE)
 
 func get_max() -> int:
 	return _max_value

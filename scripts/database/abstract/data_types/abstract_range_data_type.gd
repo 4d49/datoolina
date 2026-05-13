@@ -12,12 +12,12 @@ class_name AbstractRangeDataType
 extends AbstractDataType
 
 
-@abstract func set_min(min: Variant) -> void
+@abstract func set_min(value: Variant) -> void
 
 @abstract func get_min() -> Variant
 
 
-@abstract func set_max(max: Variant) -> void
+@abstract func set_max(value: Variant) -> void
 
 @abstract func get_max() -> Variant
 
