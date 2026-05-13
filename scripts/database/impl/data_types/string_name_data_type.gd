@@ -16,5 +16,9 @@ func get_built_in_type() -> Variant.Type:
 	return TYPE_STRING_NAME
 
 
+func get_type_hint() -> Hint:
+	return Hint.NONE
+
+
 func get_type_name() -> StringName:
-	return &"StringName"
+	return &"string_name"
