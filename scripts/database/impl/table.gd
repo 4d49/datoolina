@@ -69,7 +69,7 @@ func erase_column(column_name: StringName) -> bool:
 	if _columns:
 		_columns = []
 
-	return false
+	return true
 
 
 func remove_column(column: AbstractColumn) -> bool:
