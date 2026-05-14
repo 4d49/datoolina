@@ -26,7 +26,7 @@ func validate(value: Variant) -> bool:
 	return _option_map.has(value)
 
 
-func get_default() -> Variant:
+func get_default() -> int:
 	return _default
 
 
