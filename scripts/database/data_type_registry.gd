@@ -17,6 +17,7 @@ static var _registry: Dictionary[StringName, Callable] = {}
 
 static func _static_init() -> void:
 	register(&"bool",          load("impl/data_types/bool_data_type.gd").new)
+	register(&"color",         load("impl/data_types/color_data_type.gd").new)
 	register(&"float",         load("impl/data_types/float_data_type.gd").new)
 	register(&"float_range",   load("impl/data_types/float_range_data_type.gd").new)
 	register(&"int",           load("impl/data_types/int_data_type.gd").new)
