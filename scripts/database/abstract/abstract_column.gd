@@ -34,6 +34,9 @@ extends RefCounted
 ## Returns the data type of this column (e.g., BoolDataType, StringDataType)
 @abstract func get_data_type() -> AbstractDataType
 
+## Returns the string name of the column's data type.
+func get_data_type_name() -> StringName:
+	return get_data_type().get_type_name()
 
 ## Validates a value against this column's data type and constraints
 @abstract func validate(value: Variant) -> bool
