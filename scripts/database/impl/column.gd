@@ -56,10 +56,6 @@ func set_default(default_value: Variant) -> void:
 	_default_value = default_value
 
 
-func get_built_in_type() -> Variant.Type:
-	return _data_type.get_built_in_type()
-
-
 func clear() -> void:
 	_data_type = null
 	_default_value = null

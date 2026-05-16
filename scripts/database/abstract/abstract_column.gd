@@ -34,6 +34,11 @@ extends RefCounted
 ## Returns the data type of this column (e.g., BoolDataType, StringDataType)
 @abstract func get_data_type() -> AbstractDataType
 
+
+## Returns the built-in variant type (e.g., Variant.Type.STRING, Variant.Type.INT)
+func get_built_in_type() -> Variant.Type:
+	return get_data_type().get_built_in_type()
+
 ## Returns the string name of the column's data type.
 func get_data_type_name() -> StringName:
 	return get_data_type().get_type_name()
@@ -47,10 +52,6 @@ func get_data_type_name() -> StringName:
 
 ## Returns the default value for this column
 @abstract func get_default() -> Variant
-
-
-## Returns the built-in variant type (e.g., Variant.Type.STRING, Variant.Type.INT)
-@abstract func get_built_in_type() -> Variant.Type
 
 
 ## Clears all data and internal structures of this column.
