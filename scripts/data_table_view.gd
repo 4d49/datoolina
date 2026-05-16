@@ -7,7 +7,6 @@ extends VBoxContainer
 const RecordDeleteDialog: GDScript = preload("res://scripts/record_delete_dialog.gd")
 const RecordRenameDialog: GDScript = preload("res://scripts/record_rename_dialog.gd")
 const RecordsDeleteDialog: GDScript = preload("res://scripts/records_delete_dialog.gd")
-const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
 signal table_modified

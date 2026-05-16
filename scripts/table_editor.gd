@@ -6,7 +6,6 @@ extends VBoxContainer
 
 const ColumnRemoveDialog: GDScript = preload("res://scripts/column_remove_dialog.gd")
 const ColumnRenameDialog: GDScript = preload("res://scripts/column_rename_dialog.gd")
-const TypeHintUtils: GDScript = preload("res://scripts/type_hint_utils.gd")
 
 
 enum ColumnContextMenu {
