@@ -53,14 +53,14 @@ static func create_record(id: StringName, table: AbstractTable) -> AbstractRecor
 ## Returns a new AbstractDataType instance.
 ## Warning: This is a simplified implementation. You may want to expand this
 ## with more data type factories based on your specific needs.
-static func create_data_type(type: Variant.Type) -> AbstractDataType:
-	return _instance.create_data_type(type)
+static func create_data_type(type: StringName, config: Dictionary = {}) -> AbstractDataType:
+	return _instance.create_data_type(type, config)
 
 ## Creates a table and adds it to the database.
 ## The table will be created with the provided name and schema.
 ## Returns the newly created AbstractTable instance if successful, null otherwise.
 static func create_table(name: StringName) -> AbstractTable:
-	var id_type: AbstractDataType = create_data_type(TYPE_STRING_NAME)
+	var id_type: AbstractDataType = create_data_type(&"string_name")
 	var id_column: AbstractColumn = create_column(&"id", id_type)
 
 	var table: AbstractTable = _instance.create_table(name)

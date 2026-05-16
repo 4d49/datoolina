@@ -23,7 +23,7 @@ extends RefCounted
 @abstract func create_record(table: AbstractTable) -> AbstractRecord
 
 ## Creates a new AbstractDataType instance of the specified type.
-@abstract func create_data_type(type: Variant.Type) -> AbstractDataType
+@abstract func create_data_type(type: StringName, config: Dictionary) -> AbstractDataType
 
 ## Creates a new table and adds it to the database.
 @abstract func create_table(name: StringName) -> AbstractTable

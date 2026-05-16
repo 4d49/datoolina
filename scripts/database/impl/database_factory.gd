@@ -26,30 +26,8 @@ func create_record(table: AbstractTable) -> AbstractRecord:
 	return Record.new(table)
 
 
-func create_data_type(type: Variant.Type) -> AbstractDataType:
-	const BoolType: GDScript = preload("data_types/bool_data_type.gd")
-	const FloatType: GDScript = preload("data_types/float_data_type.gd")
-	const IntType: GDScript = preload("data_types/int_data_type.gd")
-	const StringType: GDScript = preload("data_types/string_data_type.gd")
-	const StringNameType: GDScript = preload("data_types/string_name_data_type.gd")
-
-	var data_type: AbstractDataType = null
-
-	match type:
-		TYPE_BOOL:
-			data_type = BoolType.new()
-		TYPE_INT:
-			data_type = IntType.new()
-		TYPE_FLOAT:
-			data_type = FloatType.new()
-		TYPE_STRING:
-			data_type = StringType.new()
-		TYPE_STRING_NAME:
-			data_type = StringNameType.new()
-		_:
-			push_error("%s type is not supported!" % type_string(type))
-
-	return data_type
+func create_data_type(type: StringName, config: Dictionary) -> AbstractDataType:
+	return DataTypeRegistry.create(type, config)
 
 
 func create_table(name: StringName) -> AbstractTable:
