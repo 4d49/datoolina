@@ -103,3 +103,26 @@ extends RefCounted
 ## that internal structures will be properly cleared and memory will be released
 ## in concrete implementations after this method is called.
 @abstract func clear() -> void
+
+
+
+
+## Checks if a column can be renamed from the old name to the new name.
+## Returns true if the old column exists and the new name is not already taken.
+func can_rename_column(old_name: StringName, new_name: StringName) -> bool:
+	return has_column(old_name) and not has_column(new_name)
+
+## Renames a column in the table schema and updates all existing records.
+## This operation migrates data from the old column name to the new one in every record.
+## Throws an assertion error if the rename is invalid.
+func rename_column(old_name: StringName, new_name: StringName) -> void:
+	var column: AbstractColumn = find_column(old_name)
+	assert(is_instance_valid(column), "Column `%s` not found!" % old_name)
+	assert(not has_column(new_name), "Column `%s` already exists!" % new_name)
+
+	column.set_name(new_name)
+
+	for record: AbstractRecord in get_records():
+		var value: Variant = record.get_value(old_name)
+		record.erase_value(old_name)
+		record.insert_value(new_name, value)
