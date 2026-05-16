@@ -106,6 +106,8 @@ func has_column_id(id: StringName) -> bool:
 static func create_edit_buffer(
 		id: StringName,
 		type: int,
+		type: Variant.Type,
+		type_name: StringName,
 		value: Variant,
 		hint: int = PROPERTY_HINT_NONE,
 		hint_string: String = "",
@@ -117,6 +119,8 @@ static func create_edit_buffer(
 		&"type": type,
 		&"value": value,
 		&"hint": hint,
+		&"value": value,
+		&"type_name": type_name,
 		&"hint_string": hint_string,
 		&"description": description,
 		&"flag": FLAG_NONE,
@@ -126,6 +130,7 @@ static func create_edit_buffer_from_column(column: AbstractColumn) -> Dictionary
 	return create_edit_buffer(
 		column.get_name(),
 		column.get_built_in_type(),
+		column.get_data_type_name(),
 		column.get_default(),
 		PROPERTY_HINT_NONE, # FIXME: В будущем потребуется пересмотр.
 		"", # FIXME: В будущем возможно будет полностью удалено.
@@ -277,6 +282,7 @@ func _on_column_id_changed(column_id: StringName) -> void:
 
 func _on_create_column_pressed() -> void:
 	var buffer: Dictionary[StringName, Variant] = create_edit_buffer(_column_id.get_text(), TYPE_BOOL, false)
+	var buffer: Dictionary[StringName, Variant] = create_edit_buffer(_column_id.get_text(), TYPE_BOOL, &"bool", false)
 	buffer.flag = FLAG_CREATED
 
 	_edit_buffer.push_back(buffer)
