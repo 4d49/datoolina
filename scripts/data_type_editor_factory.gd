@@ -4,8 +4,12 @@ class_name DataTypeEditorFactory
 extends Object
 
 
+const BoolDataTypeEditor:   GDScript = preload("data_type_editors/bool_data_type_editor.gd")
 static var _registry: Array[Dictionary] = []
 
+
+static func _static_init() -> void:
+	register(BoolDataTypeEditor.can_handle,   BoolDataTypeEditor.new)
 static func register(predicate: Callable, constructor: Callable) -> void:
 	var entry: Dictionary[StringName, Variant] = {
 		&"predicate": predicate,
