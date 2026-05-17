@@ -5,11 +5,15 @@ extends Object
 
 
 const BoolDataTypeEditor:   GDScript = preload("data_type_editors/bool_data_type_editor.gd")
+const NumberDataTypeEditor: GDScript = preload("data_type_editors/number_data_type_editor.gd")
 static var _registry: Array[Dictionary] = []
 
 
 static func _static_init() -> void:
 	register(BoolDataTypeEditor.can_handle,   BoolDataTypeEditor.new)
+	register(NumberDataTypeEditor.can_handle, NumberDataTypeEditor.new)
+
+
 static func register(predicate: Callable, constructor: Callable) -> void:
 	var entry: Dictionary[StringName, Variant] = {
 		&"predicate": predicate,
