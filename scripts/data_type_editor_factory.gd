@@ -6,10 +6,14 @@ extends Object
 
 const BoolDataTypeEditor:   GDScript = preload("data_type_editors/bool_data_type_editor.gd")
 const NumberDataTypeEditor: GDScript = preload("data_type_editors/number_data_type_editor.gd")
+const StringDataTypeEditor: GDScript = preload("data_type_editors/string_data_type_editor.gd")
+
+
 static var _registry: Array[Dictionary] = []
 
 
 static func _static_init() -> void:
+	register(StringDataTypeEditor.can_handle, StringDataTypeEditor.new)
 	register(BoolDataTypeEditor.can_handle,   BoolDataTypeEditor.new)
 	register(NumberDataTypeEditor.can_handle, NumberDataTypeEditor.new)
 
