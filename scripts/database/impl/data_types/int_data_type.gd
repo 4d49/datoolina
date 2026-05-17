@@ -4,12 +4,19 @@
 extends AbstractDataType
 
 
+var _default: int = 0
+
+
 func validate(value: Variant) -> bool:
 	return value is int or value is float
 
 
+func set_default(value: Variant) -> void:
+	if validate(value):
+		_default = value
+
 func get_default() -> int:
-	return 0
+	return _default
 
 
 func get_built_in_type() -> Variant.Type:

@@ -8,6 +8,7 @@ const MIN_VALUE: float = -3.4028235e+38
 const MAX_VALUE: float =  3.4028235e+38
 
 
+var _default: float = 0.0
 var _min_value: float = MIN_VALUE
 var _max_value: float = MAX_VALUE
 
@@ -33,8 +34,12 @@ func validate(value: Variant) -> bool:
 	return false
 
 
+func set_default(value: Variant) -> void:
+	if validate(value):
+		_default = value
+
 func get_default() -> float:
-	return 0.0
+	return _default
 
 
 func get_built_in_type() -> Variant.Type:

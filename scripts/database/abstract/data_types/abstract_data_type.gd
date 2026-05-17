@@ -25,6 +25,10 @@ enum Hint {
 ## see get_built_in_type() to check expected type
 @abstract func validate(value: Variant) -> bool
 
+## Sets the default value for this data type.
+## Implementations should ideally validate the value using [method validate] before applying it.
+@abstract func set_default(value: Variant) -> void
+
 ## Returns the default value for this data type.
 ## This is the value that should be used when no explicit value is provided.
 @abstract func get_default() -> Variant

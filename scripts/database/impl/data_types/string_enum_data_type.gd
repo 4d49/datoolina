@@ -7,7 +7,7 @@ extends AbstractEnumDataType
 var _options: Dictionary[StringName, StringName]
 var _option_map: Dictionary[StringName, StringName]
 
-var _default: StringName
+var _default: StringName = &""
 
 
 func get_options() -> Dictionary[StringName, StringName]:
@@ -25,6 +25,10 @@ func validate(value: Variant) -> bool:
 
 	return _option_map.has(value)
 
+
+func set_default(value: Variant) -> void:
+	if validate(value):
+		_default = value
 
 func get_default() -> StringName:
 	return _default
