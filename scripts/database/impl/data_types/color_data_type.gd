@@ -4,12 +4,19 @@
 extends AbstractDataType
 
 
+var _default: Color = Color.BLACK
+
+
 func validate(value: Variant) -> bool:
 	return value is Color
 
 
+func set_default(value: Variant) -> void:
+	if validate(value):
+		_default = value
+
 func get_default() -> Color:
-	return Color.BLACK
+	return _default
 
 
 func get_built_in_type() -> Variant.Type:

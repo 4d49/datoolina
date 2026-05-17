@@ -4,12 +4,19 @@
 extends AbstractDataType
 
 
+var _default: StringName = &""
+
+
 func validate(value: Variant) -> bool:
 	return value is StringName or value is String
 
 
+func set_default(value: Variant) -> void:
+	if validate(value):
+		_default = value
+
 func get_default() -> StringName:
-	return &""
+	return _default
 
 
 func get_built_in_type() -> Variant.Type:

@@ -9,6 +9,7 @@ const MIN_VALUE: int = -0x80000000
 const MAX_VALUE: int =  0x7FFFFFFF
 
 
+var _default: int = 0
 var _min_value: int = MIN_VALUE
 var _max_value: int = MAX_VALUE
 
@@ -34,8 +35,12 @@ func validate(value: Variant) -> bool:
 	return false
 
 
+func set_default(value: Variant) -> void:
+	if validate(value):
+		_default = value
+
 func get_default() -> int:
-	return 0
+	return _default
 
 
 func get_built_in_type() -> Variant.Type:
